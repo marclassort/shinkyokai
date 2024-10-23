@@ -5,18 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cf3fce7-0788-458d-a6a6-98b12c800d20" name="Changes" comment="Commit all files SKK.">
-      <change afterPath="$PROJECT_DIR$/templates/arts-culturels/calligraphie.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-culturels/origami.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-culturels/sumi-e.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/home/zasshi.html.twig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/RouteController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/arts-culturels.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/arts-culturels.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/contact.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/contact.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/evenements.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/evenements.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/inscription-sumie.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-sumie.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/politique-de-confidentialite.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/politique-de-confidentialite.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/sumi-e.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/sumi-e.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -303,7 +293,7 @@
       <workItem from="1728630369539" duration="602000" />
       <workItem from="1729150991741" duration="2086000" />
       <workItem from="1729177713869" duration="598000" />
-      <workItem from="1729679268926" duration="2441000" />
+      <workItem from="1729679268926" duration="2651000" />
     </task>
     <task id="LOCAL-00001" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -465,7 +455,15 @@
       <option name="project" value="LOCAL" />
       <updated>1728560300192</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1729685149807</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1729685149807</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -334,11 +334,6 @@
 				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
 					<h2 class="display-4 mb-3 text-center">S'inscrire à l'atelier découverte</h2>
 					
-					<!-- Flash message de succès -->
-					<div id="flash-message" class="alert alert-success text-center" style="display:none;">
-						Votre message a été envoyé avec succès !
-					</div>
-					
 					<p class="lead text-center mb-10">Vous souhaitez vous inscrire et participer au prochain atelier ?
 						Envoyez-nous un message à l'aide de ce formulaire. L'inscription est gratuite !</p>
 					
@@ -381,8 +376,8 @@
 						</div>
 						<div class="col-12">
 							<div class="form-floating mb-4">
-								<textarea id="form_message" name="message" class="form-control" placeholder="Votre message" style="height: 150px" required></textarea>
-								<label for="form_message">Message *</label>
+								<textarea id="form_message" name="message" class="form-control" placeholder="Votre message" style="height: 150px"></textarea>
+								<label for="form_message">Message</label>
 								<div class="valid-feedback"> C'est bon ! </div>
 								<div class="invalid-feedback"> Veuillez entrer votre message. </div>
 							</div>
@@ -396,6 +391,23 @@
 			</div>
 		</div>
 	</section>
+	
+	<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Message envoyé avec succès</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body alert alert-success text-center">
+					Merci pour votre inscription ! Nous vous contacterons bientôt pour vous répondre.
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	
 	<!-- Script AJAX -->
 	<script>
@@ -424,7 +436,8 @@
                 .then(response => {
                     if (response.success) {
                         // Afficher le message flash de succès
-                        document.getElementById('flash-message').style.display = 'block';
+                        let successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        successModal.show();
                     } else {
                         alert('Erreur lors de l\'envoi du message.');
                     }
