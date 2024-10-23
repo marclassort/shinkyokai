@@ -24,7 +24,7 @@ readonly class HelloAssoOrderService
      */
     public function getOrders($accessToken): array
     {
-        $response = $this->client->request('GET', 'https://api.helloasso.com/v5/organizations/sna-societe-napoleonienne-d-aix-en-provence/orders', [
+        $response = $this->client->request('GET', 'https://api.helloasso.com/v5/organizations/shinkyokai-academie-d-arts-martiaux/orders', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $accessToken,
             ],

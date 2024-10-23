@@ -29,19 +29,14 @@ class CreateUserCommand extends Command
             ->setDescription("Creates a new user.")
             ->addArgument("email", InputArgument::REQUIRED, "The email of the user.")
             ->addArgument("password", InputArgument::REQUIRED, "The password of the user.")
-            ->addOption(
-                "admin",
-                null,
-                InputOption::VALUE_NONE,
-                "If set, the user will be created as an admin"
-            );
+            ->addArgument("admin", InputArgument::OPTIONAL, "If set, the user will be created as an admin");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $email = $input->getArgument("email");
         $password = $input->getArgument("password");
-        $isAdmin = $input->getOption("admin");
+        $isAdmin = $input->getArgument("admin");
 
         // Crée une instance de l'utilisateur
         $user = new User();
