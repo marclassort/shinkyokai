@@ -51,10 +51,41 @@ class RouteController extends AbstractController
         return $this->render("home/arts-martiaux.html.twig");
     }
 
-    #[Route("/arts-culturels", name: "app_arts_culturels")]
+    #[Route("/arts-culturels", name: "app_arts_culturels_route")]
+    public function getArtsCulturelsRoute(): Response
+    {
+        return $this->redirectToRoute("app_arts_culturels");
+    }
+
+    #[Route("/arts-culturels/tous", name: "app_arts_culturels")]
     public function getArtsCulturels(): Response
     {
-        return $this->render("home/arts-culturels.html.twig");
+        return $this->render("arts-culturels/arts-culturels.html.twig");
+    }
+
+    #[Route("/arts-culturels/sumi-e", name: "app_arts_culturels_sumie")]
+    public function getSumie(SessionInterface $session): Response
+    {
+        $items = $this->cartService->getCartItems($session);
+        $total = $this->cartService->getTotal($session);
+
+        return $this->render("arts-culturels/sumi-e.html.twig", [
+            "items" => $items,
+            "total" => $total,
+            'stripe_public_key' => $this->getParameter('stripe_public_key')
+        ]);
+    }
+
+    #[Route("/arts-culturels/origami", name: "app_arts_culturels_origami")]
+    public function getOrigami(): Response
+    {
+        return $this->render("arts-culturels/origami.html.twig");
+    }
+
+    #[Route("/arts-culturels/calligraphie", name: "app_arts_culturels_calligraphie")]
+    public function getCalligraphie(): Response
+    {
+        return $this->render("arts-culturels/calligraphie.html.twig");
     }
 
     #[Route("/vertus", name: "app_vertus")]
@@ -595,30 +626,10 @@ class RouteController extends AbstractController
         ]);
     }
 
-    #[Route("/inscription-arts-culturels", name: "app_inscription_arts_culturels")]
-    public function getInscriptionArtsCulturels(SessionInterface $session): Response
-    {
-        $items = $this->cartService->getCartItems($session);
-        $total = $this->cartService->getTotal($session);
-
-        return $this->render("home/inscription-arts-culturels.html.twig", [
-            "items" => $items,
-            "total" => $total,
-            'stripe_public_key' => $this->getParameter('stripe_public_key')
-        ]);
-    }
-
     #[Route("/inscription-decouverte-sumi-e", name: "app_inscription_decouverte_sumie")]
-    public function getInscriptionSumie(SessionInterface $session): Response
+    public function getInscriptionSumie(): Response
     {
-        $items = $this->cartService->getCartItems($session);
-        $total = $this->cartService->getTotal($session);
-
-        return $this->render("home/inscription-sumie.html.twig", [
-            "items" => $items,
-            "total" => $total,
-            'stripe_public_key' => $this->getParameter('stripe_public_key')
-        ]);
+        return $this->redirectToRoute("app_arts_culturels_sumie");
     }
 
     #[Route("/filter/products", name: "filter_products_by_price", methods: ["GET"])]
@@ -662,7 +673,7 @@ class RouteController extends AbstractController
             $data = json_decode($request->getContent(), true);
 
             $emailService->sendContactEmail(
-                'shinkyokai.academie@gmail.com',
+                'contact@shinkyokai.com',
                 'Inscription atelier découverte - 16 octobre',
                 $data
             );
@@ -686,7 +697,7 @@ class RouteController extends AbstractController
             $data = json_decode($request->getContent(), true);
 
             $emailService->sendContactEmail(
-                'shinkyokai.academie@gmail.com',
+                'contact@shinkyokai.com',
                 'Nouveau message de contact',
                 $data
             );
@@ -701,6 +712,12 @@ class RouteController extends AbstractController
     public function getPrivacyPolicy(): Response
     {
         return $this->render("home/politique-de-confidentialite.html.twig");
+    }
+
+    #[Route("/zasshi", name: "app_zasshi")]
+    public function getZasshi(): Response
+    {
+        return $this->render("home/zasshi.html.twig");
     }
 
     #[Route('//la-caverne-secrete/logout', name: 'app_logout', methods: ['GET'])]

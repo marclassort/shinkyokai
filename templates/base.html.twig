@@ -7,12 +7,23 @@
     <meta name="description" content="Le site de Shinkyokai, une Académie d'arts martiaux et culturels liés au Japon.">
     <meta name="keywords" content="shinkyokai arts martiaux culturels japon karate karate-do budo judo">
     <meta name="author" content="Marc Lassort">
-    <title>{% block title %}Shinkyokaï - {% endblock %}</title>
+    <title>{% block title %}{% endblock %} • Shinkyokaï</title>
+    <!-- OpenGraph Metadata -->
+    <meta property="og:title" content="Shinkyokaï - Académie d'arts martiaux et culturels" />
+    <meta property="og:description" content="Le site web de Shinkyokai, une Académie d'arts martiaux et culturels
+    liés au Japon, où vous trouverez toutes nos activités, nos événements, et où vous avez la possibilité de vous
+    inscrire." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ app.request.uri }}" />
+    <meta property="og:image" content="https://shinkyokai.com/img/YinYang-NBR-845x684.jpeg" />
+{#    <meta property="og:image:width" content="1200" />#}
+{#    <meta property="og:image:height" content="630" />#}
+    <!-- Favicon -->
     <link rel="shortcut icon" href="/img/LOGO-SHIN-KYO-NOIR-TR.png">
-    <link rel="stylesheet" href="./assets/css/plugins.css">
-    <link rel="stylesheet" href="./assets/css/style.css">
-    <link rel="preload" href="./assets/css/fonts/thicccboi.css" as="style" onload="this.rel='stylesheet'">
-    <link rel="stylesheet" href="./assets/css/colors/red.css">
+    <link rel="stylesheet" href="/assets/css/plugins.css">
+    <link rel="stylesheet" href="/assets/css/style.css">
+    <link rel="preload" href="/assets/css/fonts/thicccboi.css" as="style" onload="this.rel='stylesheet'">
+    <link rel="stylesheet" href="/assets/css/colors/red.css">
 </head>
 
 <body>
@@ -58,8 +69,43 @@
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ path('app_arts_martiaux') }}">Arts martiaux</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_arts_culturels') }}">Arts culturels</a>
+                                    <li class="dropdown dropdown-submenu dropend">
+                                        <a class="dropdown-item dropdown-toggle" data-bs-toggle="dropdown">Arts culturels
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li class="nav-item">
+                                                <a
+                                                        class="dropdown-item"
+                                                        href="{{ path('app_arts_culturels') }}"
+                                                >
+                                                    Arts culturels
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a
+                                                        class="dropdown-item"
+                                                        href="{{ path('app_arts_culturels_sumie') }}"
+                                                >
+                                                    Sumi-e / Kintsugi / Gyotaku
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a
+                                                        class="dropdown-item"
+                                                        href="{{ path('app_arts_culturels_origami') }}"
+                                                >
+                                                    Origami
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a
+                                                        class="dropdown-item"
+                                                        href="{{ path('app_arts_culturels_calligraphie') }}"
+                                                >
+                                                    Calligraphie
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ path('app_vertus') }}">Nos vertus</a>
@@ -92,14 +138,9 @@
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ path('app_inscription_individuelle') }}">Individuelle</a>
                                     </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_inscription_arts_culturels') }}">Arts culturels</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_inscription_decouverte_sumie') }}">Découverte Sumi-e</a>
-                                    </li>
                                 </ul>
                             </li>
+                            <a class="nav-link" href="{{ path('app_zasshi') }}">Zasshi</a>
                         </ul>
                         <div class="offcanvas-footer d-lg-none">
                             <div>
@@ -155,7 +196,7 @@
                 <div class="widget">
                     <h4 class="widget-title text-white mb-3">Nous contacter</h4>
 {#                    <address class="pe-xl-15 pe-xxl-17">ShinkyokaÏ </address>#}
-                    <a href="mailto:shinkyokai.academie@gmail.com">shinkyokai.academie@gmail.com</a><br />
+                    <a href="mailto:contact@shinkyokai.com">contact@shinkyokai.com</a><br />
                     <a href="tel:+33611193652">06 11 19 36 52</a>
                 </div>
             </div>
@@ -186,8 +227,8 @@
         <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
     </svg>
 </div>
-<script src="./assets/js/plugins.js"></script>
-<script src="./assets/js/theme.js"></script>
+<script src="/assets/js/plugins.js"></script>
+<script src="/assets/js/theme.js"></script>
 </body>
 
 </html>

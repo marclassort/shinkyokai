@@ -1,0 +1,439 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+	{{ parent() }}
+	Découverte Sumi-e
+{% endblock %}
+
+{% block nav_class %}
+	transparent navbar-dark navbar-bg-dark
+{% endblock %}
+
+{% block body %}
+	
+	<section class="wrapper image-wrapper bg-image bg-overlay bg-overlay-400 text-white bg-dark">
+		<div class="container pt-17 pb-20 pt-md-19 pb-md-21 text-center">
+			<div class="row">
+				<div class="col-lg-8 mx-auto">
+					<h1 class="display-1 mb-3 text-white">Atelier découverte Sumi-e / Kintsugi / Gyotaku</h1>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<section class="wrapper bg-light angled upper-end">
+		<div class="container pb-11">
+			<div class="row mb-14 mb-md-16">
+				<div class="col-xl-10 mx-auto mt-n19">
+					<div class="card">
+						<div class="row gx-0">
+							<div class="col-lg-12">
+								<img
+										class="logo-light"
+										src="/img/activites-giorgi.png"
+										srcset="/img/activites-giorgi.png"
+										alt="activites sumi-e"
+										style="width: 100%;"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row mt-12">
+				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+					<h2 class="display-4 mb-3 text-center">Horaires Sumi-e</h2>
+					
+					<div class="accordion accordion-wrapper" id="accordionExample">
+{#						<div class="card accordion-item">#}
+{#							<div class="card-header" id="headingOne">#}
+{#								<button#}
+{#										class="accordion-button"#}
+{#										data-bs-toggle="collapse"#}
+{#										data-bs-target="#collapseOne"#}
+{#										aria-expanded="true"#}
+{#										aria-controls="collapseOne">Octobre#}
+{#								</button>#}
+{#							</div>#}
+{#							<div#}
+{#									id="collapseOne"#}
+{#									class="accordion-collapse collapse show"#}
+{#									aria-labelledby="headingOne"#}
+{#									data-bs-parent="#accordionExample"#}
+{#							>#}
+{#								<div class="card-body">#}
+{#									<ul>#}
+{#										<li>5/10 à 10h00</li>#}
+{#										<li>9/10 à 10h00</li>#}
+{#										<li>12/10 à 10h00</li>#}
+{#										<li>16/10 à 10h00</li>#}
+{#									</ul>#}
+{#								</div>#}
+{#							</div>#}
+{#						</div>#}
+						<div class="card accordion-item">
+							<div class="card-header" id="headingTwo">
+								<button
+										class="collapsed"
+										data-bs-toggle="collapse"
+										data-bs-target="#collapseTwo"
+										aria-expanded="false"
+										aria-controls="collapseTwo">Novembre
+								</button>
+							</div>
+							<div
+									id="collapseTwo"
+									class="accordion-collapse collapse"
+									aria-labelledby="headingTwo"
+									data-bs-parent="#accordionExample"
+							>
+								<div class="card-body">
+									<ul>
+										<li>6/11 à 10h00</li>
+										<li>13/11 à 10h00</li>
+										<li>16/11 à 10h00</li>
+										<li>20/11 à 10h00</li>
+										<li>23/11 à 10h00</li>
+										<li>30/11 à 10h00</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="card accordion-item">
+							<div class="card-header" id="headingThree">
+								<button
+										class="collapsed"
+										data-bs-toggle="collapse"
+										data-bs-target="#collapseThree"
+										aria-expanded="false"
+										aria-controls="collapseThree">Décembre
+								</button>
+							</div>
+							<div
+									id="collapseThree"
+									class="accordion-collapse collapse"
+									aria-labelledby="headingThree"
+									data-bs-parent="#accordionExample"
+							>
+								<div class="card-body">
+									<ul>
+										<li>4/12 à 10h00</li>
+										<li>14/12 à 10h00</li>
+										<li>18/12 à 10h00</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row mt-12">
+				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+					<h2 class="display-4 mb-3 text-center">Horaires Kintsugi (réparation avec l'or)</h2>
+					
+					<div class="accordion accordion-wrapper" id="accordionExample">
+{#						<div class="card accordion-item">#}
+{#							<div class="card-header" id="headingOne">#}
+{#								<button#}
+{#										class="accordion-button"#}
+{#										data-bs-toggle="collapse"#}
+{#										data-bs-target="#collapseOne"#}
+{#										aria-expanded="true"#}
+{#										aria-controls="collapseOne">Septembre#}
+{#								</button>#}
+{#							</div>#}
+{#							<div#}
+{#									id="collapseOne"#}
+{#									class="accordion-collapse collapse show"#}
+{#									aria-labelledby="headingOne"#}
+{#									data-bs-parent="#accordionExample"#}
+{#							>#}
+{#								<div class="card-body">#}
+{#									<ul>#}
+{#										<li>14/09 à 15h00</li>#}
+{#									</ul>#}
+{#								</div>#}
+{#							</div>#}
+{#						</div>#}
+{#						<div class="card accordion-item">#}
+{#							<div class="card-header" id="headingTwo">#}
+{#								<button#}
+{#										class="collapsed"#}
+{#										data-bs-toggle="collapse"#}
+{#										data-bs-target="#collapseTwo"#}
+{#										aria-expanded="false"#}
+{#										aria-controls="collapseTwo">Octobre#}
+{#								</button>#}
+{#							</div>#}
+{#							<div#}
+{#									id="collapseTwo"#}
+{#									class="accordion-collapse collapse"#}
+{#									aria-labelledby="headingTwo"#}
+{#									data-bs-parent="#accordionExample"#}
+{#							>#}
+{#								<div class="card-body">#}
+{#									<ul>#}
+{#										<li>12/10 à 15h00</li>#}
+{#									</ul>#}
+{#								</div>#}
+{#							</div>#}
+{#						</div>#}
+						<div class="card accordion-item">
+							<div class="card-header" id="headingThree">
+								<button
+										class="collapsed"
+										data-bs-toggle="collapse"
+										data-bs-target="#collapseThree"
+										aria-expanded="false"
+										aria-controls="collapseThree">Novembre
+								</button>
+							</div>
+							<div
+									id="collapseThree"
+									class="accordion-collapse collapse"
+									aria-labelledby="headingThree"
+									data-bs-parent="#accordionExample"
+							>
+								<div class="card-body">
+									<ul>
+										<li>16/11 à 15h00</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row mt-12">
+				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+					<h2 class="display-4 mb-3 text-center">Horaires Gyotaku (empreinte de poisson)</h2>
+					
+					<div class="accordion accordion-wrapper" id="accordionExample">
+{#						<div class="card accordion-item">#}
+{#							<div class="card-header" id="headingFour">#}
+{#								<button#}
+{#										class="accordion-button"#}
+{#										data-bs-toggle="collapse"#}
+{#										data-bs-target="#collapseFour"#}
+{#										aria-expanded="true"#}
+{#										aria-controls="collapseFour">Octobre#}
+{#								</button>#}
+{#							</div>#}
+{#							<div#}
+{#									id="collapseFour"#}
+{#									class="accordion-collapse collapse show"#}
+{#									aria-labelledby="headingFour"#}
+{#									data-bs-parent="#accordionExample"#}
+{#							>#}
+{#								<div class="card-body">#}
+{#									<ul>#}
+{#										<li>05/10 à 15h00</li>#}
+{#									</ul>#}
+{#								</div>#}
+{#							</div>#}
+{#						</div>#}
+						<div class="card accordion-item">
+							<div class="card-header" id="headingFive">
+								<button
+										class="collapsed"
+										data-bs-toggle="collapse"
+										data-bs-target="#collapseFive"
+										aria-expanded="false"
+										aria-controls="collapseFive">Novembre
+								</button>
+							</div>
+							<div
+									id="collapseFive"
+									class="accordion-collapse collapse"
+									aria-labelledby="headingFive"
+									data-bs-parent="#accordionExample"
+							>
+								<div class="card-body">
+									<ul>
+										<li>6/11 à 10h00</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="card accordion-item">
+							<div class="card-header" id="headingSix">
+								<button
+										class="collapsed"
+										data-bs-toggle="collapse"
+										data-bs-target="#collapseSix"
+										aria-expanded="false"
+										aria-controls="collapseSix">Décembre
+								</button>
+							</div>
+							<div
+									id="collapseSix"
+									class="accordion-collapse collapse"
+									aria-labelledby="headingSix"
+									data-bs-parent="#accordionExample"
+							>
+								<div class="card-body">
+									<ul>
+										<li>11/12 à 10h00</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row mb-14 mb-md-16">
+				<div class="col-xl-10 mx-auto mt-15">
+					<div class="card">
+						<div class="row gx-0">
+							<div class="col-lg-6 align-self-stretch">
+								<div class="map map-full rounded-top rounded-lg-start">
+									<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5333.557798102193!2d5.4501504758849215!3d43.52784047110839!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12c98dbe16822563%3A0xd82c5ea6b8185463!2s12%20Rue%20de%20la%20C%C3%A9p%C3%A8de%2C%2013100%20Aix-en-Provence!5e1!3m2!1sfr!2sfr!4v1728336969058!5m2!1sfr!2sfr" style="width:100%; height: 100%; border:0" allowfullscreen></iframe>
+								</div>
+							</div>
+							<div class="col-lg-6">
+								<div class="p-10 p-md-11 p-lg-14">
+									<div class="d-flex flex-row">
+										<div>
+											<div class="icon text-primary fs-28 me-4 mt-n1"> <i class="uil uil-location-pin-alt"></i> </div>
+										</div>
+										<div class="align-self-start justify-content-start">
+											<h5 class="mb-1">Adresse</h5>
+											<address>12, rue de la Cépède, 13100 Aix-en-Provence, France</address>
+										</div>
+									</div>
+									<div class="d-flex flex-row">
+										<div>
+											<div class="icon text-primary fs-28 me-4 mt-n1"> <i class="uil uil-phone-volume"></i> </div>
+										</div>
+										<div>
+											<h5 class="mb-1">Téléphone</h5>
+											<p><a href="tel:+33610202140">06 10 20 21 40</a></p>
+											<p><a href="tel:+33652721956">06 52 72 19 56</a></p>
+										</div>
+									</div>
+									<div class="d-flex flex-row">
+										<div>
+											<div class="icon text-primary fs-28 me-4 mt-n1"> <i class="uil uil-envelope"></i> </div>
+										</div>
+										<div>
+											<h5 class="mb-1">Adresse électronique</h5>
+											<p class="mb-0"><a href="mailto:contact@shinkyokai.com" class="link-body">contact@shinkyokai.com</a></p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="row mt-12">
+				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+					<h2 class="display-4 mb-3 text-center">S'inscrire à l'atelier découverte</h2>
+					
+					<!-- Flash message de succès -->
+					<div id="flash-message" class="alert alert-success text-center" style="display:none;">
+						Votre message a été envoyé avec succès !
+					</div>
+					
+					<p class="lead text-center mb-10">Vous souhaitez vous inscrire et participer au prochain atelier ?
+						Envoyez-nous un message à l'aide de ce formulaire. L'inscription est gratuite !</p>
+					
+					<div class="row gx-4">
+						<div class="col-md-6">
+							<div class="form-floating mb-4">
+								<input id="form_name" type="text" name="name" class="form-control" placeholder="Jean" required>
+								<label for="form_name">Prénom *</label>
+								<div class="valid-feedback"> C'est bon ! </div>
+								<div class="invalid-feedback"> Veuillez entrer votre prénom. </div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-floating mb-4">
+								<input id="form_lastname" type="text" name="surname" class="form-control" placeholder="Durand" required>
+								<label for="form_lastname">Nom de famille *</label>
+								<div class="valid-feedback"> C'est bon ! </div>
+								<div class="invalid-feedback"> Veuillez entrer votre nom de famille. </div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-floating mb-4">
+								<input id="form_email" type="email" name="email" class="form-control" placeholder="jean.durand@exemple.fr" required>
+								<label for="form_email">Email *</label>
+								<div class="valid-feedback"> C'est bon ! </div>
+								<div class="invalid-feedback"> Veuillez entrer une adresse électronique valide.  </div>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-select-wrapper mb-4">
+								<select class="form-select" id="form-select" name="department" required>
+									<option disabled value="">Sélectionner un sujet.</option>
+									<option value="sumie" selected>Inscription Sumi-e</option>
+									<option value="kintsugi">Inscription Kintsugi</option>
+									<option value="gyotaku">Inscription Gyotaku</option>
+								</select>
+								<div class="valid-feedback"> C'est bon ! </div>
+								<div class="invalid-feedback"> Veuillez sélectionner une région. </div>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="form-floating mb-4">
+								<textarea id="form_message" name="message" class="form-control" placeholder="Votre message" style="height: 150px" required></textarea>
+								<label for="form_message">Message *</label>
+								<div class="valid-feedback"> C'est bon ! </div>
+								<div class="invalid-feedback"> Veuillez entrer votre message. </div>
+							</div>
+						</div>
+						<div class="col-12 text-center">
+							<button id="submit-btn" class="btn btn-primary rounded-pill btn-send mb-3">Envoyer le message</button>
+							<p class="text-muted"><strong>*</strong> Ces champs sont requis.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<!-- Script AJAX -->
+	<script>
+        document.getElementById('submit-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            // Récupérer les valeurs des champs
+            let data = {
+                name: document.getElementById('form_name').value,
+                surname: document.getElementById('form_lastname').value,
+                email: document.getElementById('form_email').value,
+                department: document.getElementById('form-select').value,
+                message: document.getElementById('form_message').value
+            };
+
+            // Envoi des données via AJAX
+            fetch('{{ path('app_decouverte') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.success) {
+                        // Afficher le message flash de succès
+                        document.getElementById('flash-message').style.display = 'block';
+                    } else {
+                        alert('Erreur lors de l\'envoi du message.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de l\'envoi du message.');
+                });
+        });
+	</script>
+
+{% endblock %}
