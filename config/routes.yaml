@@ -5,9 +5,15 @@ controllers:
     type: attribute
 
 app_logout:
-    path: /la-caverne-secrete/logout
+    path: /logout
 
 admin:
     path: /la-caverne-secrete
     controller: App\Controller\Admin\DashboardController::index
 
+login:
+    path: /login
+    controller: App\Controller\LoginController::login
+
+login_check:
+    path: /la-caverne-secrete/login_check
