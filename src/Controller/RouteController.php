@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Order;
 use App\Entity\Product;
+use App\Repository\EventRepository;
 use App\Repository\ProductRepository;
 use App\Service\EmailService;
 use App\Service\PanierService;
@@ -29,7 +30,10 @@ use Twig\Error\SyntaxError;
 
 class RouteController extends AbstractController
 {
-    public function __construct(private readonly PanierService $cartService)
+    public function __construct(
+        private readonly PanierService $cartService,
+        private readonly EventRepository $eventRepository
+    )
     {
     }
 
@@ -103,7 +107,21 @@ class RouteController extends AbstractController
     #[Route("/evenements", name: "app_evenements")]
     public function getEvenements(): Response
     {
-        return $this->render("home/evenements.html.twig");
+        $evenements = $this->eventRepository->findBy([]);
+
+        return $this->render("home/evenements.html.twig", [
+            "events" => $evenements
+        ]);
+    }
+
+    #[Route("/evenements/{slug}", name: "app_evenement")]
+    public function getEvenement(string $slug): Response
+    {
+        $evenement = $this->eventRepository->findOneBy(["slug" => $slug]);
+
+        return $this->render("home/evenement.html.twig", [
+            "event" => $evenement
+        ]);
     }
 
     #[Route("/galerie", name: "app_galerie")]

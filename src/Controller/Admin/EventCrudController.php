@@ -7,8 +7,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Form\Type\FileUploadType;
 
 class EventCrudController extends AbstractCrudController
 {
@@ -29,10 +33,19 @@ class EventCrudController extends AbstractCrudController
     {
         return [
             TextField::new("title", "Titre"),
+            SlugField::new('slug', 'Slug')
+                ->setTargetFieldName('title'),
             TextField::new("category", "Catégorie"),
             TextField::new("image", "Image"),
-            TextField::new("content", "Contenu"),
-            DateTimeField::new("date", "Date"),
+            ImageField::new('image', 'Image')
+                ->setBasePath('/uploads/')
+                ->setUploadDir('public/uploads/')
+                ->setUploadedFileNamePattern('[slug]-[timestamp].[extension]')
+                ->setFormType(FileUploadType::class)
+                ->setFormTypeOption('required', false)
+                ->setFormTypeOption('allow_delete', false),
+            TextEditorField::new("content", "Contenu"),
+            TextField::new("date", "Date"),
         ];
     }
 }

@@ -18,6 +18,9 @@ class Event
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
+    private ?string $slug = null;
+
+    #[ORM\Column(length: 255)]
     private ?string $category = null;
 
     #[ORM\Column(length: 255)]
@@ -42,6 +45,18 @@ class Event
     public function setTitle(string $title): static
     {
         $this->title = $title;
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
 
         return $this;
     }

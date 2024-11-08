@@ -32,8 +32,8 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section("Adhésions", "fa fa-address-card");
         yield MenuItem::linkToCrud('Clubs', 'fa fa-address-card', Club::class);
         yield MenuItem::linkToCrud('Membres', 'fa fa-user', Member::class);
-        //yield MenuItem::section("Événements", "fa fa-calendar");
-        //yield MenuItem::linkToCrud('Événements', 'fa fa-calendar', Event::class);
+        yield MenuItem::section("Événements", "fa fa-calendar");
+        yield MenuItem::linkToCrud('Événements', 'fa fa-calendar', Event::class);
         yield MenuItem::section("Boutique", "fa fa-shopping-cart");
         yield MenuItem::linkToCrud('Produits', 'fa fa-shopping-cart', Product::class);
         yield MenuItem::linkToCrud('Commandes', 'fa fa-shopping-cart', Order::class);
