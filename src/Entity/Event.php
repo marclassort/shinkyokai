@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EventRepository;
+use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -29,8 +30,8 @@ class Event
     #[ORM\Column(type: Types::TEXT)]
     private ?string $content = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $date = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?DateTimeInterface $eventDate = null;
 
     public function getId(): ?int
     {
@@ -97,14 +98,14 @@ class Event
         return $this;
     }
 
-    public function getDate(): ?string
+    public function getEventDate(): ?DateTimeInterface
     {
-        return $this->date;
+        return $this->eventDate;
     }
 
-    public function setDate(?string $date): static
+    public function setEventDate(DateTimeInterface $eventDate): static
     {
-        $this->date = $date;
+        $this->eventDate = $eventDate;
 
         return $this;
     }

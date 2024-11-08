@@ -107,7 +107,10 @@ class RouteController extends AbstractController
     #[Route("/evenements", name: "app_evenements")]
     public function getEvenements(): Response
     {
-        $evenements = $this->eventRepository->findBy([]);
+        $evenements = $this->eventRepository->findBy(
+            [],
+            ["eventDate" => "DESC"]
+        );
 
         return $this->render("home/evenements.html.twig", [
             "events" => $evenements
@@ -117,7 +120,9 @@ class RouteController extends AbstractController
     #[Route("/evenements/{slug}", name: "app_evenement")]
     public function getEvenement(string $slug): Response
     {
-        $evenement = $this->eventRepository->findOneBy(["slug" => $slug]);
+        $evenement = $this->eventRepository->findOneBy(
+            ["slug" => $slug],
+        );
 
         return $this->render("home/evenement.html.twig", [
             "event" => $evenement

@@ -6,10 +6,8 @@ use App\Entity\Event;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\FileUploadType;
@@ -26,7 +24,8 @@ class EventCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Événement')
             ->setEntityLabelInPlural('Événements')
-            ->setPageTitle(Crud::PAGE_INDEX, 'Gestion des événements');
+            ->setPageTitle(Crud::PAGE_INDEX, 'Gestion des événements')
+            ->setDefaultSort(['eventDate' => 'DESC']);
     }
 
     public function configureFields(string $pageName): iterable
@@ -36,7 +35,6 @@ class EventCrudController extends AbstractCrudController
             SlugField::new('slug', 'Slug')
                 ->setTargetFieldName('title'),
             TextField::new("category", "Catégorie"),
-            TextField::new("image", "Image"),
             ImageField::new('image', 'Image')
                 ->setBasePath('/uploads/')
                 ->setUploadDir('public/uploads/')
@@ -45,7 +43,7 @@ class EventCrudController extends AbstractCrudController
                 ->setFormTypeOption('required', false)
                 ->setFormTypeOption('allow_delete', false),
             TextEditorField::new("content", "Contenu"),
-            TextField::new("date", "Date"),
+            DateTimeField::new("eventDate", "Date de l'événement")
         ];
     }
 }
