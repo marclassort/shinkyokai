@@ -1,0 +1,231 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+	{{ parent() }}
+	Inscription arts culturels
+{% endblock %}
+
+{% block nav_class %}
+	transparent navbar-dark navbar-bg-dark
+{% endblock %}
+
+{% block body %}
+	
+	<style>
+        figure a img {
+            height: 70px !important;
+            width: 70px !important;
+            object-fit: cover;
+        }
+	</style>
+	
+	<section class="wrapper bg-light">
+		<div class="container pt-12 pt-md-14 pb-14 pb-md-16">
+			<div class="row gx-md-8 gx-xl-12 gy-12">
+				<div class="col-lg-8">
+					<h3 class="mb-4">Inscription {{ activity }}</h3>
+					<form class="needs-validation" novalidate>
+						<div class="row g-3">
+							<div class="col-sm-6">
+								<div class="form-floating">
+									<input type="text" class="form-control" id="firstName" placeholder="First name" value="" required>
+									<label for="firstName" class="form-label">Prénom</label>
+									<div class="invalid-feedback"> Un prénom valide est requis. </div>
+								</div>
+							</div>
+							<div class="col-sm-6">
+								<div class="form-floating">
+									<input type="text" class="form-control" id="lastName" placeholder="Last name" value="" required>
+									<label for="lastName" class="form-label">Nom de famille</label>
+									<div class="invalid-feedback"> Un nom de famille valide est requis. </div>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="date" class="form-control" id="birthDate" placeholder="you@example.com" required>
+									<label for="birthDate" class="form-label">Date de naissance</label>
+									<div class="invalid-feedback"> Veuillez entrer une adresse électronique valide pour des informations sur votre livraison. </div>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-select-wrapper">
+									<select class="form-select" id="sex" required>
+										<option value="">Sexe</option>
+										<option value="Masculin">Masculin</option>
+										<option value="Féminin">Féminin</option>
+									</select>
+									<div class="invalid-feedback"> Veuillez sélectionner un sexe. </div>
+								</div>
+							</div>
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="email" class="form-control" id="email" placeholder="you@example.com" required>
+									<label for="email" class="form-label">Email</label>
+									<div class="invalid-feedback"> Veuillez entrer une adresse électronique valide pour des informations sur votre livraison. </div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="col-lg-4">
+					<h3 class="mb-4">Résumé de la commande</h3>
+					<div class="shopping-cart mb-7">
+						<div class="shopping-cart-item d-flex justify-content-between mb-4">
+							<div class="d-flex flex-row d-flex align-items-center">
+								<figure class="rounded w-17">
+									<a href="#">
+										<img
+												src="/img/LOGO-SHIN-KYO-NOIR-TR.png"
+												srcset="/img/LOGO-SHIN-KYO-NOIR-TR.png"
+												alt="logo shin kyo noir"
+										/>
+									</a>
+								</figure>
+								<div class="w-100 ms-4">
+									<h3 class="post-title h6 lh-xs mb-1">
+										<a href="#" class="link-dark">Inscription individuelle
+										</a>
+									</h3>
+									<div class="small">Licence sans club</div>
+								</div>
+							</div>
+							<div class="ms-2 d-flex align-items-center">
+								<p class="price fs-sm"><span class="amount">10€</span></p>
+							</div>
+						</div>
+						{% for item in items %}
+							{% if item.product is defined %}
+								<div class="shopping-cart-item d-flex justify-content-between mb-4">
+									<div class="d-flex flex-row d-flex align-items-center">
+										<figure class="rounded w-17">
+											<a href="#">
+												<img
+														src="/uploads/{{ item.product.image }}"
+														srcset="/uploads/{{ item.product.image }}"
+														alt="image du {{ item.product.image }}"
+												/>
+											</a>
+										</figure>
+										<div class="w-100 ms-4">
+											<h3 class="post-title h6 lh-xs mb-1">
+												<a href="#" class="link-dark">{{ item.product.name }} ({{ item.quantity }})
+												</a>
+											</h3>
+											<div class="small">{{ item.product.description }}</div>
+										</div>
+									</div>
+									<div class="ms-2 d-flex align-items-center">
+										<p class="price fs-sm"><span class="amount">{{ item.product.price * item.quantity }}€</span></p>
+									</div>
+								</div>
+							{% endif %}
+						
+						{% endfor %}
+					</div>
+					<div class="table-responsive">
+						<table class="table table-order">
+							<tbody>
+							<tr>
+								<td class="ps-0"><strong class="text-dark">Total</strong></td>
+								<td class="pe-0 text-end">
+									<p class="price text-dark fw-bold">{{ total + 10 }}€</p>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+					<a href="#" id="checkout-button" class="btn btn-primary rounded w-100 mt-4">Payer</a>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<div class="modal fade" id="validationModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered modal-md">
+			<div class="modal-content text-center">
+				<div class="modal-body">
+					<button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<h3>Veuillez remplir tous les champs requis avant de procéder au paiement.</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="https://js.stripe.com/v3/"></script>
+	<script>
+        const stripe = Stripe('{{ stripe_public_key }}');
+
+        document.getElementById('checkout-button').addEventListener('click', function (event) {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+                validationModal.show();
+                return;
+            }
+
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                birthDate: document.getElementById('birthDate').value,
+                sex: document.getElementById('sex').value,
+                email: document.getElementById('email').value
+            };
+
+            // Ajouter les informations au panier et recalculer le total
+            fetch('{{ path('add_individual_registration_to_cart') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    registrationData: formData,
+                    price: 10
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Après ajout au panier, lancer le processus de paiement Stripe
+                        proceedToStripe(formData);
+                    } else {
+                        alert('Échec de l\'ajout de l\'inscription au panier.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+
+        function validateForm() {
+            const requiredFields = [
+                'firstName',
+                'lastName',
+                'birthDate',
+                'sex',
+                'email',
+            ];
+
+            for (let i = 0; i < requiredFields.length; i++) {
+                const field = document.getElementById(requiredFields[i]);
+                if (field.value.trim() === '') {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function proceedToStripe(formData) {
+            fetch('{{ path('create_checkout_session') }}', {
+                method: 'POST',
+                body: formData,
+            })
+                .then(response => response.json())
+                .then(session => {
+                    return stripe.redirectToCheckout({ sessionId: session.id });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+	</script>
+
+{% endblock body %}

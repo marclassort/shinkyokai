@@ -66,42 +66,43 @@
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="{{ path('app_home') }}" data-bs-toggle="dropdown">Académie</a>
                                 <ul class="dropdown-menu">
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_arts_martiaux') }}">Arts martiaux</a>
+                                    <li class="dropdown dropdown-submenu dropend">
+                                        <a class="dropdown-item dropdown-toggle" data-bs-toggle="dropdown">Arts martiaux
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ path('app_arts_martiaux_tous') }}">
+                                                    Arts martiaux
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="dropdown-item" href="{{ path('app_arts_martiaux_stages') }}">
+                                                    Stages
+                                                </a>
+                                            </li>
+                                        </ul>
                                     </li>
                                     <li class="dropdown dropdown-submenu dropend">
                                         <a class="dropdown-item dropdown-toggle" data-bs-toggle="dropdown">Arts culturels
                                         </a>
                                         <ul class="dropdown-menu">
                                             <li class="nav-item">
-                                                <a
-                                                        class="dropdown-item"
-                                                        href="{{ path('app_arts_culturels') }}"
-                                                >
+                                                <a class="dropdown-item" href="{{ path('app_arts_culturels') }}">
                                                     Arts culturels
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a
-                                                        class="dropdown-item"
-                                                        href="{{ path('app_arts_culturels_sumie') }}"
-                                                >
+                                                <a class="dropdown-item" href="{{ path('app_arts_culturels_sumie') }}">
                                                     Sumi-e / Kintsugi / Gyotaku
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a
-                                                        class="dropdown-item"
-                                                        href="{{ path('app_arts_culturels_origami') }}"
-                                                >
+                                                <a class="dropdown-item" href="{{ path('app_arts_culturels_origami') }}">
                                                     Origami
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a
-                                                        class="dropdown-item"
-                                                        href="{{ path('app_arts_culturels_calligraphie') }}"
-                                                >
+                                                <a class="dropdown-item" href="{{ path('app_arts_culturels_calligraphie') }}">
                                                     Calligraphie
                                                 </a>
                                             </li>
@@ -204,7 +205,7 @@
                 <div class="widget">
                     <h4 class="widget-title text-white mb-3">En savoir plus</h4>
                     <ul class="list-unstyled  mb-0">
-                        <li><a href="{{ path('app_arts_martiaux') }}">Arts martiaux</a></li>
+                        <li><a href="{{ path('app_arts_martiaux_tous') }}">Arts martiaux</a></li>
                         <li><a href="{{ path('app_arts_culturels') }}">Arts culturels</a></li>
                         <li><a href="{{ path('app_equipe') }}">L'équipe</a></li>
                         <li><a href="{{ path('app_politique_de_confidentialite') }}">Politique de confidentialité</a></li>

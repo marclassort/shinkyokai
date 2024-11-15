@@ -33,6 +33,9 @@ class Event
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?DateTimeInterface $eventDate = null;
 
+    #[ORM\Column]
+    private ?bool $forPublic = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -106,6 +109,18 @@ class Event
     public function setEventDate(DateTimeInterface $eventDate): static
     {
         $this->eventDate = $eventDate;
+
+        return $this;
+    }
+
+    public function isForPublic(): ?bool
+    {
+        return $this->forPublic;
+    }
+
+    public function setForPublic(bool $forPublic): static
+    {
+        $this->forPublic = $forPublic;
 
         return $this;
     }

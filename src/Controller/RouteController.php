@@ -49,10 +49,29 @@ class RouteController extends AbstractController
         return $this->render("home/ryu.html.twig");
     }
 
-    #[Route("/arts-martiaux", name: "app_arts_martiaux")]
-    public function getArtsMartiaux(): Response
+    #[Route("/arts-martiaux", name: "app_arts_martiaux_route")]
+    public function getArtsMartiauxRoute(): Response
     {
-        return $this->render("home/arts-martiaux.html.twig");
+        return $this->redirectToRoute("app_arts_martiaux_tous");
+    }
+
+    #[Route("/arts-martiaux/tous", name: "app_arts_martiaux_tous")]
+    public function getArtsMartiauxTous(): Response
+    {
+        return $this->render("arts-martiaux/arts-martiaux.html.twig");
+    }
+
+    #[Route("/arts-martiaux/stages", name: "app_arts_martiaux_stages")]
+    public function getArtsMartiauxStages(): Response
+    {
+        $evenements = $this->eventRepository->findBy(
+            ["forPublic" => false],
+            ["eventDate" => "DESC"]
+        );
+
+        return $this->render("arts-martiaux/stages.html.twig", [
+            "events" => $evenements
+        ]);
     }
 
     #[Route("/arts-culturels", name: "app_arts_culturels_route")]
@@ -65,6 +84,21 @@ class RouteController extends AbstractController
     public function getArtsCulturels(): Response
     {
         return $this->render("arts-culturels/arts-culturels.html.twig");
+    }
+
+    #[Route("/arts-culturels/inscriptions/{slug}", name: "app_arts_culturels_inscriptions")]
+    public function getArtsCulturelsInscriptions(SessionInterface $session, string $slug): Response
+    {
+        $items = $this->cartService->getCartItems($session);
+        $total = $this->cartService->getTotal($session);
+
+
+        return $this->render("arts-culturels/inscriptions.html.twig", [
+            "items" => $items,
+            "total" => $total,
+            "activity" => $slug,
+            "stripe_public_key" => $this->getParameter('stripe_public_key')
+        ]);
     }
 
     #[Route("/arts-culturels/sumi-e", name: "app_arts_culturels_sumie")]
@@ -108,7 +142,7 @@ class RouteController extends AbstractController
     public function getEvenements(): Response
     {
         $evenements = $this->eventRepository->findBy(
-            [],
+            ["forPublic" => true],
             ["eventDate" => "DESC"]
         );
 

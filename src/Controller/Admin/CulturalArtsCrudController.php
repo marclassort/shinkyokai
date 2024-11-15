@@ -13,7 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Form\Type\FileUploadType;
 
-class EventCrudController extends AbstractCrudController
+class CulturalArtsCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
@@ -23,9 +23,9 @@ class EventCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Événement')
-            ->setEntityLabelInPlural('Événements')
-            ->setPageTitle(Crud::PAGE_INDEX, 'Gestion des événements')
+            ->setEntityLabelInSingular('Atelier arts culturels')
+            ->setEntityLabelInPlural('Ateliers arts culturels')
+            ->setPageTitle(Crud::PAGE_INDEX, 'Gestion des ateliers')
             ->setDefaultSort(['eventDate' => 'DESC']);
     }
 
