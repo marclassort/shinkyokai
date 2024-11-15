@@ -32,7 +32,7 @@ class CulturalArtsCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         return [
-            TextField::new("title", "Titre"),
+            TextField::new("name", "Nom de l'atelier"),
             SlugField::new('slug', 'Slug')
                 ->setTargetFieldName('title'),
             TextField::new("category", "Catégorie"),
