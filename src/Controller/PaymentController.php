@@ -36,7 +36,7 @@ class PaymentController extends AbstractController
         $cart = $session->get('cart', []);
 
         $lineItems = [];
-
+        
         if (isset($cart['club'])) {
             $lineItems[] = [
                 'price_data' => [
@@ -100,9 +100,9 @@ class PaymentController extends AbstractController
                     'price_data' => [
                         'currency' => 'eur',
                         'product_data' => [
-                            'name' => 'Inscription arts culturels',
+                            'name' => $cart['cultural_registration']['activity'],
                         ],
-                        'unit_amount' => $item['price'] * 100, // Prix de l'inscription individuelle en centimes
+                        'unit_amount' => $cart['cultural_registration']['price'] * 100,
                     ],
                     'quantity' => 1,
                 ];
@@ -252,18 +252,21 @@ class PaymentController extends AbstractController
             $member->setSex($cart['cultural_registration']['sex']);
             $member->setEmail($cart['cultural_registration']['email']);
             $member->setCommande($order); // Lien avec la commande
-
-            // Définir un numéro de licence unique
-            $lastMember = $entityManager->getRepository(Member::class)->findOneBy([], ['id' => 'DESC']);
-            $newLicenceNumber = $this->generateUniqueLicenceNumber($lastMember);
-            $member->setLicenceNumber($newLicenceNumber);
-
             $entityManager->persist($member);
 
-            $cart["cultural_registration"]["licence"] = $member->getLicenceNumber();
+//            // Définir un numéro de licence unique
+//            $lastMember = $entityManager->getRepository(Member::class)->findOneBy([], ['id' => 'DESC']);
+//            $newLicenceNumber = $this->generateUniqueLicenceNumber($lastMember);
+//            $member->setLicenceNumber($newLicenceNumber);
+//
+//            $entityManager->persist($member);
+//
+//            $cart["cultural_registration"]["licence"] = $member->getLicenceNumber();
+//
+//            $pdfFilePath = $this->generateLicensePdf($cart["cultural_registration"], "membre-culturel");
+//            $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, [], "membre-culturel", $mailer);
 
-            $pdfFilePath = $this->generateLicensePdf($cart["cultural_registration"], "membre-culturel");
-            $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, [], "membre-culturel", $mailer);
+              $this->sendCulturalArtsEmail($member->getEmail(), [], "atelier-culturel", $mailer);
         }
 
         $order->setStatus("payee");
@@ -412,6 +415,21 @@ class PaymentController extends AbstractController
             ->htmlTemplate('emails/' . $type . '.html.twig')
             ->context($context)
             ->attachFromPath($pdfPath, 'licence.pdf');
+
+        $mailer->send($email);
+    }
+
+    /**
+     * @throws TransportExceptionInterface
+     */
+    private function sendCulturalArtsEmail($recipientEmail, $context, $type, MailerInterface $mailer): void
+    {
+        $email = (new TemplatedEmail())
+            ->from('no-reply@shinkyokai.com')
+            ->to($recipientEmail)
+            ->subject('Vous vous êtes inscrit à un atelier sur le site de Shinkyokai')
+            ->htmlTemplate('emails/' . $type . '.html.twig')
+            ->context($context);
 
         $mailer->send($email);
     }

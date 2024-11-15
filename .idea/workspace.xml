@@ -5,17 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cf3fce7-0788-458d-a6a6-98b12c800d20" name="Changes" comment="Commit all files SKK.">
-      <change afterPath="$PROJECT_DIR$/src/Controller/Admin/CulturalArtsCrudController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-culturels/inscriptions.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-martiaux/stages.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Service/GlobalVariablesService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/emails/atelier-culturel.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shinkyokai.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shinkyokai.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/packages/twig.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config/packages/twig.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/CulturalArtsCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/CulturalArtsCrudController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/DashboardController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/DashboardController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/Admin/EventCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/EventCrudController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/PaymentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/PaymentController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/RouteController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Event.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Event.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/arts-martiaux.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-martiaux/arts-martiaux.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/equipe.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/equipe.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/home.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/home.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/CulturalArts.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/CulturalArts.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/calligraphie.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/calligraphie.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/inscriptions.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/inscriptions.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/origami.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/origami.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/sumi-e.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/sumi-e.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -196,6 +204,7 @@
       <path value="$PROJECT_DIR$/vendor/dompdf/dompdf" />
       <path value="$PROJECT_DIR$/vendor/dompdf/php-svg-lib" />
       <path value="$PROJECT_DIR$/vendor/symfony/google-mailer" />
+      <path value="$PROJECT_DIR$/vendor/twig/intl-extra" />
     </include_path>
   </component>
   <component name="ProblemsViewState">
@@ -310,7 +319,7 @@
       <workItem from="1729860378722" duration="1648000" />
       <workItem from="1730031030899" duration="31000" />
       <workItem from="1731065783132" duration="7343000" />
-      <workItem from="1731677188553" duration="5461000" />
+      <workItem from="1731677188553" duration="14051000" />
     </task>
     <task id="LOCAL-00001" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -536,7 +545,23 @@
       <option name="project" value="LOCAL" />
       <updated>1731083181138</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1731683261961</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1731683261961</updated>
+    </task>
+    <task id="LOCAL-00030" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1731683318120</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1731683318120</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Club;
+use App\Entity\CulturalArts;
 use App\Entity\Event;
 use App\Entity\Member;
 use App\Entity\Order;
@@ -34,6 +35,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Membres', 'fa fa-user', Member::class);
         yield MenuItem::section("Événements", "fa fa-calendar");
         yield MenuItem::linkToCrud('Événements', 'fa fa-calendar', Event::class);
+        yield MenuItem::linkToCrud('Ateliers arts culturels', 'fa fa-palette', CulturalArts::class);
         yield MenuItem::section("Boutique", "fa fa-shopping-cart");
         yield MenuItem::linkToCrud('Produits', 'fa fa-shopping-cart', Product::class);
         yield MenuItem::linkToCrud('Commandes', 'fa fa-shopping-cart', Order::class);

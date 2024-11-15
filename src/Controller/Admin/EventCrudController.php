@@ -34,7 +34,8 @@ class EventCrudController extends AbstractCrudController
         return [
             TextField::new("title", "Titre"),
             SlugField::new('slug', 'Slug')
-                ->setTargetFieldName('title'),
+                ->setTargetFieldName('title')
+                ->hideOnIndex(),
             TextField::new("category", "Catégorie"),
             BooleanField::new("forPublic", "Pour le public"),
             ImageField::new('image', 'Image')

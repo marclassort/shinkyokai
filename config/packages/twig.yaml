@@ -1,5 +1,13 @@
 twig:
     file_name_pattern: '*.twig'
+    default_path: '%kernel.project_dir%/templates'
+    date:
+        format: 'd/m/Y'
+        interval_format: '%d days'
+        timezone: 'Europe/Paris'
+    globals:
+        locale: 'fr'
+        workshops: '@App\Service\GlobalVariablesService'
 
 when@test:
     twig:

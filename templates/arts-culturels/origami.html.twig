@@ -2,7 +2,7 @@
 
 {% block title %}
 	{{ parent() }}
-	Découverte Sumi-e
+	Découverte Origami
 {% endblock %}
 
 {% block nav_class %}
@@ -15,10 +15,120 @@
 		<div class="container pt-17 pb-20 pt-md-19 pb-md-21 text-center">
 			<div class="row">
 				<div class="col-lg-8 mx-auto">
-					<h1 class="display-1 mb-3 text-white">Atelier Origami</h1>
+					<h1 class="display-1 mb-3 text-white">Atelier découverte origami</h1>
 				</div>
 			</div>
 		</div>
 	</section>
+	
+	<section class="wrapper bg-light angled upper-end">
+		<div class="container pb-11">
+			
+			<div class="row mt-12">
+				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
+					<h2 class="display-4 mb-3 text-center">Horaires origami</h2>
+					
+					{% set origamiWorkshops = workshops.getWorkshops|filter(workshop => workshop.workshopType == 'Origami')|sort((a, b) => a.date <=> b.date) %}
+					
+					{% set groupedWorkshops = {} %}
+					
+					{% for workshop in origamiWorkshops %}
+						{% set monthYear = workshop.date|format_datetime(locale='fr', pattern="MMMM yyyy") %}
+						{% if monthYear not in groupedWorkshops %}
+							{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): [] }) %}
+						{% endif %}
+						{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): groupedWorkshops[monthYear]|merge([workshop]) }) %}
+					{% endfor %}
+					
+					<div class="accordion accordion-wrapper" id="accordionExample">
+						{% for monthYear, workshops in groupedWorkshops %}
+							<div class="card accordion-item">
+								<div class="card-header" id="heading-{{ loop.index }}">
+									<button
+											class="collapsed"
+											data-bs-toggle="collapse"
+											data-bs-target="#collapse-{{ loop.index }}"
+											aria-expanded="false"
+											aria-controls="collapse-{{ loop.index }}">
+										{{ monthYear }}
+									</button>
+								</div>
+								<div
+										id="collapse-{{ loop.index }}"
+										class="accordion-collapse collapse"
+										aria-labelledby="heading-{{ loop.index }}"
+										data-bs-parent="#accordionExample">
+									<div class="card-body">
+										<ul>
+											{% for workshop in workshops %}
+												<li><a href="/arts-culturels/inscriptions/{{ workshop.slug }}">Atelier le {{ workshop.date|date("j/m \\à H\\hi") }}</a></li>
+											{% endfor %}
+										</ul>
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Message envoyé avec succès</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body alert alert-success text-center">
+					Merci pour votre inscription ! Nous vous contacterons bientôt pour vous répondre.
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Script AJAX -->
+	<script>
+        document.getElementById('submit-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            // Récupérer les valeurs des champs
+            let data = {
+                name: document.getElementById('form_name').value,
+                surname: document.getElementById('form_lastname').value,
+                email: document.getElementById('form_email').value,
+                department: document.getElementById('form-select').value,
+                message: document.getElementById('form_message').value
+            };
+
+            // Envoi des données via AJAX
+            fetch('{{ path('app_decouverte') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(response => {
+                    if (response.success) {
+                        // Afficher le message flash de succès
+                        let successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                        successModal.show();
+                    } else {
+                        alert('Erreur lors de l\'envoi du message.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);
+                    alert('Erreur lors de l\'envoi du message.');
+                });
+        });
+	</script>
 
 {% endblock %}

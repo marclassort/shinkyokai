@@ -33,6 +33,9 @@ class CulturalArts
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $price = null;
 
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    private ?string $nonMemberPrice = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $image = null;
 
@@ -109,6 +112,18 @@ class CulturalArts
     public function setPrice(string $price): static
     {
         $this->price = $price;
+
+        return $this;
+    }
+
+    public function getNonMemberPrice(): ?string
+    {
+        return $this->nonMemberPrice;
+    }
+
+    public function setNonMemberPrice(string $nonMemberPrice): static
+    {
+        $this->nonMemberPrice = $nonMemberPrice;
 
         return $this;
     }

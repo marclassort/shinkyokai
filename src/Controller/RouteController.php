@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Order;
 use App\Entity\Product;
+use App\Repository\CulturalArtsRepository;
 use App\Repository\EventRepository;
 use App\Repository\ProductRepository;
 use App\Service\EmailService;
@@ -31,8 +32,8 @@ use Twig\Error\SyntaxError;
 class RouteController extends AbstractController
 {
     public function __construct(
-        private readonly PanierService $cartService,
-        private readonly EventRepository $eventRepository
+        private readonly PanierService   $cartService,
+        private readonly EventRepository $eventRepository, private readonly CulturalArtsRepository $culturalArtsRepository
     )
     {
     }
@@ -91,12 +92,14 @@ class RouteController extends AbstractController
     {
         $items = $this->cartService->getCartItems($session);
         $total = $this->cartService->getTotal($session);
-
+        $artsCulturels = $this->culturalArtsRepository->findOneBy(["slug" => $slug]);
+        $activity = $artsCulturels->getWorkshopType() . " " .  $artsCulturels->getName();
 
         return $this->render("arts-culturels/inscriptions.html.twig", [
             "items" => $items,
             "total" => $total,
-            "activity" => $slug,
+            "activity" => $activity,
+            "artCulturel" => $artsCulturels,
             "stripe_public_key" => $this->getParameter('stripe_public_key')
         ]);
     }
@@ -379,6 +382,49 @@ class RouteController extends AbstractController
         return new JsonResponse(['success' => true]);
     }
 
+    #[Route('/add-cultural-arts', name: 'add_cultural_arts_to_cart', methods: ['POST'])]
+    public function addCulturalArtsToCart(
+        Request $request,
+        SessionInterface $session,
+        EntityManagerInterface $entityManager
+    ): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+
+        $price = $data['price'];
+        $registrationData = $data['registrationData'];
+        $activity = $registrationData['activity'];
+
+        $session->set('cart', []);
+
+        $cart = $session->get('cart', []);
+        $cart['cultural_registration'] = [
+            'price' => $price,
+            'activity' => $activity,
+            'first_name' => $registrationData['firstName'],
+            'last_name' => $registrationData['lastName'],
+            'birth_date' => $registrationData['birthDate'],
+            'sex' => $registrationData['sex'],
+            'email' => $registrationData['email'],
+            'type' => $registrationData['type'],
+        ];
+
+        $session->set('cart', $cart);
+
+        $order = new Order();
+        $order->setOrderType($activity);
+        $order->setTotalAmount($price);
+        $order->setStatus('en-cours');
+        $order->setCreatedAt(new DateTimeImmutable("now"));
+
+        $entityManager->persist($order);
+        $entityManager->flush();
+
+        $session->set('orderId', $order->getId());
+
+        return new JsonResponse(['success' => true]);
+    }
+
     #[Route('/add-individual-registration', name: 'add_individual_registration_to_cart', methods: ['POST'])]
     public function addIndividualRegistrationToCart(
         Request $request,
@@ -391,13 +437,13 @@ class RouteController extends AbstractController
         $price = $data['price'];
         $registrationData = $data['registrationData'];
 
-        $cart = $session->get('cart', []);
-
         $firstName = $registrationData['firstName'];
         $lastName = $registrationData['lastName'];
         $birthDate = $registrationData['birthDate'];
         $sex = $registrationData['sex'];
         $email = $registrationData['email'];
+
+        $session->set('cart', []);
 
         $cart['club_individuel'] = [
             'price' => $price,

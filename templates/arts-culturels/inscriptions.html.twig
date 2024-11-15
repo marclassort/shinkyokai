@@ -63,6 +63,8 @@
 									<label for="email" class="form-label">Email</label>
 									<div class="invalid-feedback"> Veuillez entrer une adresse électronique valide pour des informations sur votre livraison. </div>
 								</div>
+								<input type="hidden" class="form-control" id="type" placeholder="you@example.com" value="{{ artCulturel.slug }}">
+							
 							</div>
 						</div>
 					</form>
@@ -83,44 +85,16 @@
 								</figure>
 								<div class="w-100 ms-4">
 									<h3 class="post-title h6 lh-xs mb-1">
-										<a href="#" class="link-dark">Inscription individuelle
+										<a href="#" class="link-dark">Inscription {{ activity }}
 										</a>
 									</h3>
-									<div class="small">Licence sans club</div>
+									<div class="small">{{ artCulturel.description }}</div>
 								</div>
 							</div>
 							<div class="ms-2 d-flex align-items-center">
-								<p class="price fs-sm"><span class="amount">10€</span></p>
+								<p class="price fs-sm"><span class="amount">{{ artCulturel.price|replace({'.': ','}) }}€</span></p>
 							</div>
 						</div>
-						{% for item in items %}
-							{% if item.product is defined %}
-								<div class="shopping-cart-item d-flex justify-content-between mb-4">
-									<div class="d-flex flex-row d-flex align-items-center">
-										<figure class="rounded w-17">
-											<a href="#">
-												<img
-														src="/uploads/{{ item.product.image }}"
-														srcset="/uploads/{{ item.product.image }}"
-														alt="image du {{ item.product.image }}"
-												/>
-											</a>
-										</figure>
-										<div class="w-100 ms-4">
-											<h3 class="post-title h6 lh-xs mb-1">
-												<a href="#" class="link-dark">{{ item.product.name }} ({{ item.quantity }})
-												</a>
-											</h3>
-											<div class="small">{{ item.product.description }}</div>
-										</div>
-									</div>
-									<div class="ms-2 d-flex align-items-center">
-										<p class="price fs-sm"><span class="amount">{{ item.product.price * item.quantity }}€</span></p>
-									</div>
-								</div>
-							{% endif %}
-						
-						{% endfor %}
 					</div>
 					<div class="table-responsive">
 						<table class="table table-order">
@@ -128,7 +102,7 @@
 							<tr>
 								<td class="ps-0"><strong class="text-dark">Total</strong></td>
 								<td class="pe-0 text-end">
-									<p class="price text-dark fw-bold">{{ total + 10 }}€</p>
+									<p class="price text-dark fw-bold">{{ artCulturel.price|replace({'.': ','}) }} €</p>
 								</td>
 							</tr>
 							</tbody>
@@ -169,11 +143,13 @@
                 lastName: document.getElementById('lastName').value,
                 birthDate: document.getElementById('birthDate').value,
                 sex: document.getElementById('sex').value,
-                email: document.getElementById('email').value
+                email: document.getElementById('email').value,
+	            type: document.getElementById('type').value,
+                activity: "{{ activity }}"
             };
 
             // Ajouter les informations au panier et recalculer le total
-            fetch('{{ path('add_individual_registration_to_cart') }}', {
+            fetch('{{ path('add_cultural_arts_to_cart') }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -181,7 +157,7 @@
                 },
                 body: JSON.stringify({
                     registrationData: formData,
-                    price: 10
+                    price: {{ artCulturel.price }}
                 })
             })
                 .then(response => response.json())

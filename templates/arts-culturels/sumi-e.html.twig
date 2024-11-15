@@ -45,86 +45,46 @@
 				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
 					<h2 class="display-4 mb-3 text-center">Horaires Sumi-e</h2>
 					
+					{% set sumiEWorkshops = workshops.getWorkshops|filter(workshop => workshop.workshopType == 'Sumi-e')|sort((a, b) => a.date <=> b.date) %}
+					
+					{% set groupedWorkshops = {} %}
+					
+					{% for workshop in sumiEWorkshops %}
+						{% set monthYear = workshop.date|format_datetime(locale='fr', pattern="MMMM yyyy") %}
+						{% if monthYear not in groupedWorkshops %}
+							{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): [] }) %}
+						{% endif %}
+						{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): groupedWorkshops[monthYear]|merge([workshop]) }) %}
+					{% endfor %}
+					
 					<div class="accordion accordion-wrapper" id="accordionExample">
-{#						<div class="card accordion-item">#}
-{#							<div class="card-header" id="headingOne">#}
-{#								<button#}
-{#										class="accordion-button"#}
-{#										data-bs-toggle="collapse"#}
-{#										data-bs-target="#collapseOne"#}
-{#										aria-expanded="true"#}
-{#										aria-controls="collapseOne">Octobre#}
-{#								</button>#}
-{#							</div>#}
-{#							<div#}
-{#									id="collapseOne"#}
-{#									class="accordion-collapse collapse show"#}
-{#									aria-labelledby="headingOne"#}
-{#									data-bs-parent="#accordionExample"#}
-{#							>#}
-{#								<div class="card-body">#}
-{#									<ul>#}
-{#										<li>5/10 à 10h00</li>#}
-{#										<li>9/10 à 10h00</li>#}
-{#										<li>12/10 à 10h00</li>#}
-{#										<li>16/10 à 10h00</li>#}
-{#									</ul>#}
-{#								</div>#}
-{#							</div>#}
-{#						</div>#}
-						<div class="card accordion-item">
-							<div class="card-header" id="headingTwo">
-								<button
-										class="collapsed"
-										data-bs-toggle="collapse"
-										data-bs-target="#collapseTwo"
-										aria-expanded="false"
-										aria-controls="collapseTwo">Novembre
-								</button>
-							</div>
-							<div
-									id="collapseTwo"
-									class="accordion-collapse collapse"
-									aria-labelledby="headingTwo"
-									data-bs-parent="#accordionExample"
-							>
-								<div class="card-body">
-									<ul>
-										<li>6/11 à 10h00</li>
-										<li>13/11 à 10h00</li>
-										<li>16/11 à 10h00</li>
-										<li>20/11 à 10h00</li>
-										<li>23/11 à 10h00</li>
-										<li>30/11 à 10h00</li>
-									</ul>
+						{% for monthYear, workshops in groupedWorkshops %}
+							<div class="card accordion-item">
+								<div class="card-header" id="heading-{{ loop.index }}">
+									<button
+											class="collapsed"
+											data-bs-toggle="collapse"
+											data-bs-target="#collapse-{{ loop.index }}"
+											aria-expanded="false"
+											aria-controls="collapse-{{ loop.index }}">
+										{{ monthYear }}
+									</button>
+								</div>
+								<div
+										id="collapse-{{ loop.index }}"
+										class="accordion-collapse collapse"
+										aria-labelledby="heading-{{ loop.index }}"
+										data-bs-parent="#accordionExample">
+									<div class="card-body">
+										<ul>
+											{% for workshop in workshops %}
+												<li><a href="/arts-culturels/inscriptions/{{ workshop.slug }}">Atelier le {{ workshop.date|date("j/m \\à H\\hi") }}</a></li>
+											{% endfor %}
+										</ul>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div class="card accordion-item">
-							<div class="card-header" id="headingThree">
-								<button
-										class="collapsed"
-										data-bs-toggle="collapse"
-										data-bs-target="#collapseThree"
-										aria-expanded="false"
-										aria-controls="collapseThree">Décembre
-								</button>
-							</div>
-							<div
-									id="collapseThree"
-									class="accordion-collapse collapse"
-									aria-labelledby="headingThree"
-									data-bs-parent="#accordionExample"
-							>
-								<div class="card-body">
-									<ul>
-										<li>4/12 à 10h00</li>
-										<li>14/12 à 10h00</li>
-										<li>18/12 à 10h00</li>
-									</ul>
-								</div>
-							</div>
-						</div>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
@@ -133,76 +93,46 @@
 				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
 					<h2 class="display-4 mb-3 text-center">Horaires Kintsugi (réparation avec l'or)</h2>
 					
+					{% set KintsugiWorkshops = workshops.getWorkshops|filter(workshop => workshop.workshopType == 'Kintsugi')|sort((a, b) => a.date <=> b.date) %}
+					
+					{% set groupedWorkshops = {} %}
+					
+					{% for workshop in KintsugiWorkshops %}
+						{% set monthYear = workshop.date|format_datetime(locale='fr', pattern="MMMM yyyy") %}
+						{% if monthYear not in groupedWorkshops %}
+							{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): [] }) %}
+						{% endif %}
+						{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): groupedWorkshops[monthYear]|merge([workshop]) }) %}
+					{% endfor %}
+					
 					<div class="accordion accordion-wrapper" id="accordionExample">
-{#						<div class="card accordion-item">#}
-{#							<div class="card-header" id="headingOne">#}
-{#								<button#}
-{#										class="accordion-button"#}
-{#										data-bs-toggle="collapse"#}
-{#										data-bs-target="#collapseOne"#}
-{#										aria-expanded="true"#}
-{#										aria-controls="collapseOne">Septembre#}
-{#								</button>#}
-{#							</div>#}
-{#							<div#}
-{#									id="collapseOne"#}
-{#									class="accordion-collapse collapse show"#}
-{#									aria-labelledby="headingOne"#}
-{#									data-bs-parent="#accordionExample"#}
-{#							>#}
-{#								<div class="card-body">#}
-{#									<ul>#}
-{#										<li>14/09 à 15h00</li>#}
-{#									</ul>#}
-{#								</div>#}
-{#							</div>#}
-{#						</div>#}
-{#						<div class="card accordion-item">#}
-{#							<div class="card-header" id="headingTwo">#}
-{#								<button#}
-{#										class="collapsed"#}
-{#										data-bs-toggle="collapse"#}
-{#										data-bs-target="#collapseTwo"#}
-{#										aria-expanded="false"#}
-{#										aria-controls="collapseTwo">Octobre#}
-{#								</button>#}
-{#							</div>#}
-{#							<div#}
-{#									id="collapseTwo"#}
-{#									class="accordion-collapse collapse"#}
-{#									aria-labelledby="headingTwo"#}
-{#									data-bs-parent="#accordionExample"#}
-{#							>#}
-{#								<div class="card-body">#}
-{#									<ul>#}
-{#										<li>12/10 à 15h00</li>#}
-{#									</ul>#}
-{#								</div>#}
-{#							</div>#}
-{#						</div>#}
-						<div class="card accordion-item">
-							<div class="card-header" id="headingThree">
-								<button
-										class="collapsed"
-										data-bs-toggle="collapse"
-										data-bs-target="#collapseThree"
-										aria-expanded="false"
-										aria-controls="collapseThree">Novembre
-								</button>
-							</div>
-							<div
-									id="collapseThree"
-									class="accordion-collapse collapse"
-									aria-labelledby="headingThree"
-									data-bs-parent="#accordionExample"
-							>
-								<div class="card-body">
-									<ul>
-										<li>16/11 à 15h00</li>
-									</ul>
+						{% for monthYear, workshops in groupedWorkshops %}
+							<div class="card accordion-item">
+								<div class="card-header" id="heading-{{ loop.index }}">
+									<button
+											class="collapsed"
+											data-bs-toggle="collapse"
+											data-bs-target="#collapse-{{ loop.index }}"
+											aria-expanded="false"
+											aria-controls="collapse-{{ loop.index }}">
+										{{ monthYear }}
+									</button>
+								</div>
+								<div
+										id="collapse-{{ loop.index }}"
+										class="accordion-collapse collapse"
+										aria-labelledby="heading-{{ loop.index }}"
+										data-bs-parent="#accordionExample">
+									<div class="card-body">
+										<ul>
+											{% for workshop in workshops %}
+												<li>{{ workshop.date|date("j/m à H:i") }}</li>
+											{% endfor %}
+										</ul>
+									</div>
 								</div>
 							</div>
-						</div>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
@@ -210,76 +140,46 @@
 				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
 					<h2 class="display-4 mb-3 text-center">Horaires Gyotaku (empreinte de poisson)</h2>
 					
+					{% set GyotakuWorkshops = workshops.getWorkshops|filter(workshop => workshop.workshopType == 'Gyotaku')|sort((a, b) => a.date <=> b.date) %}
+					
+					{% set groupedWorkshops = {} %}
+					
+					{% for workshop in GyotakuWorkshops %}
+						{% set monthYear = workshop.date|format_datetime(locale='fr', pattern="MMMM yyyy") %}
+						{% if monthYear not in groupedWorkshops %}
+							{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): [] }) %}
+						{% endif %}
+						{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): groupedWorkshops[monthYear]|merge([workshop]) }) %}
+					{% endfor %}
+					
 					<div class="accordion accordion-wrapper" id="accordionExample">
-{#						<div class="card accordion-item">#}
-{#							<div class="card-header" id="headingFour">#}
-{#								<button#}
-{#										class="accordion-button"#}
-{#										data-bs-toggle="collapse"#}
-{#										data-bs-target="#collapseFour"#}
-{#										aria-expanded="true"#}
-{#										aria-controls="collapseFour">Octobre#}
-{#								</button>#}
-{#							</div>#}
-{#							<div#}
-{#									id="collapseFour"#}
-{#									class="accordion-collapse collapse show"#}
-{#									aria-labelledby="headingFour"#}
-{#									data-bs-parent="#accordionExample"#}
-{#							>#}
-{#								<div class="card-body">#}
-{#									<ul>#}
-{#										<li>05/10 à 15h00</li>#}
-{#									</ul>#}
-{#								</div>#}
-{#							</div>#}
-{#						</div>#}
-						<div class="card accordion-item">
-							<div class="card-header" id="headingFive">
-								<button
-										class="collapsed"
-										data-bs-toggle="collapse"
-										data-bs-target="#collapseFive"
-										aria-expanded="false"
-										aria-controls="collapseFive">Novembre
-								</button>
-							</div>
-							<div
-									id="collapseFive"
-									class="accordion-collapse collapse"
-									aria-labelledby="headingFive"
-									data-bs-parent="#accordionExample"
-							>
-								<div class="card-body">
-									<ul>
-										<li>6/11 à 10h00</li>
-									</ul>
+						{% for monthYear, workshops in groupedWorkshops %}
+							<div class="card accordion-item">
+								<div class="card-header" id="heading-{{ loop.index }}">
+									<button
+											class="collapsed"
+											data-bs-toggle="collapse"
+											data-bs-target="#collapse-{{ loop.index }}"
+											aria-expanded="false"
+											aria-controls="collapse-{{ loop.index }}">
+										{{ monthYear }}
+									</button>
+								</div>
+								<div
+										id="collapse-{{ loop.index }}"
+										class="accordion-collapse collapse"
+										aria-labelledby="heading-{{ loop.index }}"
+										data-bs-parent="#accordionExample">
+									<div class="card-body">
+										<ul>
+											{% for workshop in workshops %}
+												<li>{{ workshop.date|date("j/m à H:i") }}</li>
+											{% endfor %}
+										</ul>
+									</div>
 								</div>
 							</div>
-						</div>
-						<div class="card accordion-item">
-							<div class="card-header" id="headingSix">
-								<button
-										class="collapsed"
-										data-bs-toggle="collapse"
-										data-bs-target="#collapseSix"
-										aria-expanded="false"
-										aria-controls="collapseSix">Décembre
-								</button>
-							</div>
-							<div
-									id="collapseSix"
-									class="accordion-collapse collapse"
-									aria-labelledby="headingSix"
-									data-bs-parent="#accordionExample"
-							>
-								<div class="card-body">
-									<ul>
-										<li>11/12 à 10h00</li>
-									</ul>
-								</div>
-							</div>
-						</div>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
@@ -330,65 +230,65 @@
 				</div>
 			</div>
 			
-			<div class="row mt-12">
-				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
-					<h2 class="display-4 mb-3 text-center">S'inscrire à l'atelier découverte</h2>
-					
-					<p class="lead text-center mb-10">Vous souhaitez vous inscrire et participer au prochain atelier ?
-						Envoyez-nous un message à l'aide de ce formulaire. L'inscription est gratuite !</p>
-					
-					<div class="row gx-4">
-						<div class="col-md-6">
-							<div class="form-floating mb-4">
-								<input id="form_name" type="text" name="name" class="form-control" placeholder="Jean" required>
-								<label for="form_name">Prénom *</label>
-								<div class="valid-feedback"> C'est bon ! </div>
-								<div class="invalid-feedback"> Veuillez entrer votre prénom. </div>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="form-floating mb-4">
-								<input id="form_lastname" type="text" name="surname" class="form-control" placeholder="Durand" required>
-								<label for="form_lastname">Nom de famille *</label>
-								<div class="valid-feedback"> C'est bon ! </div>
-								<div class="invalid-feedback"> Veuillez entrer votre nom de famille. </div>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="form-floating mb-4">
-								<input id="form_email" type="email" name="email" class="form-control" placeholder="jean.durand@exemple.fr" required>
-								<label for="form_email">Email *</label>
-								<div class="valid-feedback"> C'est bon ! </div>
-								<div class="invalid-feedback"> Veuillez entrer une adresse électronique valide.  </div>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="form-select-wrapper mb-4">
-								<select class="form-select" id="form-select" name="department" required>
-									<option disabled value="">Sélectionner un sujet.</option>
-									<option value="sumie" selected>Inscription Sumi-e</option>
-									<option value="kintsugi">Inscription Kintsugi</option>
-									<option value="gyotaku">Inscription Gyotaku</option>
-								</select>
-								<div class="valid-feedback"> C'est bon ! </div>
-								<div class="invalid-feedback"> Veuillez sélectionner une région. </div>
-							</div>
-						</div>
-						<div class="col-12">
-							<div class="form-floating mb-4">
-								<textarea id="form_message" name="message" class="form-control" placeholder="Votre message" style="height: 150px"></textarea>
-								<label for="form_message">Message</label>
-								<div class="valid-feedback"> C'est bon ! </div>
-								<div class="invalid-feedback"> Veuillez entrer votre message. </div>
-							</div>
-						</div>
-						<div class="col-12 text-center">
-							<button id="submit-btn" class="btn btn-primary rounded-pill btn-send mb-3">Envoyer le message</button>
-							<p class="text-muted"><strong>*</strong> Ces champs sont requis.</p>
-						</div>
-					</div>
-				</div>
-			</div>
+{#			<div class="row mt-12">#}
+{#				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">#}
+{#					<h2 class="display-4 mb-3 text-center">S'inscrire à l'atelier découverte</h2>#}
+{#					#}
+{#					<p class="lead text-center mb-10">Vous souhaitez vous inscrire et participer au prochain atelier ?#}
+{#						Envoyez-nous un message à l'aide de ce formulaire. L'inscription est gratuite !</p>#}
+{#					#}
+{#					<div class="row gx-4">#}
+{#						<div class="col-md-6">#}
+{#							<div class="form-floating mb-4">#}
+{#								<input id="form_name" type="text" name="name" class="form-control" placeholder="Jean" required>#}
+{#								<label for="form_name">Prénom *</label>#}
+{#								<div class="valid-feedback"> C'est bon ! </div>#}
+{#								<div class="invalid-feedback"> Veuillez entrer votre prénom. </div>#}
+{#							</div>#}
+{#						</div>#}
+{#						<div class="col-md-6">#}
+{#							<div class="form-floating mb-4">#}
+{#								<input id="form_lastname" type="text" name="surname" class="form-control" placeholder="Durand" required>#}
+{#								<label for="form_lastname">Nom de famille *</label>#}
+{#								<div class="valid-feedback"> C'est bon ! </div>#}
+{#								<div class="invalid-feedback"> Veuillez entrer votre nom de famille. </div>#}
+{#							</div>#}
+{#						</div>#}
+{#						<div class="col-md-6">#}
+{#							<div class="form-floating mb-4">#}
+{#								<input id="form_email" type="email" name="email" class="form-control" placeholder="jean.durand@exemple.fr" required>#}
+{#								<label for="form_email">Email *</label>#}
+{#								<div class="valid-feedback"> C'est bon ! </div>#}
+{#								<div class="invalid-feedback"> Veuillez entrer une adresse électronique valide.  </div>#}
+{#							</div>#}
+{#						</div>#}
+{#						<div class="col-md-6">#}
+{#							<div class="form-select-wrapper mb-4">#}
+{#								<select class="form-select" id="form-select" name="department" required>#}
+{#									<option disabled value="">Sélectionner un sujet.</option>#}
+{#									<option value="sumie" selected>Inscription Sumi-e</option>#}
+{#									<option value="kintsugi">Inscription Kintsugi</option>#}
+{#									<option value="gyotaku">Inscription Gyotaku</option>#}
+{#								</select>#}
+{#								<div class="valid-feedback"> C'est bon ! </div>#}
+{#								<div class="invalid-feedback"> Veuillez sélectionner une région. </div>#}
+{#							</div>#}
+{#						</div>#}
+{#						<div class="col-12">#}
+{#							<div class="form-floating mb-4">#}
+{#								<textarea id="form_message" name="message" class="form-control" placeholder="Votre message" style="height: 150px"></textarea>#}
+{#								<label for="form_message">Message</label>#}
+{#								<div class="valid-feedback"> C'est bon ! </div>#}
+{#								<div class="invalid-feedback"> Veuillez entrer votre message. </div>#}
+{#							</div>#}
+{#						</div>#}
+{#						<div class="col-12 text-center">#}
+{#							<button id="submit-btn" class="btn btn-primary rounded-pill btn-send mb-3">Envoyer le message</button>#}
+{#							<p class="text-muted"><strong>*</strong> Ces champs sont requis.</p>#}
+{#						</div>#}
+{#					</div>#}
+{#				</div>#}
+{#			</div>#}
 		</div>
 	</section>
 	
