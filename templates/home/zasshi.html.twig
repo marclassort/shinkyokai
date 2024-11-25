@@ -9,6 +9,23 @@
 {% endblock %}
 
 {% block body %}
+	
+	<style>
+        .embed-responsive {
+            width: 70%; /* Adapte la largeur au conteneur parent */
+            height: 100vh; /* Ajuste la hauteur en fonction de la hauteur de la fenêtre */
+        }
+
+        @media (max-width: 768px) {
+            .embed-responsive, iframe {
+                height: 100vh; /* Réduit la hauteur pour les écrans plus petits */
+            }
+        }
+
+        .mb-4 select {
+            width: 100%; /* Le sélecteur prend toute la largeur sur mobile */
+        }
+	</style>
 	<section class="wrapper bg-light">
 		<div class="container pb-14 pb-md-16 pt-12 text-center">
 			<h2>Liste des Zasshis</h2>
@@ -26,7 +43,7 @@
 			
 			<!-- Zone pour afficher le Zasshi sélectionné -->
 			<div id="zasshiViewer" style="display: none;">
-				<embed id="zasshiEmbed" src="" width="800" height="500" type="application/pdf"/>
+				<iframe id="zasshiEmbed" src="" class="embed-responsive" frameborder="0" type="application/pdf"></iframe>
 			</div>
 		</div>
 	</section>
