@@ -64,7 +64,14 @@
 									<div class="invalid-feedback"> Veuillez entrer une adresse électronique valide pour des informations sur votre livraison. </div>
 								</div>
 								<input type="hidden" class="form-control" id="type" placeholder="you@example.com" value="{{ artCulturel.slug }}">
-							
+							</div>
+							<div class="col-12">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="isMember" value="1">
+									<label class="form-check-label" for="isMember">
+										Je suis membre
+									</label>
+								</div>
 							</div>
 						</div>
 					</form>
@@ -92,7 +99,7 @@
 								</div>
 							</div>
 							<div class="ms-2 d-flex align-items-center">
-								<p class="price fs-sm"><span class="amount">{{ artCulturel.price|replace({'.': ','}) }}€</span></p>
+								<p class="price fs-sm"><span id="item-price" class="amount">{{ artCulturel.nonMemberPrice|replace({'.': ','}) }}€</span></p>
 							</div>
 						</div>
 					</div>
@@ -102,7 +109,7 @@
 							<tr>
 								<td class="ps-0"><strong class="text-dark">Total</strong></td>
 								<td class="pe-0 text-end">
-									<p class="price text-dark fw-bold">{{ artCulturel.price|replace({'.': ','}) }} €</p>
+									<p id="total-price" class="price text-dark fw-bold">{{ artCulturel.nonMemberPrice|replace({'.': ','}) }} €</p>
 								</td>
 							</tr>
 							</tbody>
@@ -128,6 +135,12 @@
 	<script src="https://js.stripe.com/v3/"></script>
 	<script>
         const stripe = Stripe('{{ stripe_public_key }}');
+
+        const nonMemberPrice = {{ artCulturel.nonMemberPrice }};
+        const memberPrice = {{ artCulturel.price }};
+        const isMemberCheckbox = document.getElementById('isMember');
+        
+        updatePrices();
 
         document.getElementById('checkout-button').addEventListener('click', function (event) {
             event.preventDefault();
@@ -202,6 +215,28 @@
                 })
                 .catch(error => console.error('Error:', error));
         }
+
+        function updatePrices() {
+            const itemPriceElement = document.getElementById('item-price');
+            const totalPriceElement = document.getElementById('total-price');
+
+            let price;
+            if (isMemberCheckbox.checked) {
+                price = memberPrice;
+            } else {
+                price = nonMemberPrice;
+            }
+
+            // Mise en forme du prix pour l'affichage (remplacement du point par une virgule)
+            const priceDisplay = price.toString().replace('.', ',') + '€';
+
+            itemPriceElement.textContent = priceDisplay;
+            totalPriceElement.textContent = priceDisplay;
+        }
+
+        isMemberCheckbox.addEventListener('change', function() {
+            updatePrices();
+        });
 	</script>
 
 {% endblock body %}
