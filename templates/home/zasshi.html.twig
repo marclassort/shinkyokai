@@ -12,9 +12,12 @@
 {% block body %}
 	
 	<section class="wrapper bg-light">
-		<div class="container pb-14 pb-md-16 pt-12 text-center">
-			<embed src="/uploads/zasshi-juillet-2024.pdf" width="800" height="500" type="application/pdf"/>
-		</div>
+		{% for zasshi in zasshis %}
+			<div class="container pb-14 pb-md-16 pt-12 text-center">
+				<h2>{{ zasshi.name }}</h2>
+				<embed src="{{ zasshi.pdf }}" width="800" height="500" type="application/pdf"/>
+			</div>
+		{% endfor %}
 	</section>
 
 {% endblock body %}

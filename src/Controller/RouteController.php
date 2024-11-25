@@ -7,6 +7,7 @@ use App\Entity\Product;
 use App\Repository\CulturalArtsRepository;
 use App\Repository\EventRepository;
 use App\Repository\ProductRepository;
+use App\Repository\ZasshiRepository;
 use App\Service\EmailService;
 use App\Service\PanierService;
 use DateTimeImmutable;
@@ -34,7 +35,9 @@ class RouteController extends AbstractController
 {
     public function __construct(
         private readonly PanierService   $cartService,
-        private readonly EventRepository $eventRepository, private readonly CulturalArtsRepository $culturalArtsRepository
+        private readonly EventRepository $eventRepository,
+        private readonly CulturalArtsRepository $culturalArtsRepository,
+        private readonly ZasshiRepository $zasshiRepository
     )
     {
     }
@@ -875,7 +878,10 @@ class RouteController extends AbstractController
     #[Route("/zasshi", name: "app_zasshi")]
     public function getZasshi(): Response
     {
-        return $this->render("home/zasshi.html.twig");
+        $zasshis = $this->zasshiRepository->findBy([], ["date" => "DESC"]);
+        return $this->render("home/zasshi.html.twig", [
+            "zasshis" => $zasshis
+        ]);
     }
 
     #[Route('//la-caverne-secrete/logout', name: 'app_logout', methods: ['GET'])]
