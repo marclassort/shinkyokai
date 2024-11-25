@@ -100,13 +100,13 @@ class ZasshiCrudController extends AbstractCrudController
                 'required' => $pageName === Crud::PAGE_NEW,
                 'constraints' => [
                     new File([
-                        'maxSize' => '10M',
+                        'maxSize' => '20M',
                         'mimeTypes' => ['application/pdf'],
                         'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
                     ]),
                 ],
             ])
-            ->setHelp('Téléchargez un fichier PDF (max. 10 Mo).');
+            ->setHelp('Téléchargez un fichier PDF (max. 20 Mo).');
 
         // Champ pour sélectionner mois et année
         $monthYearField = ChoiceField::new('date', 'Mois et Année')
