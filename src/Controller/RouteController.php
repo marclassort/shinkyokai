@@ -11,6 +11,7 @@ use App\Service\EmailService;
 use App\Service\PanierService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use IntlDateFormatter;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -110,23 +111,77 @@ class RouteController extends AbstractController
         $items = $this->cartService->getCartItems($session);
         $total = $this->cartService->getTotal($session);
 
+        $ateliersSumie = $this->culturalArtsRepository->findBy(
+            ["workshopType" => "Sumi-e"],
+            ["date" => "ASC"]
+        );
+
+        $ateliersKintsugi = $this->culturalArtsRepository->findBy(
+            ["workshopType" => "Kintsugi"],
+            ["date" => "ASC"]
+        );
+
+        $ateliersGyotaku = $this->culturalArtsRepository->findBy(
+            ["workshopType" => "Gyotaku"],
+            ["date" => "ASC"]
+        );
+
+        $ateliersSumie = $this->getWorkshop($ateliersSumie);
+
+        $ateliersKintsugi = $this->getWorkshop($ateliersKintsugi);
+
+        $ateliersGyotaku = $this->getWorkshop($ateliersGyotaku);
+
         return $this->render("arts-culturels/sumi-e.html.twig", [
             "items" => $items,
             "total" => $total,
-            'stripe_public_key' => $this->getParameter('stripe_public_key')
+            'stripe_public_key' => $this->getParameter('stripe_public_key'),
+            "ateliersSumie" => $ateliersSumie,
+            "ateliersKintsugi" => $ateliersKintsugi,
+            "ateliersGyotaku" => $ateliersGyotaku
         ]);
     }
 
     #[Route("/arts-culturels/origami", name: "app_arts_culturels_origami")]
-    public function getOrigami(): Response
+    public function getOrigami(SessionInterface $session): Response
     {
-        return $this->render("arts-culturels/origami.html.twig");
+        $items = $this->cartService->getCartItems($session);
+        $total = $this->cartService->getTotal($session);
+
+        $ateliersOrigami = $this->culturalArtsRepository->findBy(
+            ["workshopType" => "Origami"],
+            ["date" => "ASC"]
+        );
+
+        $ateliersOrigami = $this->getWorkshop($ateliersOrigami);
+
+        return $this->render("arts-culturels/origami.html.twig", [
+            "items" => $items,
+            "total" => $total,
+            'stripe_public_key' => $this->getParameter('stripe_public_key'),
+            "ateliersOrigami" => $ateliersOrigami
+        ]);
     }
 
     #[Route("/arts-culturels/calligraphie", name: "app_arts_culturels_calligraphie")]
-    public function getCalligraphie(): Response
+    public function getCalligraphie(SessionInterface $session): Response
     {
-        return $this->render("arts-culturels/calligraphie.html.twig");
+        $items = $this->cartService->getCartItems($session);
+        $total = $this->cartService->getTotal($session);
+
+        $ateliersCalligraphie = $this->culturalArtsRepository->findBy(
+            ["workshopType" => "Calligraphie"],
+            ["date" => "ASC"]
+        );
+
+        $ateliersCalligraphie = $this->getWorkshop($ateliersCalligraphie);
+
+        return $this->render("arts-culturels/calligraphie.html.twig", [
+            "items" => $items,
+            "total" => $total,
+            'stripe_public_key' => $this->getParameter('stripe_public_key'),
+            "ateliersCalligraphie" => $ateliersCalligraphie
+        ]);
     }
 
     #[Route("/vertus", name: "app_vertus")]
@@ -827,5 +882,28 @@ class RouteController extends AbstractController
     public function logout(): Response
     {
         return new Response('Déconnecté avec succès.', Response::HTTP_OK, ['WWW-Authenticate' => 'Basic realm="admin"']);
+    }
+
+    private function getWorkshop($ateliersSumie): array
+    {
+        $groupedAteliers = [];
+
+        foreach ($ateliersSumie as $atelierSumie) {
+            $monthYear = IntlDateFormatter::create(
+                'fr_FR',
+                IntlDateFormatter::NONE,
+                IntlDateFormatter::NONE,
+                null,
+                null,
+                'LLLL yyyy'
+            )->format($atelierSumie->getDate());
+
+            $groupedAteliers[$monthYear][] = $atelierSumie;
+
+            $dateString = $atelierSumie->getDate()->format('d/m/Y à H\hi');
+            $atelierSumie->formattedDate = $dateString;
+        }
+
+        return $groupedAteliers;
     }
 }

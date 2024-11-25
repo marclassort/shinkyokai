@@ -45,20 +45,8 @@
 				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
 					<h2 class="display-4 mb-3 text-center">Horaires Sumi-e</h2>
 					
-					{% set sumiEWorkshops = workshops.getWorkshops|filter(workshop => workshop.workshopType == 'Sumi-e')|sort((a, b) => a.date <=> b.date) %}
-					
-					{% set groupedWorkshops = {} %}
-					
-					{% for workshop in sumiEWorkshops %}
-						{% set monthYear = workshop.date|format_datetime(locale='fr', pattern="MMMM yyyy") %}
-						{% if monthYear not in groupedWorkshops %}
-							{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): [] }) %}
-						{% endif %}
-						{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): groupedWorkshops[monthYear]|merge([workshop]) }) %}
-					{% endfor %}
-					
 					<div class="accordion accordion-wrapper" id="accordionExample">
-						{% for monthYear, workshops in groupedWorkshops %}
+						{% for monthYear, monthAteliers in ateliersSumie %}
 							<div class="card accordion-item">
 								<div class="card-header" id="heading-{{ loop.index }}">
 									<button
@@ -77,8 +65,12 @@
 										data-bs-parent="#accordionExample">
 									<div class="card-body">
 										<ul>
-											{% for workshop in workshops %}
-												<li><a href="/arts-culturels/inscriptions/{{ workshop.slug }}">Atelier le {{ workshop.date|date("j/m \\à H\\hi") }}</a></li>
+											{% for atelier in monthAteliers %}
+												<li>
+													<a href="/arts-culturels/inscriptions/{{ atelier.slug }}">
+														Atelier "{{ atelier.workshopType }}" le {{ atelier.formattedDate }}
+													</a>
+												</li>
 											{% endfor %}
 										</ul>
 									</div>
@@ -93,20 +85,8 @@
 				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
 					<h2 class="display-4 mb-3 text-center">Horaires Kintsugi (réparation avec l'or)</h2>
 					
-					{% set KintsugiWorkshops = workshops.getWorkshops|filter(workshop => workshop.workshopType == 'Kintsugi')|sort((a, b) => a.date <=> b.date) %}
-					
-					{% set groupedWorkshops = {} %}
-					
-					{% for workshop in KintsugiWorkshops %}
-						{% set monthYear = workshop.date|format_datetime(locale='fr', pattern="MMMM yyyy") %}
-						{% if monthYear not in groupedWorkshops %}
-							{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): [] }) %}
-						{% endif %}
-						{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): groupedWorkshops[monthYear]|merge([workshop]) }) %}
-					{% endfor %}
-					
 					<div class="accordion accordion-wrapper" id="accordionExample">
-						{% for monthYear, workshops in groupedWorkshops %}
+						{% for monthYear, monthAteliers in ateliersKintsugi %}
 							<div class="card accordion-item">
 								<div class="card-header" id="heading-{{ loop.index }}">
 									<button
@@ -125,8 +105,12 @@
 										data-bs-parent="#accordionExample">
 									<div class="card-body">
 										<ul>
-											{% for workshop in workshops %}
-												<li>{{ workshop.date|date("j/m à H:i") }}</li>
+											{% for atelier in monthAteliers %}
+												<li>
+													<a href="/arts-culturels/inscriptions/{{ atelier.slug }}">
+														Atelier "{{ atelier.workshopType }}" le {{ atelier.formattedDate }}
+													</a>
+												</li>
 											{% endfor %}
 										</ul>
 									</div>
@@ -140,20 +124,8 @@
 				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
 					<h2 class="display-4 mb-3 text-center">Horaires Gyotaku (empreinte de poisson)</h2>
 					
-					{% set GyotakuWorkshops = workshops.getWorkshops|filter(workshop => workshop.workshopType == 'Gyotaku')|sort((a, b) => a.date <=> b.date) %}
-					
-					{% set groupedWorkshops = {} %}
-					
-					{% for workshop in GyotakuWorkshops %}
-						{% set monthYear = workshop.date|format_datetime(locale='fr', pattern="MMMM yyyy") %}
-						{% if monthYear not in groupedWorkshops %}
-							{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): [] }) %}
-						{% endif %}
-						{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): groupedWorkshops[monthYear]|merge([workshop]) }) %}
-					{% endfor %}
-					
 					<div class="accordion accordion-wrapper" id="accordionExample">
-						{% for monthYear, workshops in groupedWorkshops %}
+						{% for monthYear, monthAteliers in ateliersGyotaku %}
 							<div class="card accordion-item">
 								<div class="card-header" id="heading-{{ loop.index }}">
 									<button
@@ -172,8 +144,12 @@
 										data-bs-parent="#accordionExample">
 									<div class="card-body">
 										<ul>
-											{% for workshop in workshops %}
-												<li>{{ workshop.date|date("j/m à H:i") }}</li>
+											{% for atelier in monthAteliers %}
+												<li>
+													<a href="/arts-culturels/inscriptions/{{ atelier.slug }}">
+														Atelier "{{ atelier.workshopType }}" le {{ atelier.formattedDate }}
+													</a>
+												</li>
 											{% endfor %}
 										</ul>
 									</div>

@@ -24,7 +24,7 @@ class CulturalArts
     #[ORM\Column(length: 255)]
     private ?string $workshopType = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

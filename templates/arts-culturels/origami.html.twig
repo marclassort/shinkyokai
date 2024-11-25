@@ -28,20 +28,8 @@
 				<div class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2">
 					<h2 class="display-4 mb-3 text-center">Horaires origami</h2>
 					
-					{% set origamiWorkshops = workshops.getWorkshops|filter(workshop => workshop.workshopType == 'Origami')|sort((a, b) => a.date <=> b.date) %}
-					
-					{% set groupedWorkshops = {} %}
-					
-					{% for workshop in origamiWorkshops %}
-						{% set monthYear = workshop.date|format_datetime(locale='fr', pattern="MMMM yyyy") %}
-						{% if monthYear not in groupedWorkshops %}
-							{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): [] }) %}
-						{% endif %}
-						{% set groupedWorkshops = groupedWorkshops|merge({ (monthYear): groupedWorkshops[monthYear]|merge([workshop]) }) %}
-					{% endfor %}
-					
 					<div class="accordion accordion-wrapper" id="accordionExample">
-						{% for monthYear, workshops in groupedWorkshops %}
+						{% for monthYear, monthAteliers in ateliersOrigami %}
 							<div class="card accordion-item">
 								<div class="card-header" id="heading-{{ loop.index }}">
 									<button
@@ -60,8 +48,12 @@
 										data-bs-parent="#accordionExample">
 									<div class="card-body">
 										<ul>
-											{% for workshop in workshops %}
-												<li><a href="/arts-culturels/inscriptions/{{ workshop.slug }}">Atelier le {{ workshop.date|date("j/m \\à H\\hi") }}</a></li>
+											{% for atelier in monthAteliers %}
+												<li>
+													<a href="/arts-culturels/inscriptions/{{ atelier.slug }}">
+														Atelier "{{ atelier.workshopType }}" le {{ atelier.formattedDate }}
+													</a>
+												</li>
 											{% endfor %}
 										</ul>
 									</div>

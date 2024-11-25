@@ -5,9 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cf3fce7-0788-458d-a6a6-98b12c800d20" name="Changes" comment="Commit all files SKK.">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Controller/Admin/ZasshiCrudController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/DashboardController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/DashboardController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/RouteController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/CulturalArts.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/CulturalArts.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/calligraphie.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/calligraphie.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/origami.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/origami.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/sumi-e.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/sumi-e.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -208,6 +213,7 @@
     &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/acfi/PHP/shinkyokai/templates/arts-martiaux&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -243,8 +249,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PS-242.23726.107" />
-        <option value="bundled-php-predefined-a98d8de5180a-90914f2295cb-com.jetbrains.php.sharedIndexes-PS-242.23726.107" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-PS-243.21565.202" />
+        <option value="bundled-php-predefined-a98d8de5180a-5fbe0c30323e-com.jetbrains.php.sharedIndexes-PS-243.21565.202" />
       </set>
     </attachedChunks>
   </component>
@@ -304,7 +310,11 @@
       <workItem from="1730031030899" duration="31000" />
       <workItem from="1731065783132" duration="7343000" />
       <workItem from="1731677188553" duration="14732000" />
-      <workItem from="1731917261453" duration="1823000" />
+      <workItem from="1731917261453" duration="2021000" />
+      <workItem from="1731921779418" duration="595000" />
+      <workItem from="1732454544381" duration="1982000" />
+      <workItem from="1732474077457" duration="1232000" />
+      <workItem from="1732525085201" duration="3503000" />
     </task>
     <task id="LOCAL-00001" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -554,7 +564,23 @@
       <option name="project" value="LOCAL" />
       <updated>1731693414440</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1731921560630</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1731921560630</updated>
+    </task>
+    <task id="LOCAL-00033" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1731921708645</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1731921708645</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
