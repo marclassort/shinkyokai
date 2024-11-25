@@ -1,8 +1,7 @@
 {% extends "base.html.twig" %}
 
 {% block title %}
-	{{ parent() }}
-	Boutique
+	Zasshis
 {% endblock %}
 
 {% block nav_class %}
@@ -10,14 +9,54 @@
 {% endblock %}
 
 {% block body %}
-	
 	<section class="wrapper bg-light">
-		{% for zasshi in zasshis %}
-			<div class="container pb-14 pb-md-16 pt-12 text-center">
-				<h2>{{ zasshi.name }}</h2>
-				<embed src="{{ zasshi.pdf }}" width="800" height="500" type="application/pdf"/>
+		<div class="container pb-14 pb-md-16 pt-12 text-center">
+			<h2>Liste des Zasshis</h2>
+			
+			<!-- Sélecteur pour les mois -->
+			<div class="mb-4">
+				<label for="monthSelect" class="form-label">Choisir un mois</label>
+				<select id="monthSelect" class="form-select">
+					<option value="">-- Sélectionnez un mois --</option>
+					{% for month, zasshis in zasshisByMonth %}
+						<option value="{{ month }}">{{ zasshis[0].monthYear }}</option>
+					{% endfor %}
+				</select>
 			</div>
-		{% endfor %}
+			
+			<!-- Zone pour afficher le Zasshi sélectionné -->
+			<div id="zasshiViewer" style="display: none;">
+				<embed id="zasshiEmbed" src="" width="800" height="500" type="application/pdf"/>
+			</div>
+		</div>
 	</section>
+	
+	<script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const select = document.getElementById("monthSelect");
+            const zasshiViewer = document.getElementById("zasshiViewer");
+            const zasshiEmbed = document.getElementById("zasshiEmbed");
 
-{% endblock body %}
+            // Stocker les Zasshis en JS pour un accès rapide
+            const zasshiData = {
+				{% for month, zasshis in zasshisByMonth %}
+                "{{ month }}": "{{ zasshis[0].pdf }}",
+				{% endfor %}
+            };
+
+            select.addEventListener("change", (e) => {
+                const selectedMonth = e.target.value;
+
+                if (selectedMonth && zasshiData[selectedMonth]) {
+                    // Mettre à jour la balise <embed> avec le PDF correspondant
+                    zasshiEmbed.src = zasshiData[selectedMonth];
+                    zasshiViewer.style.display = "block";
+                } else {
+                    // Si aucune sélection, cacher le viewer
+                    zasshiViewer.style.display = "none";
+                    zasshiEmbed.src = "";
+                }
+            });
+        });
+	</script>
+{% endblock %}

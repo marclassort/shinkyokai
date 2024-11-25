@@ -10,7 +10,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use Exception;
-use Svg\Tag\Text;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints\File;
@@ -124,8 +123,8 @@ class ZasshiCrudController extends AbstractCrudController
 
     private function generateMonthYearChoices(): array
     {
-        $currentYear = (int) date('Y');
-        $years = range($currentYear, $currentYear + 5);
+        $startYear = 2023;
+        $years = range($startYear, $startYear + 5);
         $months = [
             'Janvier' => 1, 'Février' => 2, 'Mars' => 3, 'Avril' => 4,
             'Mai' => 5, 'Juin' => 6, 'Juillet' => 7, 'Août' => 8,

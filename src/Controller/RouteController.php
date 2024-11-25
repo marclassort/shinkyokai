@@ -879,12 +879,40 @@ class RouteController extends AbstractController
     public function getZasshi(): Response
     {
         $zasshis = $this->zasshiRepository->findBy([], ["date" => "DESC"]);
+
+        $zasshisByMonth = [];
+        foreach ($zasshis as $zasshi) {
+            $monthYear = substr($zasshi->getDate(), 0, 7);
+            $zasshisByMonth[$monthYear][] = [
+                'id' => $zasshi->getId(),
+                'name' => $zasshi->getName(),
+                'pdf' => $zasshi->getPdf(),
+                'monthYear' => $this->formatDateToFrench($monthYear),
+            ];
+        }
+
         return $this->render("home/zasshi.html.twig", [
-            "zasshis" => $zasshis
+            "zasshisByMonth" => $zasshisByMonth,
         ]);
     }
 
-    #[Route('//la-caverne-secrete/logout', name: 'app_logout', methods: ['GET'])]
+    private function formatDateToFrench(string $date): string
+    {
+        // Correspondance des mois en français
+        $monthNames = [
+            '01' => 'Janvier', '02' => 'Février', '03' => 'Mars', '04' => 'Avril',
+            '05' => 'Mai', '06' => 'Juin', '07' => 'Juillet', '08' => 'Août',
+            '09' => 'Septembre', '10' => 'Octobre', '11' => 'Novembre', '12' => 'Décembre',
+        ];
+
+        // Séparer l'année et le mois
+        [$year, $month] = explode('-', $date);
+
+        // Retourner le format "Mois Année"
+        return $monthNames[$month] . ' ' . $year;
+    }
+
+    #[Route('/la-caverne-secrete/logout', name: 'app_logout', methods: ['GET'])]
     public function logout(): Response
     {
         return new Response('Déconnecté avec succès.', Response::HTTP_OK, ['WWW-Authenticate' => 'Basic realm="admin"']);
