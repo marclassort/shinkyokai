@@ -50,6 +50,9 @@ class Member
     #[ORM\Column(length: 255)]
     private ?string $licenceNumber = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $phoneNumber = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -195,6 +198,18 @@ class Member
     public function setLicenceNumber(string $licenceNumber): static
     {
         $this->licenceNumber = $licenceNumber;
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): static
+    {
+        $this->phoneNumber = $phoneNumber;
 
         return $this;
     }

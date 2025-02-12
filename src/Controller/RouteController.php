@@ -13,6 +13,7 @@ use App\Service\PanierService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use IntlDateFormatter;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -652,7 +653,7 @@ class RouteController extends AbstractController
     {
         $spreadsheet = IOFactory::load($file->getPathname());
         $sheet = $spreadsheet->getActiveSheet();
-        $headers = $sheet->rangeToArray('A1:D1')[0];
+        $headers = $sheet->rangeToArray('A1:I1')[0];
 
         // Vérification des colonnes obligatoires
         $requiredColumnIndices = [];
@@ -670,6 +671,10 @@ class RouteController extends AbstractController
 
         foreach ($rows as $index => $row) {
             if ($index === 0) continue; // Sauter la ligne des en-têtes
+
+            if (empty(array_filter($row))) {
+                continue;
+            }
 
             $isValid = true;
             foreach ($requiredColumnIndices as $colIndex) {
@@ -704,8 +709,67 @@ class RouteController extends AbstractController
         $sheet->setCellValue('E1', 'Adresse');
         $sheet->setCellValue('F1', 'Code postal');
         $sheet->setCellValue('G1', 'Ville');
+        $sheet->setCellValue('H1', 'Adresse électronique');
+        $sheet->setCellValue('I1', 'Numéro de téléphone');
 
-        foreach (range('A', 'G') as $columnID) {
+        $validationSexe = $sheet->getCell('C2')->getDataValidation();
+        $validationSexe->setType(DataValidation::TYPE_LIST);
+        $validationSexe->setErrorStyle(DataValidation::STYLE_STOP);
+        $validationSexe->setAllowBlank(false);
+        $validationSexe->setShowDropDown(true);
+        $validationSexe->setFormula1('"Masculin,Féminin"');
+
+        $sheet->getStyle('D2:D1000')->getNumberFormat()->setFormatCode('DD/MM/YYYY');
+        $validationDate = $sheet->getCell('D2')->getDataValidation();
+        $validationDate->setType(DataValidation::TYPE_DATE);
+        $validationDate->setErrorStyle(DataValidation::STYLE_STOP);
+        $validationDate->setAllowBlank(false);
+        $validationDate->setOperator(DataValidation::OPERATOR_BETWEEN);
+        $validationDate->setFormula1('DATE(1900,1,1)');
+        $validationDate->setFormula2('DATE(2100,12,31)');
+        $validationDate->setShowInputMessage(true);
+        $validationDate->setPromptTitle('Format attendu');
+        $validationDate->setPrompt('Veuillez entrer une date au format JJ/MM/AAAA.');
+
+        $validationPhone = $sheet->getCell('I2')->getDataValidation();
+        $validationPhone->setType(DataValidation::TYPE_TEXTLENGTH);
+        $validationPhone->setErrorStyle(DataValidation::STYLE_STOP);
+        $validationPhone->setAllowBlank(false);
+        $validationPhone->setOperator(DataValidation::OPERATOR_BETWEEN);
+        $validationPhone->setFormula1('10');
+        $validationPhone->setFormula2('12');
+        $validationPhone->setShowInputMessage(true);
+        $validationPhone->setPromptTitle('Format attendu');
+        $validationPhone->setPrompt('Veuillez entrer un numéro de téléphone entre 10 et 12 chiffres.');
+
+        $validationPostalCode = $sheet->getCell('F2')->getDataValidation();
+        $validationPostalCode->setType(DataValidation::TYPE_WHOLE);
+        $validationPostalCode->setErrorStyle(DataValidation::STYLE_STOP);
+        $validationPostalCode->setAllowBlank(false);
+        $validationPostalCode->setOperator(DataValidation::OPERATOR_BETWEEN);
+        $validationPostalCode->setFormula1('10000');
+        $validationPostalCode->setFormula2('99999');
+        $validationPostalCode->setShowInputMessage(true);
+        $validationPostalCode->setPromptTitle('Format attendu');
+        $validationPostalCode->setPrompt('Veuillez entrer un code postal composé de 5 chiffres.');
+
+        $validationEmail = $sheet->getCell('H2')->getDataValidation();
+        $validationEmail->setType(DataValidation::TYPE_CUSTOM);
+        $validationEmail->setErrorStyle(DataValidation::STYLE_STOP);
+        $validationEmail->setAllowBlank(false);
+        $validationEmail->setFormula1('=AND(ISNUMBER(SEARCH("@",H2)),ISNUMBER(SEARCH(".",H2)))');
+        $validationEmail->setShowInputMessage(true);
+        $validationEmail->setPromptTitle('Format attendu');
+        $validationEmail->setPrompt('Veuillez entrer une adresse électronique valide (ex : exemple@domaine.fr).');
+
+        for ($i = 2; $i <= 1000; $i++) {
+            $sheet->getCell("C$i")->setDataValidation(clone $validationSexe);
+            $sheet->getCell("D$i")->setDataValidation(clone $validationDate);
+            $sheet->getCell("I$i")->setDataValidation(clone $validationPhone);
+            $sheet->getCell("F$i")->setDataValidation(clone $validationPostalCode);
+            $sheet->getCell("H$i")->setDataValidation(clone $validationEmail);
+        }
+        foreach (range('A', 'I') as $columnID) {
             $sheet->getColumnDimension($columnID)->setAutoSize(true);
         }
 

@@ -36,7 +36,7 @@ class PaymentController extends AbstractController
         $cart = $session->get('cart', []);
 
         $lineItems = [];
-        
+
         if (isset($cart['club'])) {
             $lineItems[] = [
                 'price_data' => [
@@ -185,6 +185,10 @@ class PaymentController extends AbstractController
             $pdfFilePath = $this->generateLicensePdf($clubData, "club");
             $this->sendLicenseEmail($club->getEmail(), $pdfFilePath, [], "club", $mailer);
 
+            $members = array_filter($members, function($row) {
+                return array_filter($row);
+            });
+
             // Création des membres à partir du fichier
             foreach ($members as $data) {
                 $member = new Member();
@@ -195,6 +199,9 @@ class PaymentController extends AbstractController
                 $member->setAddress($data[4] ?? null);
                 $member->setPostalCode($data[5] ?? null);
                 $member->setCity($data[6] ?? null);
+                $member->setEmail($data[7] ?? null);
+                $member->setPhoneNumber($data[8] ?? null);
+                $member->setCountry("France");
                 $member->setCommande($order);
                 $member->setClub($club);
 
@@ -205,12 +212,29 @@ class PaymentController extends AbstractController
 
                 $entityManager->persist($member);
 
+                // Générer le PDF de la licence
+                $memberData = [
+                    'membre_prenom' => $member->getFirstName(),
+                    'membre_nom' => $member->getLastName(),
+                    'membre_date' => $member->getBirthDate(),
+                    'membre_sexe' => $member->getSex(),
+                    'licence' => $member->getLicenceNumber(),
+                    'logo' => $logoFile,
+                    'club_name' => $club->getName(),
+                    'numero' => $club->getClubNumber(),
+                ];
+                $pdfFilePath = $this->generateLicensePdf($memberData, "club-membre");
+
+                // Envoi de l'email avec la licence
+                if ($member->getEmail()) {
+                    $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, [], "club-membre", $mailer);
+                }
+
                 $clubData["membre_prenom"] = $member->getFirstName();
                 $clubData["membre_nom"] = $member->getLastName();
                 $clubData["membre_date"] = $member->getBirthDate();
                 $clubData["membre_sexe"] = $member->getSex();
                 $clubData["licence"] = $member->getLicenceNumber();
-                $this->generateLicensePdf($clubData, "club-membre");
             }
 
             // Liaison du club à la commande

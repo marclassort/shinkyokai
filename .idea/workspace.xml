@@ -5,15 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cf3fce7-0788-458d-a6a6-98b12c800d20" name="Changes" comment="Commit all files SKK.">
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shinkyokai.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shinkyokai.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/ZasshiCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/ZasshiCrudController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/PaymentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/PaymentController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/RouteController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/arts-culturels/arts-culturels.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/arts-culturels/arts-culturels.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/zasshi.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/zasshi.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Member.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Member.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/emails/club-membre.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/emails/club-membre.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/licenses/club-membre.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/licenses/club-membre.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/licenses/club.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/licenses/club.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/licenses/membre-culturel.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/licenses/membre-culturel.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/licenses/membre-individuel.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/licenses/membre-individuel.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -249,8 +249,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-PS-243.21565.202" />
-        <option value="bundled-php-predefined-a98d8de5180a-5fbe0c30323e-com.jetbrains.php.sharedIndexes-PS-243.21565.202" />
+        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-PS-243.23654.168" />
+        <option value="bundled-php-predefined-a98d8de5180a-4c3855d0ab16-com.jetbrains.php.sharedIndexes-PS-243.23654.168" />
       </set>
     </attachedChunks>
   </component>
@@ -315,7 +315,11 @@
       <workItem from="1732454544381" duration="1982000" />
       <workItem from="1732474077457" duration="1232000" />
       <workItem from="1732525085201" duration="9512000" />
-      <workItem from="1732546504931" duration="1827000" />
+      <workItem from="1732546504931" duration="4880000" />
+      <workItem from="1732627360305" duration="2246000" />
+      <workItem from="1739122233865" duration="2133000" />
+      <workItem from="1739125232126" duration="1377000" />
+      <workItem from="1739352483523" duration="9394000" />
     </task>
     <task id="LOCAL-00001" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -613,7 +617,71 @@
       <option name="project" value="LOCAL" />
       <updated>1732533692252</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1732548361501</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1732548361501</updated>
+    </task>
+    <task id="LOCAL-00039" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1732550636986</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1732550636986</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1732550696816</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1732550696816</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1732635344692</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1732635344692</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739123714911</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1739123714911</updated>
+    </task>
+    <task id="LOCAL-00043" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739123770449</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1739123770449</updated>
+    </task>
+    <task id="LOCAL-00044" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739127253432</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1739127253432</updated>
+    </task>
+    <task id="LOCAL-00045" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739127395615</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1739127395615</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
