@@ -8,12 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/PaymentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/PaymentController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/RouteController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Member.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Member.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/emails/club-membre.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/emails/club-membre.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/licenses/club-membre.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/licenses/club-membre.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/licenses/club.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/licenses/club.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/licenses/membre-culturel.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/licenses/membre-culturel.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/licenses/membre-individuel.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/licenses/membre-individuel.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -319,15 +314,8 @@
       <workItem from="1732627360305" duration="2246000" />
       <workItem from="1739122233865" duration="2133000" />
       <workItem from="1739125232126" duration="1377000" />
-      <workItem from="1739352483523" duration="9394000" />
-    </task>
-    <task id="LOCAL-00001" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1724920928673</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1724920928673</updated>
+      <workItem from="1739352483523" duration="14067000" />
+      <workItem from="1739379543766" duration="646000" />
     </task>
     <task id="LOCAL-00002" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -681,7 +669,47 @@
       <option name="project" value="LOCAL" />
       <updated>1739127395615</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739368986339</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1739368986339</updated>
+    </task>
+    <task id="LOCAL-00047" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739369182364</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1739369182364</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739369486491</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1739369486491</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739369648746</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1739369648746</updated>
+    </task>
+    <task id="LOCAL-00050" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739372780013</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1739372780018</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

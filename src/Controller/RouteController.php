@@ -834,9 +834,7 @@ class RouteController extends AbstractController
             "items" => $items,
             "total" => $total,
             'stripe_public_key' => $this->getParameter('stripe_public_key'),
-            'stripe_public_key_test' => $this->getParameter('stripe_public_key_test'),
             'stripe_secret_key' => $this->getParameter('stripe_secret_key'),
-            'stripe_secret_key_test' => $this->getParameter('stripe_secret_key_test'),
         ]);
     }
 
