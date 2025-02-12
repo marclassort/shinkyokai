@@ -266,7 +266,7 @@
 	
 	<script src="https://js.stripe.com/v3/"></script>
 	<script>
-        const stripe = Stripe('{{ stripe_public_key }}');
+        const stripe = Stripe('{{ stripe_private_key }}');
 
         document.getElementById('checkout-button').addEventListener('click', function (event) {
             event.preventDefault();

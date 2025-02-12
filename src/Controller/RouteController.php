@@ -834,7 +834,8 @@ class RouteController extends AbstractController
         return $this->render("home/inscription-club.html.twig", [
             "items" => $items,
             "total" => $total,
-            'stripe_public_key' => $this->getParameter('stripe_public_key')
+            'stripe_public_key' => $this->getParameter('stripe_public_key'),
+            'stripe_private_key' => $this->getParameter('stripe_private_key'),
         ]);
     }
 
