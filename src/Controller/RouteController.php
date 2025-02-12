@@ -389,7 +389,6 @@ class RouteController extends AbstractController
         $zip = $request->get('zip');
         $city = $request->get('city');
         $country = $request->get('country');
-        $memberCount = $request->get('member_count');
 
         // Enregistrement du logo si présent
         if ($logoFile) {

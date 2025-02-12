@@ -145,6 +145,8 @@ class PaymentController extends AbstractController
             throw new Exception('No order found for id ' . $orderId);
         }
 
+        $memberCounter = 0;
+
         // Récupération des données du panier
         $cart = $session->get('cart');
 
@@ -183,7 +185,7 @@ class PaymentController extends AbstractController
             $clubData["numero"] = $club->getClubNumber();
 
             $pdfFilePath = $this->generateLicensePdf($clubData, "club");
-            $this->sendLicenseEmail($club->getEmail(), $pdfFilePath, [], "club", $mailer);
+            $this->sendLicenseEmail($club->getEmail(), $pdfFilePath, "club", $mailer);
 
             $members = array_filter($members, function($row) {
                 return array_filter($row);
@@ -206,8 +208,9 @@ class PaymentController extends AbstractController
                 $member->setClub($club);
 
                 // Définir un numéro de licence unique
-                $lastMember = $entityManager->getRepository(Member::class)->findOneBy([], ['id' => 'DESC']);
-                $newLicenceNumber = $this->generateUniqueLicenceNumber($lastMember);
+                $memberCounter++;
+
+                $newLicenceNumber = $this->generateUniqueLicenceNumber($entityManager, $memberCounter);
                 $member->setLicenceNumber($newLicenceNumber);
 
                 $entityManager->persist($member);
@@ -227,7 +230,7 @@ class PaymentController extends AbstractController
 
                 // Envoi de l'email avec la licence
                 if ($member->getEmail()) {
-                    $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, [], "club-membre", $mailer);
+                    $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, "club-membre", $mailer);
                 }
 
                 $clubData["membre_prenom"] = $member->getFirstName();
@@ -255,9 +258,11 @@ class PaymentController extends AbstractController
             $member->setEmail($cart["club_individuel"]["email"]);
             $member->setCommande($order);
 
-            // Définir un numéro de licence unique
-            $lastMember = $entityManager->getRepository(Member::class)->findOneBy([], ['id' => 'DESC']);
-            $newLicenceNumber = $this->generateUniqueLicenceNumber($lastMember);
+            // Incrémenter le compteur de membres
+            $memberCounter++;
+
+            // Définir un numéro de licence unique en utilisant le compteur
+            $newLicenceNumber = $this->generateUniqueLicenceNumber($entityManager, $memberCounter);
             $member->setLicenceNumber($newLicenceNumber);
 
             $entityManager->persist($member);
@@ -265,7 +270,7 @@ class PaymentController extends AbstractController
             $cart["club_individuel"]["licence"] = $member->getLicenceNumber();
 
             $pdfFilePath = $this->generateLicensePdf($cart["club_individuel"], "membre-individuel");
-            $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, [], "membre-individuel", $mailer);
+            $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, "membre-individuel", $mailer);
         }
 
         if (isset($cart['cultural_registration'])) {
@@ -290,7 +295,7 @@ class PaymentController extends AbstractController
 //            $pdfFilePath = $this->generateLicensePdf($cart["cultural_registration"], "membre-culturel");
 //            $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, [], "membre-culturel", $mailer);
 
-              $this->sendCulturalArtsEmail($member->getEmail(), [], "atelier-culturel", $mailer);
+              $this->sendCulturalArtsEmail($member->getEmail(), $mailer);
         }
 
         $order->setStatus("payee");
@@ -312,11 +317,22 @@ class PaymentController extends AbstractController
         return sprintf('SHIN%04d', $newClubNumber);
     }
 
-    private function generateUniqueLicenceNumber(?Member $lastMember): string
+    private function generateUniqueLicenceNumber(EntityManagerInterface $entityManager, int $memberCounter): string
     {
-        $lastLicenceNumber = $lastMember ? (int)substr($lastMember->getLicenceNumber(), 3) : 0;
-        $newLicenceNumber = $lastLicenceNumber + 1;
-        return sprintf('SKK%04d', $newLicenceNumber);
+        // Récupérer le dernier numéro de licence existant
+        $lastMember = $entityManager->getRepository(Member::class)
+            ->findOneBy([], ['id' => 'DESC']);
+
+        // Vérifier s'il existe déjà un membre
+        if ($lastMember && preg_match('/SKK(\d+)/', $lastMember->getLicenceNumber(), $matches)) {
+            $lastNumber = (int)$matches[1];
+            $newNumber = $lastNumber + $memberCounter; // Incrémenter en fonction du compteur
+        } else {
+            $newNumber = $memberCounter; // Utiliser le compteur si aucun membre n'existe encore
+        }
+
+        // Formater le numéro avec des zéros devant (ex : SKK0001, SKK0002, etc.)
+        return sprintf('SKK%04d', $newNumber);
     }
 
     private function getMembersFromCSV(string $filePath): array
@@ -430,8 +446,9 @@ class PaymentController extends AbstractController
     /**
      * @throws TransportExceptionInterface
      */
-    private function sendLicenseEmail($recipientEmail, $pdfPath, $context, $type, MailerInterface $mailer): void
+    private function sendLicenseEmail($recipientEmail, $pdfPath, $type, MailerInterface $mailer): void
     {
+        $context = [];
         $email = (new TemplatedEmail())
             ->from('no-reply@shinkyokai.com')
             ->to($recipientEmail)
@@ -446,13 +463,14 @@ class PaymentController extends AbstractController
     /**
      * @throws TransportExceptionInterface
      */
-    private function sendCulturalArtsEmail($recipientEmail, $context, $type, MailerInterface $mailer): void
+    private function sendCulturalArtsEmail($recipientEmail, MailerInterface $mailer): void
     {
+        $context = [];
         $email = (new TemplatedEmail())
             ->from('no-reply@shinkyokai.com')
             ->to($recipientEmail)
             ->subject('Vous vous êtes inscrit à un atelier sur le site de Shinkyokai')
-            ->htmlTemplate('emails/' . $type . '.html.twig')
+            ->htmlTemplate('emails/' . "atelier-culturel" . '.html.twig')
             ->context($context);
 
         $mailer->send($email);
