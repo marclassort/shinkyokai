@@ -31,7 +31,7 @@ class PaymentController extends AbstractController
     #[Route('/create-checkout-session', name: 'create_checkout_session')]
     public function createCheckoutSession(SessionInterface $session): Response
     {
-        Stripe::setApiKey($this->getParameter('stripe_secret_key'));
+        Stripe::setApiKey($this->getParameter('stripe_secret_key_test'));
 
         $cart = $session->get('cart', []);
 
