@@ -6,9 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8cf3fce7-0788-458d-a6a6-98b12c800d20" name="Changes" comment="Commit all files SKK.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/PaymentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/PaymentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/RouteController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home/tee-shirts.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/tee-shirts.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -244,8 +243,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-822845ee3bb5-JavaScript-PS-243.23654.168" />
-        <option value="bundled-php-predefined-a98d8de5180a-4c3855d0ab16-com.jetbrains.php.sharedIndexes-PS-243.23654.168" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-PS-243.25659.45" />
+        <option value="bundled-php-predefined-a98d8de5180a-1ec7b7818973-com.jetbrains.php.sharedIndexes-PS-243.25659.45" />
       </set>
     </attachedChunks>
   </component>
@@ -315,63 +314,8 @@
       <workItem from="1739122233865" duration="2133000" />
       <workItem from="1739125232126" duration="1377000" />
       <workItem from="1739352483523" duration="14067000" />
-      <workItem from="1739379543766" duration="646000" />
-    </task>
-    <task id="LOCAL-00002" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1725005478542</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1725005478543</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1725645509986</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1725645509986</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1725645513557</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1725645513557</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1725904790520</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1725904790520</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1725904828385</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1725904828385</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1725904933152</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1725904933153</updated>
-    </task>
-    <task id="LOCAL-00008" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1725978314103</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1725978314103</updated>
+      <workItem from="1739379543766" duration="1467000" />
+      <workItem from="1741006659122" duration="4415000" />
     </task>
     <task id="LOCAL-00009" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -709,7 +653,63 @@
       <option name="project" value="LOCAL" />
       <updated>1739372780018</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1739381300037</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1739381300037</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1741008823170</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1741008823171</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1741009091776</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1741009091776</updated>
+    </task>
+    <task id="LOCAL-00054" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1741009987726</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1741009987726</updated>
+    </task>
+    <task id="LOCAL-00055" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1741010174710</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1741010174710</updated>
+    </task>
+    <task id="LOCAL-00056" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1741010215559</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1741010215559</updated>
+    </task>
+    <task id="LOCAL-00057" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1741010390022</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1741010390022</updated>
+    </task>
+    <option name="localTasksCounter" value="58" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
