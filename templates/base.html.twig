@@ -76,7 +76,7 @@
         <nav class="navbar navbar-expand-lg center-nav {% block nav_class %}{% endblock %}">
             <div class="container flex-lg-row flex-nowrap align-items-center">
                 <div class="navbar-brand w-100">
-                    <a href="{{ path('app_home') }}">
+                    <a href="{{ path("app_home") }}">
                         <img
                                 class="logo-dark"
                                 src="/img/SHIN-KYO-red-TR.png"
@@ -100,24 +100,59 @@
                     </div>
                     <div class="offcanvas-body ms-lg-auto d-flex flex-column h-100">
                         <ul class="navbar-nav">
-                            <a class="nav-link" href="{{ path('app_ryu') }}">Ryu</a>
+                            <a class="nav-link" href="{{ path("app_ryu") }}">Ryu</a>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="{{ path('app_home') }}" data-bs-toggle="dropdown">Académie</a>
+                                <a class="nav-link dropdown-toggle" href="{{ path("app_home") }}" data-bs-toggle="dropdown">Académie</a>
                                 <ul class="dropdown-menu">
                                     <li class="dropdown dropdown-submenu dropend">
                                         <a class="dropdown-item dropdown-toggle" data-bs-toggle="dropdown">Arts martiaux
                                         </a>
                                         <ul class="dropdown-menu">
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ path('app_arts_martiaux_tous') }}">
+                                                <a class="dropdown-item" href="{{ path("app_arts_martiaux_tous") }}">
                                                     Arts martiaux
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ path('app_arts_martiaux_stages') }}">
+                                                <a class="dropdown-item" href="{{ path("app_arts_martiaux_stages") }}">
                                                     Stages
                                                 </a>
                                             </li>
+	                                        <li class="nav-item">
+		                                        <a class="dropdown-item" href="{{ path("aikido") }}">
+			                                        Aïkido
+		                                        </a>
+	                                        </li>
+	                                        <li class="nav-item">
+		                                        <a class="dropdown-item" href="{{ path("judo_jujutsu") }}">
+			                                        Judo-Jujutsu
+		                                        </a>
+	                                        </li>
+	                                        <li class="nav-item">
+		                                        <a class="dropdown-item" href="{{ path("karate_do") }}">
+			                                        Karate-Do
+		                                        </a>
+	                                        </li>
+	                                        <li class="nav-item">
+		                                        <a class="dropdown-item" href="{{ path("kung_fu") }}">
+			                                        Kung Fu
+		                                        </a>
+	                                        </li>
+	                                        <li class="nav-item">
+		                                        <a class="dropdown-item" href="{{ path("shinkyokai") }}">
+			                                        Shinkyokai
+		                                        </a>
+	                                        </li>
+	                                        <li class="nav-item">
+		                                        <a class="dropdown-item" href="{{ path("taikibudo") }}">
+			                                        Taïkibudo
+		                                        </a>
+	                                        </li>
+	                                        <li class="nav-item">
+		                                        <a class="dropdown-item" href="{{ path("yoga") }}">
+			                                        Yoga
+		                                        </a>
+	                                        </li>
                                         </ul>
                                     </li>
                                     <li class="dropdown dropdown-submenu dropend">
@@ -125,46 +160,46 @@
                                         </a>
                                         <ul class="dropdown-menu">
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ path('app_arts_culturels') }}">
+                                                <a class="dropdown-item" href="{{ path("app_arts_culturels") }}">
                                                     Arts culturels
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ path('app_arts_culturels_sumie') }}">
+                                                <a class="dropdown-item" href="{{ path("app_arts_culturels_sumie") }}">
                                                     Sumi-e / Kintsugi / Gyotaku
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ path('app_arts_culturels_origami') }}">
+                                                <a class="dropdown-item" href="{{ path("app_arts_culturels_origami") }}">
                                                     Origami
                                                 </a>
                                             </li>
                                             <li class="nav-item">
-                                                <a class="dropdown-item" href="{{ path('app_arts_culturels_calligraphie') }}">
+                                                <a class="dropdown-item" href="{{ path("app_arts_culturels_calligraphie") }}">
                                                     Calligraphie
                                                 </a>
                                             </li>
                                         </ul>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_vertus') }}">Nos vertus</a>
+                                        <a class="dropdown-item" href="{{ path("app_vertus") }}">Nos vertus</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_equipe') }}">L'équipe</a>
+                                        <a class="dropdown-item" href="{{ path("app_equipe") }}">L"équipe</a>
                                     </li>
                                 </ul>
                             </li>
-                            <a class="nav-link" href="{{ path('app_evenements') }}">Événements</a>
-                            <a class="nav-link" href="{{ path('app_galerie') }}">Galerie</a>
-{#                            <a class="nav-link" href="{{ path('app_boutique') }}">Boutique</a>#}
+                            <a class="nav-link" href="{{ path("app_evenements") }}">Événements</a>
+                            <a class="nav-link" href="{{ path("app_galerie") }}">Galerie</a>
+{#                            <a class="nav-link" href="{{ path("app_boutique") }}">Boutique</a>#}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Boutique</a>
                                 <ul class="dropdown-menu">
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_boutique') }}">Karaté-Gi</a>
+                                        <a class="dropdown-item" href="{{ path("app_boutique") }}">Karaté-Gi</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_tee_shirts') }}">Harumatsuri</a>
+                                        <a class="dropdown-item" href="{{ path("app_tee_shirts") }}">Harumatsuri</a>
                                     </li>
                                 </ul>
                             </li>
@@ -172,14 +207,14 @@
                                 <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Adhésion</a>
                                 <ul class="dropdown-menu">
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_inscription_club') }}">Club</a>
+                                        <a class="dropdown-item" href="{{ path("app_inscription_club") }}">Club</a>
                                     </li>
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{{ path('app_inscription_individuelle') }}">Individuelle</a>
+                                        <a class="dropdown-item" href="{{ path("app_inscription_individuelle") }}">Individuelle</a>
                                     </li>
                                 </ul>
                             </li>
-                            <a class="nav-link" href="{{ path('app_zasshi') }}">Zasshi</a>
+                            <a class="nav-link" href="{{ path("app_zasshi") }}">Zasshi</a>
                         </ul>
                         <div class="offcanvas-footer d-lg-none">
                             <div>
@@ -196,7 +231,7 @@
                 <div class="navbar-other w-100 d-flex ms-auto">
                     <ul class="navbar-nav flex-row align-items-center ms-auto">
                         <li class="nav-item d-none d-md-block">
-                            <a href="{{ path('app_contact') }}" style="background-color: #850606; border-color: #850606;" class="btn btn-sm btn-white text-white rounded-pill">Contact</a>
+                            <a href="{{ path("app_contact") }}" style="background-color: #850606; border-color: #850606;" class="btn btn-sm btn-white text-white rounded-pill">Contact</a>
                         </li>
                         <li class="nav-item d-lg-none">
                             <button class="hamburger offcanvas-nav-btn"><span></span></button>
@@ -243,10 +278,10 @@
                 <div class="widget">
                     <h4 class="widget-title text-white mb-3">En savoir plus</h4>
                     <ul class="list-unstyled  mb-0">
-                        <li><a href="{{ path('app_arts_martiaux_tous') }}">Arts martiaux</a></li>
-                        <li><a href="{{ path('app_arts_culturels') }}">Arts culturels</a></li>
-                        <li><a href="{{ path('app_equipe') }}">L'équipe</a></li>
-                        <li><a href="{{ path('app_politique_de_confidentialite') }}">Politique de confidentialité</a></li>
+                        <li><a href="{{ path("app_arts_martiaux_tous") }}">Arts martiaux</a></li>
+                        <li><a href="{{ path("app_arts_culturels") }}">Arts culturels</a></li>
+                        <li><a href="{{ path("app_equipe") }}">L"équipe</a></li>
+                        <li><a href="{{ path("app_politique_de_confidentialite") }}">Politique de confidentialité</a></li>
                     </ul>
                 </div>
             </div>
