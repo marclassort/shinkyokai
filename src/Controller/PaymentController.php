@@ -42,7 +42,7 @@ class PaymentController extends AbstractController
                 "price_data" => [
                     "currency" => "eur",
                     "product_data" => [
-                        "name" => "Inscription d\'un club",
+                        "name" => "Inscription d'un club",
                     ],
                     "unit_amount" => 5000,
                 ],
@@ -56,7 +56,7 @@ class PaymentController extends AbstractController
                     "price_data" => [
                         "currency" => "eur",
                         "product_data" => [
-                            "name" => "Inscription d\'un membre",
+                            "name" => "Inscription d'un membre",
                         ],
                         "unit_amount" => 500, // Prix par membre
                     ],
