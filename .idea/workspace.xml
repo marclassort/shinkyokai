@@ -5,16 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cf3fce7-0788-458d-a6a6-98b12c800d20" name="Changes" comment="Commit all files SKK.">
-      <change afterPath="$PROJECT_DIR$/templates/arts-martiaux/aikido.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-martiaux/judo-jujutsu.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-martiaux/karate-do.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-martiaux/kung-fu.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-martiaux/shinkyokai.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-martiaux/taikibudo.html.twig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/arts-martiaux/yoga.html.twig" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/home/complement-affiliation.html.twig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/PaymentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/PaymentController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/RouteController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home/inscription-arts-culturels.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-arts-culturels.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home/inscription-individuelle.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-individuelle.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -216,27 +214,28 @@
     <option name="showExcludedFiles" value="false" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/acfi/PHP/shinkyokai/templates/arts-martiaux&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;proofread&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/Users/acfi/PHP/shinkyokai/templates/home",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "proofread",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/templates/home" />
       <recent name="$PROJECT_DIR$/templates/arts-martiaux" />
       <recent name="$PROJECT_DIR$/src/Service" />
       <recent name="$PROJECT_DIR$/src" />
@@ -258,8 +257,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-PS-252.23892.419" />
-        <option value="bundled-php-predefined-a98d8de5180a-c72577f2c82f-com.jetbrains.php.sharedIndexes-PS-252.23892.419" />
+        <option value="bundled-js-predefined-d6986cc7102b-9c94529fcfe0-JavaScript-PS-252.26199.163" />
+        <option value="bundled-php-predefined-a98d8de5180a-f0a8ef430dfa-com.jetbrains.php.sharedIndexes-PS-252.26199.163" />
       </set>
     </attachedChunks>
   </component>
@@ -333,15 +332,13 @@
       <workItem from="1741006659122" duration="7660000" />
       <workItem from="1741079945003" duration="1864000" />
       <workItem from="1756312795308" duration="3336000" />
-      <workItem from="1756366803243" duration="5902000" />
-    </task>
-    <task id="LOCAL-00014" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1726332758358</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1726332758358</updated>
+      <workItem from="1756366803243" duration="6686000" />
+      <workItem from="1758013869936" duration="2677000" />
+      <workItem from="1758096507451" duration="596000" />
+      <workItem from="1758265651529" duration="594000" />
+      <workItem from="1758289902940" duration="598000" />
+      <workItem from="1758525466676" duration="1000" />
+      <workItem from="1759224749206" duration="4679000" />
     </task>
     <task id="LOCAL-00015" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -727,7 +724,15 @@
       <option name="project" value="LOCAL" />
       <updated>1741079977873</updated>
     </task>
-    <option name="localTasksCounter" value="63" />
+    <task id="LOCAL-00063" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1756372944116</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1756372944116</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Club;
 use App\Entity\Order;
 use App\Entity\Product;
 use App\Repository\CulturalArtsRepository;
@@ -126,7 +127,7 @@ class RouteController extends AbstractController
             "total" => $total,
             "activity" => $activity,
             "artCulturel" => $artsCulturels,
-            "stripe_public_key" => $this->getParameter("stripe_public_key")
+            "stripe_public_key" => $this->getParameter("stripe_public_key_test")
         ]);
     }
 
@@ -160,7 +161,7 @@ class RouteController extends AbstractController
         return $this->render("arts-culturels/sumi-e.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
             "ateliersSumie" => $ateliersSumie,
             "ateliersKintsugi" => $ateliersKintsugi,
             "ateliersGyotaku" => $ateliersGyotaku
@@ -183,7 +184,7 @@ class RouteController extends AbstractController
         return $this->render("arts-culturels/origami.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
             "ateliersOrigami" => $ateliersOrigami
         ]);
     }
@@ -204,7 +205,7 @@ class RouteController extends AbstractController
         return $this->render("arts-culturels/calligraphie.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
             "ateliersCalligraphie" => $ateliersCalligraphie
         ]);
     }
@@ -269,7 +270,7 @@ class RouteController extends AbstractController
                 "products" => $products,
                 "items" => $items,
                 "total" => $total,
-                "stripe_public_key" => $this->getParameter("stripe_public_key")
+                "stripe_public_key" => $this->getParameter("stripe_public_key_test")
             ]
         );
     }
@@ -291,7 +292,7 @@ class RouteController extends AbstractController
                 "products" => $products,
                 "items" => $items,
                 "total" => $total,
-                "stripe_public_key" => $this->getParameter("stripe_public_key")
+                "stripe_public_key" => $this->getParameter("stripe_public_key_test")
             ]
         );
     }
@@ -311,7 +312,7 @@ class RouteController extends AbstractController
         return $this->render("home/panier.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key")
+            "stripe_public_key" => $this->getParameter("stripe_public_key_test")
         ]);
     }
 
@@ -366,6 +367,67 @@ class RouteController extends AbstractController
         EntityManagerInterface $entityManager
     ): JsonResponse
     {
+        $flow = $request->get("flow", "inscription");
+
+        if ($flow === "complement") {
+            /** @var UploadedFile $csvFile */
+            $csvFile = $request->files->get("csv");
+            if (!$csvFile) {
+                return new JsonResponse(["success" => false, "errors" => ["csv" => "Aucun fichier fourni."]], 400);
+            }
+
+            // Valider uniquement CSV/XLSX
+            $validator = Validation::createValidator();
+            $csvConstraints = new Assert\File([
+                "mimeTypes" => [
+                    "text/csv",
+                    "application/vnd.ms-excel",
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ],
+                "mimeTypesMessage" => "Veuillez télécharger un fichier CSV ou Excel valide.",
+            ]);
+            $csvErrors = $validator->validate($csvFile, $csvConstraints);
+            if (count($csvErrors) > 0) {
+                return new JsonResponse(["success" => false, "errors" => ["csv" => (string) $csvErrors]], 400);
+            }
+
+            $clubNumber = $request->get("club_number");
+            if (!$clubNumber) {
+                return new JsonResponse(["success" => false, "errors" => ["club_number" => "Numéro manquant."]], 400);
+            }
+
+            // Stockage du fichier
+            $csvFilename = uniqid().".".$csvFile->guessExtension();
+            $csvFile->move($this->getParameter("upload_directory"), $csvFilename);
+            $csvFilePath = $this->getParameter("upload_directory")."/".$csvFilename;
+
+            $memberCount = (int) $request->get("member_count", 0);
+
+            // Session CART spécifique au complément
+            $cart = $session->get("cart", []);
+            $cart["club_complement"] = [
+                "club_number" => $clubNumber,
+                "members" => $memberCount,
+                "csvFilePath" => $csvFilePath,
+                "price_per_member" => 5,
+            ];
+            $session->set("cart", $cart);
+
+            // Créer l'ordre
+            $order = new Order();
+            $order->setOrderType("complement-affiliation");
+            $order->setTotalAmount($memberCount * 5);
+            $order->setStatus("en-cours");
+            $order->setCreatedAt(new \DateTimeImmutable());
+
+            $entityManager->persist($order);
+            $entityManager->flush();
+
+            $session->set("orderId", $order->getId());
+
+            return new JsonResponse(["success" => true]);
+        }
+
         $validator = Validation::createValidator();
 
         $logoFile = $request->files->get("logo");
@@ -513,43 +575,43 @@ class RouteController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $price = $data['price'];
-        $registrationData = $data['registrationData'];
+        $price = $data["price"];
+        $registrationData = $data["registrationData"];
 
-        $firstName = $registrationData['firstName'];
-        $lastName = $registrationData['lastName'];
-        $birthDate = $registrationData['birthDate'];
-        $sex = $registrationData['sex'];
-        $email = $registrationData['email'];
+        $firstName = $registrationData["firstName"];
+        $lastName = $registrationData["lastName"];
+        $birthDate = $registrationData["birthDate"];
+        $sex = $registrationData["sex"];
+        $email = $registrationData["email"];
 
-        $session->set('cart', []);
+        $session->set("cart", []);
 
-        $cart['club_individuel'] = [
-            'price' => $price,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'birth_date' => $birthDate,
-            'sex' => $sex,
-            'email' => $email,
+        $cart["club_individuel"] = [
+            "price" => $price,
+            "first_name" => $firstName,
+            "last_name" => $lastName,
+            "birth_date" => $birthDate,
+            "sex" => $sex,
+            "email" => $email,
         ];
 
-        $session->set('cart', $cart);
+        $session->set("cart", $cart);
 
         $order = new Order();
-        $order->setOrderType('inscription-individuelle');
+        $order->setOrderType("inscription-individuelle");
         $order->setTotalAmount(10);
-        $order->setStatus('en-cours');
+        $order->setStatus("en-cours");
         $order->setCreatedAt(new DateTimeImmutable("now"));
 
         $entityManager->persist($order);
         $entityManager->flush();
 
-        $session->set('orderId', $order->getId());
+        $session->set("orderId", $order->getId());
 
-        return new JsonResponse(['success' => true]);
+        return new JsonResponse(["success" => true]);
     }
 
-    #[Route('/add-cultural-registration', name: 'add_cultural_registration_to_cart', methods: ['POST'])]
+    #[Route("/add-cultural-registration", name: "add_cultural_registration_to_cart", methods: ["POST"])]
     public function addCulturalRegistrationToCart(
         Request $request,
         SessionInterface $session,
@@ -558,78 +620,78 @@ class RouteController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $price = $data['price'];
-        $registrationData = $data['registrationData'];
+        $price = $data["price"];
+        $registrationData = $data["registrationData"];
 
-        $cart = $session->get('cart', []);
+        $cart = $session->get("cart", []);
 
-        $firstName = $registrationData['firstName'];
-        $lastName = $registrationData['lastName'];
-        $birthDate = $registrationData['birthDate'];
-        $sex = $registrationData['sex'];
-        $email = $registrationData['email'];
+        $firstName = $registrationData["firstName"];
+        $lastName = $registrationData["lastName"];
+        $birthDate = $registrationData["birthDate"];
+        $sex = $registrationData["sex"];
+        $email = $registrationData["email"];
 
-        $cart['cultural_registration'] = [
-            'price' => $price,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'birth_date' => $birthDate,
-            'sex' => $sex,
-            'email' => $email,
+        $cart["cultural_registration"] = [
+            "price" => $price,
+            "first_name" => $firstName,
+            "last_name" => $lastName,
+            "birth_date" => $birthDate,
+            "sex" => $sex,
+            "email" => $email,
         ];
 
-        $session->set('cart', $cart);
+        $session->set("cart", $cart);
 
         $order = new Order();
-        $order->setOrderType('inscription-arts-culturels');
+        $order->setOrderType("inscription-arts-culturels");
         $order->setTotalAmount(10);
-        $order->setStatus('en-cours');
+        $order->setStatus("en-cours");
         $order->setCreatedAt(new DateTimeImmutable("now"));
 
         $entityManager->persist($order);
         $entityManager->flush();
 
-        $session->set('orderId', $order->getId());
+        $session->set("orderId", $order->getId());
 
-        return new JsonResponse(['success' => true]);
+        return new JsonResponse(["success" => true]);
     }
 
-    #[Route('/count-members', name: 'count_members', methods: ['POST'])]
+    #[Route("/count-members", name: "count_members", methods: ["POST"])]
     public function countMembers(Request $request): JsonResponse
     {
         /** @var UploadedFile $file */
-        $file = $request->files->get('csv');
+        $file = $request->files->get("csv");
         if (!$file) {
-            return new JsonResponse(['error' => 'Aucun fichier fourni'], 400);
+            return new JsonResponse(["error" => "Aucun fichier fourni"], 400);
         }
 
         $extension = $file->getClientOriginalExtension();
-        $validExtensions = ['csv', 'xls', 'xlsx'];
+        $validExtensions = ["csv", "xls", "xlsx"];
 
         if (!in_array($extension, $validExtensions)) {
-            return new JsonResponse(['error' => 'Type de fichier non pris en charge'], 400);
+            return new JsonResponse(["error" => "Type de fichier non pris en charge"], 400);
         }
 
-        $requiredColumns = ['Prénom', 'Nom de famille', 'Sexe', 'Date de naissance'];
+        $requiredColumns = ["Prénom", "Nom de famille", "Sexe", "Date de naissance", "Adresse électronique"];
 
-        if ($extension === 'csv') {
+        if ($extension === "csv") {
             $result = $this->countMembersInCSV($file, $requiredColumns);
         } else {
             $result = $this->countMembersInXLSX($file, $requiredColumns);
         }
 
-        if (isset($result['error'])) {
-            return new JsonResponse(['error' => $result['error']], 400);
+        if (isset($result["error"])) {
+            return new JsonResponse(["error" => $result["error"]], 400);
         }
 
-        return new JsonResponse(['memberCount' => $result['memberCount']]);
+        return new JsonResponse(["memberCount" => $result["memberCount"]]);
     }
 
     private function countMembersInCSV(UploadedFile $file, array $requiredColumns): array
     {
-        $handle = fopen($file->getPathname(), 'r');
+        $handle = fopen($file->getPathname(), "r");
         $headers = fgetcsv($handle, 1000);
-        $headers = array_map('trim', $headers);
+        $headers = array_map("trim", $headers);
 
         // Vérification des colonnes obligatoires
         $requiredColumnIndices = [];
@@ -637,7 +699,7 @@ class RouteController extends AbstractController
             $columnIndex = array_search($requiredColumn, $headers);
             if ($columnIndex === false) {
                 fclose($handle);
-                return ['error' => "Colonne obligatoire '$requiredColumn' manquante."];
+                return ["error" => "Colonne obligatoire '$requiredColumn' manquante."];
             }
             $requiredColumnIndices[] = $columnIndex;
         }
@@ -648,7 +710,7 @@ class RouteController extends AbstractController
         while (($data = fgetcsv($handle, 1000)) !== FALSE) {
             $isValid = true;
             foreach ($requiredColumnIndices as $index) {
-                if (empty(trim($data[$index] ?? ''))) { // Vérifier les colonnes obligatoires
+                if (empty(trim($data[$index] ?? ""))) { // Vérifier les colonnes obligatoires
                     $isValid = false;
                     $invalidLines[] = $data;
                     break;
@@ -663,24 +725,24 @@ class RouteController extends AbstractController
         fclose($handle);
 
         if (count($invalidLines) > 0) {
-            return ['error' => 'Le fichier CSV contient des lignes incomplètes dans les colonnes obligatoires (prénom, nom de famille, sexe, date de naissance)..'];
+            return ["error" => "Le fichier CSV contient des lignes incomplètes dans les colonnes obligatoires (prénom, nom de famille, sexe, date de naissance).."];
         }
 
-        return ['memberCount' => $memberCount];
+        return ["memberCount" => $memberCount];
     }
 
     private function countMembersInXLSX(UploadedFile $file, array $requiredColumns): array
     {
         $spreadsheet = IOFactory::load($file->getPathname());
         $sheet = $spreadsheet->getActiveSheet();
-        $headers = $sheet->rangeToArray('A1:I1')[0];
+        $headers = $sheet->rangeToArray("A1:I1")[0];
 
         // Vérification des colonnes obligatoires
         $requiredColumnIndices = [];
         foreach ($requiredColumns as $requiredColumn) {
             $columnIndex = array_search($requiredColumn, $headers);
             if ($columnIndex === false) {
-                return ['error' => "Colonne obligatoire '$requiredColumn' manquante."];
+                return ["error" => "Colonne obligatoire '$requiredColumn' manquante."];
             }
             $requiredColumnIndices[] = $columnIndex;
         }
@@ -698,7 +760,7 @@ class RouteController extends AbstractController
 
             $isValid = true;
             foreach ($requiredColumnIndices as $colIndex) {
-                if (empty(trim($row[$colIndex] ?? ''))) { // Vérifier les colonnes obligatoires
+                if (empty(trim($row[$colIndex] ?? ""))) { // Vérifier les colonnes obligatoires
                     $isValid = false;
                     $invalidLines[] = $row;
                     break;
@@ -711,76 +773,76 @@ class RouteController extends AbstractController
         }
 
         if (count($invalidLines) > 0) {
-            return ['error' => 'Le fichier XLSX contient des lignes incomplètes dans les colonnes obligatoires (prénom, nom de famille, sexe, date de naissance).'];
+            return ["error" => "Le fichier XLSX contient des lignes incomplètes dans les colonnes obligatoires (prénom, nom de famille, sexe, date de naissance)."];
         }
 
-        return ['memberCount' => $memberCount];
+        return ["memberCount" => $memberCount];
     }
 
-    #[Route('/download-csv-template', name: 'download_csv_template')]
+    #[Route("/download-csv-template", name: "download_csv_template")]
     public function downloadCSVTemplate(): Response
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setCellValue('A1', 'Prénom');
-        $sheet->setCellValue('B1', 'Nom de famille');
-        $sheet->setCellValue('C1', 'Sexe');
-        $sheet->setCellValue('D1', 'Date de naissance');
-        $sheet->setCellValue('E1', 'Adresse');
-        $sheet->setCellValue('F1', 'Code postal');
-        $sheet->setCellValue('G1', 'Ville');
-        $sheet->setCellValue('H1', 'Adresse électronique');
-        $sheet->setCellValue('I1', 'Numéro de téléphone');
+        $sheet->setCellValue("A1", "Prénom");
+        $sheet->setCellValue("B1", "Nom de famille");
+        $sheet->setCellValue("C1", "Sexe");
+        $sheet->setCellValue("D1", "Date de naissance");
+        $sheet->setCellValue("E1", "Adresse");
+        $sheet->setCellValue("F1", "Code postal");
+        $sheet->setCellValue("G1", "Ville");
+        $sheet->setCellValue("H1", "Adresse électronique");
+        $sheet->setCellValue("I1", "Numéro de téléphone");
 
-        $validationSexe = $sheet->getCell('C2')->getDataValidation();
+        $validationSexe = $sheet->getCell("C2")->getDataValidation();
         $validationSexe->setType(DataValidation::TYPE_LIST);
         $validationSexe->setErrorStyle(DataValidation::STYLE_STOP);
         $validationSexe->setAllowBlank(false);
         $validationSexe->setShowDropDown(true);
-        $validationSexe->setFormula1('"Masculin,Féminin"');
+        $validationSexe->setFormula1("'Masculin,Féminin'");
 
-        $sheet->getStyle('D2:D1000')->getNumberFormat()->setFormatCode('DD/MM/YYYY');
-        $validationDate = $sheet->getCell('D2')->getDataValidation();
+        $sheet->getStyle("D2:D1000")->getNumberFormat()->setFormatCode("DD/MM/YYYY");
+        $validationDate = $sheet->getCell("D2")->getDataValidation();
         $validationDate->setType(DataValidation::TYPE_DATE);
         $validationDate->setErrorStyle(DataValidation::STYLE_STOP);
         $validationDate->setAllowBlank(false);
         $validationDate->setOperator(DataValidation::OPERATOR_BETWEEN);
-        $validationDate->setFormula1('DATE(1900,1,1)');
-        $validationDate->setFormula2('DATE(2100,12,31)');
+        $validationDate->setFormula1("DATE(1900,1,1)");
+        $validationDate->setFormula2("DATE(2100,12,31)");
         $validationDate->setShowInputMessage(true);
-        $validationDate->setPromptTitle('Format attendu');
-        $validationDate->setPrompt('Veuillez entrer une date au format JJ/MM/AAAA.');
+        $validationDate->setPromptTitle("Format attendu");
+        $validationDate->setPrompt("Veuillez entrer une date au format JJ/MM/AAAA.");
 
-        $validationPhone = $sheet->getCell('I2')->getDataValidation();
+        $validationPhone = $sheet->getCell("I2")->getDataValidation();
         $validationPhone->setType(DataValidation::TYPE_TEXTLENGTH);
         $validationPhone->setErrorStyle(DataValidation::STYLE_STOP);
         $validationPhone->setAllowBlank(false);
         $validationPhone->setOperator(DataValidation::OPERATOR_BETWEEN);
-        $validationPhone->setFormula1('10');
-        $validationPhone->setFormula2('12');
+        $validationPhone->setFormula1("10");
+        $validationPhone->setFormula2("12");
         $validationPhone->setShowInputMessage(true);
-        $validationPhone->setPromptTitle('Format attendu');
-        $validationPhone->setPrompt('Veuillez entrer un numéro de téléphone entre 10 et 12 chiffres.');
+        $validationPhone->setPromptTitle("Format attendu");
+        $validationPhone->setPrompt("Veuillez entrer un numéro de téléphone entre 10 et 12 chiffres.");
 
-        $validationPostalCode = $sheet->getCell('F2')->getDataValidation();
+        $validationPostalCode = $sheet->getCell("F2")->getDataValidation();
         $validationPostalCode->setType(DataValidation::TYPE_WHOLE);
         $validationPostalCode->setErrorStyle(DataValidation::STYLE_STOP);
         $validationPostalCode->setAllowBlank(false);
         $validationPostalCode->setOperator(DataValidation::OPERATOR_BETWEEN);
-        $validationPostalCode->setFormula1('10000');
-        $validationPostalCode->setFormula2('99999');
+        $validationPostalCode->setFormula1("10000");
+        $validationPostalCode->setFormula2("99999");
         $validationPostalCode->setShowInputMessage(true);
-        $validationPostalCode->setPromptTitle('Format attendu');
-        $validationPostalCode->setPrompt('Veuillez entrer un code postal composé de 5 chiffres.');
+        $validationPostalCode->setPromptTitle("Format attendu");
+        $validationPostalCode->setPrompt("Veuillez entrer un code postal composé de 5 chiffres.");
 
-        $validationEmail = $sheet->getCell('H2')->getDataValidation();
+        $validationEmail = $sheet->getCell("H2")->getDataValidation();
         $validationEmail->setType(DataValidation::TYPE_CUSTOM);
         $validationEmail->setErrorStyle(DataValidation::STYLE_STOP);
         $validationEmail->setAllowBlank(false);
-        $validationEmail->setFormula1('=AND(ISNUMBER(SEARCH("@",H2)),ISNUMBER(SEARCH(".",H2)))');
+        $validationEmail->setFormula1("=AND(ISNUMBER(SEARCH('@',H2)),ISNUMBER(SEARCH(".",H2)))");
         $validationEmail->setShowInputMessage(true);
-        $validationEmail->setPromptTitle('Format attendu');
-        $validationEmail->setPrompt('Veuillez entrer une adresse électronique valide (ex : exemple@domaine.fr).');
+        $validationEmail->setPromptTitle("Format attendu");
+        $validationEmail->setPrompt("Veuillez entrer une adresse électronique valide (ex : exemple@domaine.fr).");
 
         for ($i = 2; $i <= 1000; $i++) {
             $sheet->getCell("C$i")->setDataValidation(clone $validationSexe);
@@ -789,52 +851,52 @@ class RouteController extends AbstractController
             $sheet->getCell("F$i")->setDataValidation(clone $validationPostalCode);
             $sheet->getCell("H$i")->setDataValidation(clone $validationEmail);
         }
-        foreach (range('A', 'I') as $columnID) {
+        foreach (range("A", "I") as $columnID) {
             $sheet->getColumnDimension($columnID)->setAutoSize(true);
         }
 
         $writer = new Xlsx($spreadsheet);
         $response = new StreamedResponse(function() use ($writer) {
-            $writer->save('php://output');
+            $writer->save("php://output");
         });
 
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $response->headers->set('Content-Disposition', 'attachment;filename="template.xlsx"');
-        $response->headers->set('Cache-Control', 'max-age=0');
+        $response->headers->set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        $response->headers->set("Content-Disposition", "attachment;filename=template.xlsx");
+        $response->headers->set("Cache-Control", "max-age=0");
 
         return $response;
     }
 
-    #[Route('/cart/update/ajax', name: 'cart_update_ajax', methods: ['POST'])]
+    #[Route("/cart/update/ajax", name: "cart_update_ajax", methods: ["POST"])]
     public function updateAjax(SessionInterface $session, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $productId = $data['id'];
-        $quantity = (int) $data['quantity'];
+        $productId = $data["id"];
+        $quantity = (int) $data["quantity"];
 
-        $cart = $session->get('cart', []);
+        $cart = $session->get("cart", []);
 
         if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] = $quantity;
+            $cart[$productId]["quantity"] = $quantity;
         }
 
-        $session->set('cart', $cart);
+        $session->set("cart", $cart);
 
-        $itemTotal = $cart[$productId]['product']->getPrice() * $quantity;
+        $itemTotal = $cart[$productId]["product"]->getPrice() * $quantity;
         $cartTotal = $this->cartService->getTotal($session);
 
         return new JsonResponse([
-            'success' => true,
-            'itemTotal' => number_format($itemTotal, 2),
-            'cartTotal' => number_format($cartTotal, 2),
+            "success" => true,
+            "itemTotal" => number_format($itemTotal, 2),
+            "cartTotal" => number_format($cartTotal, 2),
         ]);
     }
 
-    #[Route('/cart/remove/{id}', name: 'cart_remove')]
+    #[Route("/cart/remove/{id}", name: "cart_remove")]
     public function remove(SessionInterface $session, Product $product): Response
     {
         $this->cartService->removeFromCart($session, $product);
-        return $this->redirectToRoute('app_panier');
+        return $this->redirectToRoute("app_panier");
     }
 
     #[Route("/paiement", name: "app_paiement")]
@@ -854,8 +916,24 @@ class RouteController extends AbstractController
         return $this->render("home/inscription-club.html.twig", [
             "items" => $items,
             "total" => $total,
-            'stripe_public_key' => $this->getParameter('stripe_public_key'),
-            'stripe_secret_key' => $this->getParameter('stripe_secret_key'),
+            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
+            "stripe_secret_key" => $this->getParameter("stripe_secret_key_test"),
+        ]);
+    }
+
+    #[Route("/complement-affiliation", name: "app_complement_affiliation")]
+    public function getComplementAffiliation(SessionInterface $session, PanierService $panierService): Response
+    {
+        $items = $this->cartService->getCartItems($session);
+        $total = $this->cartService->getTotal($session);
+
+        $panierService->resetClubRegistration($session);
+
+        return $this->render("home/complement-affiliation.html.twig", [
+            "items" => $items,
+            "total" => $total,
+            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
+            "stripe_secret_key" => $this->getParameter("stripe_secret_key_test"),
         ]);
     }
 
@@ -868,7 +946,7 @@ class RouteController extends AbstractController
         return $this->render("home/inscription-individuelle.html.twig", [
             "items" => $items,
             "total" => $total,
-            'stripe_public_key' => $this->getParameter('stripe_public_key')
+            "stripe_public_key" => $this->getParameter("stripe_public_key_test")
         ]);
     }
 
@@ -881,10 +959,10 @@ class RouteController extends AbstractController
     #[Route("/filter/products", name: "filter_products_by_price", methods: ["GET"])]
     public function filterProductsByPrice(Request $request, ProductRepository $productRepository): JsonResponse
     {
-        $priceRange = $request->query->get('priceRange');
+        $priceRange = $request->query->get("priceRange");
 
         // Séparer la plage de prix pour obtenir le min et le max
-        [$minPrice, $maxPrice] = explode('-', $priceRange);
+        [$minPrice, $maxPrice] = explode("-", $priceRange);
 
         // Récupérer les produits correspondant à la plage de prix
         $products = $productRepository->findByPriceRange((float) $minPrice, (float) $maxPrice);
@@ -894,15 +972,15 @@ class RouteController extends AbstractController
 
         foreach ($products as $product) {
             $responseProducts[] = [
-                'id' => $product->getId(),
-                'name' => $product->getName(),
-                'price' => $product->getPrice(),
-                'image' => $product->getImage(),
-                'category' => $product->getCategory(),
+                "id" => $product->getId(),
+                "name" => $product->getName(),
+                "price" => $product->getPrice(),
+                "image" => $product->getImage(),
+                "category" => $product->getCategory(),
             ];
         }
 
-        return new JsonResponse(['products' => $responseProducts]);
+        return new JsonResponse(["products" => $responseProducts]);
     }
 
     /**
@@ -912,22 +990,22 @@ class RouteController extends AbstractController
      * @throws LoaderError
      * @throws LoaderError
      */
-    #[Route('/decouverte-sumie', name: 'app_decouverte')]
+    #[Route("/decouverte-sumie", name: "app_decouverte")]
     public function decouverteSumie(Request $request, EmailService $emailService): Response
     {
         if ($request->isXmlHttpRequest()) {
             $data = json_decode($request->getContent(), true);
 
             $emailService->sendContactEmail(
-                'contact@shinkyokai.com',
-                'Inscription atelier découverte - 16 octobre',
+                "contact@shinkyokai.com",
+                "Inscription atelier découverte - 16 octobre",
                 $data
             );
 
-            return $this->json(['success' => true]);
+            return $this->json(["success" => true]);
         }
 
-        return $this->render('home/inscription-sumie.html.twig');
+        return $this->render("home/inscription-sumie.html.twig");
     }
 
     /**
@@ -936,22 +1014,22 @@ class RouteController extends AbstractController
      * @throws RuntimeError
      * @throws LoaderError
      */
-    #[Route('/contact', name: 'app_contact')]
+    #[Route("/contact", name: "app_contact")]
     public function contact(Request $request, EmailService $emailService): Response
     {
         if ($request->isXmlHttpRequest()) {
             $data = json_decode($request->getContent(), true);
 
             $emailService->sendContactEmail(
-                'contact@shinkyokai.com',
-                'Nouveau message de contact',
+                "contact@shinkyokai.com",
+                "Nouveau message de contact",
                 $data
             );
 
-            return $this->json(['success' => true]);
+            return $this->json(["success" => true]);
         }
 
-        return $this->render('home/contact.html.twig');
+        return $this->render("home/contact.html.twig");
     }
 
     #[Route("/politique-de-confidentialite", name: "app_politique_de_confidentialite")]
@@ -969,10 +1047,10 @@ class RouteController extends AbstractController
         foreach ($zasshis as $zasshi) {
             $monthYear = substr($zasshi->getDate(), 0, 7);
             $zasshisByMonth[$monthYear][] = [
-                'id' => $zasshi->getId(),
-                'name' => $zasshi->getName(),
-                'pdf' => $zasshi->getPdf(),
-                'monthYear' => $this->formatDateToFrench($monthYear),
+                "id" => $zasshi->getId(),
+                "name" => $zasshi->getName(),
+                "pdf" => $zasshi->getPdf(),
+                "monthYear" => $this->formatDateToFrench($monthYear),
             ];
         }
 
@@ -985,22 +1063,51 @@ class RouteController extends AbstractController
     {
         // Correspondance des mois en français
         $monthNames = [
-            '01' => 'Janvier', '02' => 'Février', '03' => 'Mars', '04' => 'Avril',
-            '05' => 'Mai', '06' => 'Juin', '07' => 'Juillet', '08' => 'Août',
-            '09' => 'Septembre', '10' => 'Octobre', '11' => 'Novembre', '12' => 'Décembre',
+            "01" => "Janvier", "02" => "Février", "03" => "Mars", "04" => "Avril",
+            "05" => "Mai", "06" => "Juin", "07" => "Juillet", "08" => "Août",
+            "09" => "Septembre", "10" => "Octobre", "11" => "Novembre", "12" => "Décembre",
         ];
 
         // Séparer l'année et le mois
-        [$year, $month] = explode('-', $date);
+        [$year, $month] = explode("-", $date);
 
         // Retourner le format "Mois Année"
-        return $monthNames[$month] . ' ' . $year;
+        return $monthNames[$month] . " " . $year;
     }
 
-    #[Route('/la-caverne-secrete/logout', name: 'app_logout', methods: ['GET'])]
+    #[Route("/la-caverne-secrete/logout", name: "app_logout", methods: ["GET"])]
     public function logout(): Response
     {
-        return new Response('Déconnecté avec succès.', Response::HTTP_OK, ['WWW-Authenticate' => 'Basic realm="admin"']);
+        return new Response(
+            "Déconnecté avec succès.", Response::HTTP_OK, ["WWW-Authenticate" => "Basic realm='admin'"]);
+    }
+
+    #[Route("/api/club/check-number", name: "api_check_club_number", methods: ["POST"])]
+    public function checkClubNumber(Request $request, EntityManagerInterface $em): JsonResponse
+    {
+        $clubNumber = $request->request->get("club_number");
+        if (!$clubNumber) {
+            return new JsonResponse(["ok" => false, "error" => "Numéro manquant."], 400);
+        }
+
+        $club = $em->getRepository(Club::class)->findOneBy(["clubNumber" => $clubNumber]);
+        if (!$club) {
+            return new JsonResponse(["ok" => false, "error" => "Numéro introuvable."], 404);
+        }
+
+        return new JsonResponse([
+            "ok" => true,
+            "club" => [
+                "id" => $club->getId(),
+                "name" => $club->getName(),
+                "email" => $club->getEmail(),
+                "number" => $club->getClubNumber(),
+                "city" => $club->getCity(),
+                "postalCode" => $club->getPostalCode(),
+                "country" => $club->getCountry(),
+                "logo" => $club->getLogo(),
+            ],
+        ]);
     }
 
     private function getWorkshop($ateliersSumie): array
@@ -1009,17 +1116,17 @@ class RouteController extends AbstractController
 
         foreach ($ateliersSumie as $atelierSumie) {
             $monthYear = IntlDateFormatter::create(
-                'fr_FR',
+                "fr_FR",
                 IntlDateFormatter::NONE,
                 IntlDateFormatter::NONE,
                 null,
                 null,
-                'LLLL yyyy'
+                "LLLL yyyy"
             )->format($atelierSumie->getDate());
 
             $groupedAteliers[$monthYear][] = $atelierSumie;
 
-            $dateString = $atelierSumie->getDate()->format('d/m/Y à H\hi');
+            $dateString = $atelierSumie->getDate()->format("d/m/Y à H\hi");
             $atelierSumie->formattedDate = $dateString;
         }
 

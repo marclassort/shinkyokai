@@ -28,105 +28,118 @@ class PaymentController extends AbstractController
     /**
      * @throws ApiErrorException
      */
-    #[Route('/create-checkout-session', name: 'create_checkout_session')]
+    #[Route("/create-checkout-session", name: "create_checkout_session")]
     public function createCheckoutSession(SessionInterface $session): Response
     {
-        Stripe::setApiKey($this->getParameter('stripe_secret_key'));
+        Stripe::setApiKey($this->getParameter("stripe_secret_key_test"));
 
-        $cart = $session->get('cart', []);
+        $cart = $session->get("cart", []);
 
         $lineItems = [];
 
-        if (isset($cart['club'])) {
+        if (isset($cart["club"])) {
             $lineItems[] = [
-                'price_data' => [
-                    'currency' => 'eur',
-                    'product_data' => [
-                        'name' => 'Inscription d\'un club',
+                "price_data" => [
+                    "currency" => "eur",
+                    "product_data" => [
+                        "name" => "Inscription d\'un club",
                     ],
-                    'unit_amount' => 5000,
+                    "unit_amount" => 5000,
                 ],
-                'quantity' => 1,
+                "quantity" => 1,
             ];
 
-            $memberCount = $cart['club']['members'] ?? 0;
+            $memberCount = $cart["club"]["members"] ?? 0;
 
             if ($memberCount > 0) {
                 $lineItems[] = [
-                    'price_data' => [
-                        'currency' => 'eur',
-                        'product_data' => [
-                            'name' => 'Inscription d\'un membre',
+                    "price_data" => [
+                        "currency" => "eur",
+                        "product_data" => [
+                            "name" => "Inscription d\'un membre",
                         ],
-                        'unit_amount' => 500, // Prix par membre
+                        "unit_amount" => 500, // Prix par membre
                     ],
-                    'quantity' => $memberCount,
+                    "quantity" => $memberCount,
                 ];
             }
         }
 
+        if (isset($cart["club_complement"])) {
+            $lineItems[] = [
+                "price_data" => [
+                    "currency" => "eur",
+                    "product_data" => [
+                        "name" => "Complément d'affiliation – membre",
+                    ],
+                    "unit_amount" => 500, // 5€ par membre
+                ],
+                "quantity" => $cart["club_complement"]["members"] ?? 0,
+            ];
+        }
+
         foreach ($cart as $key => $item) {
             // Gérer les produits classiques
-            if ($key !== 'club' && isset($item['product'])) {
+            if ($key !== "club" && isset($item["product"])) {
                 $lineItems[] = [
-                    'price_data' => [
-                        'currency' => 'eur',
-                        'product_data' => [
-                            'name' => $item['product']->getName(),
+                    "price_data" => [
+                        "currency" => "eur",
+                        "product_data" => [
+                            "name" => $item["product"]->getName(),
                         ],
-                        'unit_amount' => $item['product']->getPrice() * 100, // Le prix en centimes
+                        "unit_amount" => $item["product"]->getPrice() * 100, // Le prix en centimes
                     ],
-                    'quantity' => $item['quantity'],
+                    "quantity" => $item["quantity"],
                 ];
             }
 
             // Gérer les inscriptions individuelles
-            if (isset($cart['club_individuel'])) {
+            if (isset($cart["club_individuel"])) {
                 $lineItems[] = [
-                    'price_data' => [
-                        'currency' => 'eur',
-                        'product_data' => [
-                            'name' => 'Inscription individuelle',
+                    "price_data" => [
+                        "currency" => "eur",
+                        "product_data" => [
+                            "name" => "Inscription individuelle",
                         ],
-                        'unit_amount' => $item['price'] * 100, // Prix de l'inscription individuelle en centimes
+                        "unit_amount" => $item["price"] * 100, // Prix de l'inscription individuelle en centimes
                     ],
-                    'quantity' => 1,
+                    "quantity" => 1,
                 ];
             }
 
             // Gérer les inscriptions arts culturels
-            if (isset($cart['cultural_registration'])) {
+            if (isset($cart["cultural_registration"])) {
                 $lineItems[] = [
-                    'price_data' => [
-                        'currency' => 'eur',
-                        'product_data' => [
-                            'name' => $cart['cultural_registration']['activity'],
+                    "price_data" => [
+                        "currency" => "eur",
+                        "product_data" => [
+                            "name" => $cart["cultural_registration"]["activity"],
                         ],
-                        'unit_amount' => $cart['cultural_registration']['price'] * 100,
+                        "unit_amount" => $cart["cultural_registration"]["price"] * 100,
                     ],
-                    'quantity' => 1,
+                    "quantity" => 1,
                 ];
             }
         }
 
         $checkoutSession = StripeSession::create([
-            'payment_method_types' => ['card'],
-            'line_items' => $lineItems,
-            'mode' => 'payment',
-            'success_url' => $this->generateUrl('payment_success', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'cancel_url' => $this->generateUrl('payment_cancel', [], UrlGeneratorInterface::ABSOLUTE_URL),
+            "payment_method_types" => ["card"],
+            "line_items" => $lineItems,
+            "mode" => "payment",
+            "success_url" => $this->generateUrl("payment_success", [], UrlGeneratorInterface::ABSOLUTE_URL),
+            "cancel_url" => $this->generateUrl("payment_cancel", [], UrlGeneratorInterface::ABSOLUTE_URL),
         ]);
 
-        $session->set('stripeSessionId', $checkoutSession->id);
+        $session->set("stripeSessionId", $checkoutSession->id);
 
-        return new JsonResponse(['id' => $checkoutSession->id]);
+        return new JsonResponse(["id" => $checkoutSession->id]);
     }
 
     /**
      * @throws Exception
      * @throws TransportExceptionInterface
      */
-    #[Route('/paiement-succes', name: 'payment_success')]
+    #[Route("/paiement-succes", name: "payment_success")]
     public function paymentSuccess(
         SessionInterface $session,
         EntityManagerInterface $entityManager,
@@ -134,34 +147,34 @@ class PaymentController extends AbstractController
     ): Response
     {
         // Récupération de l'ID de la command
-        $orderId = $session->get('orderId');
+        $orderId = $session->get("orderId");
         if (!$orderId) {
-            throw new Exception('No orderId found in session.');
+            throw new Exception("No orderId found in session.");
         }
 
         // Récupération de la commande depuis la base de données
         $order = $entityManager->getRepository(Order::class)->find($orderId);
         if (!$order) {
-            throw new Exception('No order found for id ' . $orderId);
+            throw new Exception("No order found for id " . $orderId);
         }
 
         $memberCounter = 0;
 
         // Récupération des données du panier
-        $cart = $session->get('cart');
+        $cart = $session->get("cart");
 
-        $csvFilePath = $cart['club']['csvFilePath'] ?? null;
+        $csvFilePath = $cart["club"]["csvFilePath"] ?? null;
         if ($csvFilePath) {
             // Récupération des membres à partir du fichier CSV/Excel
             $extension = pathinfo($csvFilePath, PATHINFO_EXTENSION);
-            if ($extension === 'csv') {
+            if ($extension === "csv") {
                 $members = $this->getMembersFromCSV($csvFilePath);
             } else {
                 $members = $this->getMembersFromXLSX($csvFilePath);
             }
 
             // Création d'un nouvel objet Club
-            $clubData = $cart['club'];
+            $clubData = $cart["club"];
             $club = new Club();
 
             $logoFile = $clubData["logo"];
@@ -177,7 +190,7 @@ class PaymentController extends AbstractController
             $club->setCity($clubData["city"]);
             $club->setCountry($clubData["country"]);
 
-            $lastClub = $entityManager->getRepository(Club::class)->findOneBy([], ['id' => 'DESC']);
+            $lastClub = $entityManager->getRepository(Club::class)->findOneBy([], ["id" => "DESC"]);
             $newClubNumber = $this->generateUniqueClubNumber($lastClub);
             $club->setClubNumber($newClubNumber);
 
@@ -217,14 +230,14 @@ class PaymentController extends AbstractController
 
                 // Générer le PDF de la licence
                 $memberData = [
-                    'membre_prenom' => $member->getFirstName(),
-                    'membre_nom' => $member->getLastName(),
-                    'membre_date' => $member->getBirthDate(),
-                    'membre_sexe' => $member->getSex(),
-                    'licence' => $member->getLicenceNumber(),
-                    'logo' => $logoFile,
-                    'club_name' => $club->getName(),
-                    'numero' => $club->getClubNumber(),
+                    "membre_prenom" => $member->getFirstName(),
+                    "membre_nom" => $member->getLastName(),
+                    "membre_date" => $member->getBirthDate(),
+                    "membre_sexe" => $member->getSex(),
+                    "licence" => $member->getLicenceNumber(),
+                    "logo" => $logoFile,
+                    "club_name" => $club->getName(),
+                    "numero" => $club->getClubNumber(),
                 ];
                 $pdfFilePath = $this->generateLicensePdf($memberData, "club-membre");
 
@@ -246,6 +259,78 @@ class PaymentController extends AbstractController
             // Mise à jour du montant total
             $memberCount = (float)$clubData["members"];
             $total = 50.0 + ($memberCount * 5);
+            $order->setTotalAmount($total);
+        }
+
+        if (isset($cart["club_complement"])) {
+            $clubNumber = $cart["club_complement"]["club_number"] ?? null;
+            $csvFilePath = $cart["club_complement"]["csvFilePath"] ?? null;
+            if (!$clubNumber || !$csvFilePath) {
+                throw new \Exception("Club number or CSV path missing for complement.");
+            }
+
+            // 1) Retrouver le club existant
+            $club = $entityManager->getRepository(Club::class)->findOneBy(["clubNumber" => $clubNumber]);
+            if (!$club) {
+                throw new \Exception("Club introuvable pour complément: " . $clubNumber);
+            }
+
+            // 2) Lire les membres depuis le fichier
+            $extension = pathinfo($csvFilePath, PATHINFO_EXTENSION);
+            $members = ($extension === "csv") ? $this->getMembersFromCSV($csvFilePath) : $this->getMembersFromXLSX($csvFilePath);
+
+            // Filtrer lignes vides
+            $members = array_filter($members, fn($row) => array_filter($row));
+
+            // 3) Créer les membres et envoyer les licences
+            $memberCounter = 0;
+            $logoFile = $club->getLogo();
+
+            foreach ($members as $data) {
+                $member = new Member();
+                $member->setFirstName($data[0] ?? null);
+                $member->setLastName($data[1] ?? null);
+                $member->setSex($data[2] ?? null);
+                $member->setBirthDate($data[3] ?? null);
+                $member->setAddress($data[4] ?? null);
+                $member->setPostalCode($data[5] ?? null);
+                $member->setCity($data[6] ?? null);
+                $member->setEmail($data[7] ?? null);
+                $member->setPhoneNumber($data[8] ?? null);
+                $member->setCountry("France");
+                $member->setCommande($order);
+                $member->setClub($club);
+
+                // Numéro de licence unique
+                $memberCounter++;
+                $newLicenceNumber = $this->generateUniqueLicenceNumber($entityManager, $memberCounter);
+                $member->setLicenceNumber($newLicenceNumber);
+
+                $entityManager->persist($member);
+
+                // PDF + email (si email fourni)
+                $memberData = [
+                    "membre_prenom" => $member->getFirstName(),
+                    "membre_nom" => $member->getLastName(),
+                    "membre_date" => $member->getBirthDate(),
+                    "membre_sexe" => $member->getSex(),
+                    "licence" => $member->getLicenceNumber(),
+                    "logo" => $logoFile,
+                    "club_name" => $club->getName(),
+                    "numero" => $club->getClubNumber(),
+                ];
+                $pdfFilePath = $this->generateLicensePdf($memberData, "club-membre");
+
+                if ($member->getEmail()) {
+                    $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, "club-membre", $mailer);
+                }
+            }
+
+            // 4) Mettre le club sur la commande & total
+            $order->setClub($club);
+
+            $memberCount = (float)($cart["club_complement"]["members"] ?? 0);
+            $total = $memberCount * 5;
             $order->setTotalAmount($total);
         }
 
@@ -273,18 +358,18 @@ class PaymentController extends AbstractController
             $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, "membre-individuel", $mailer);
         }
 
-        if (isset($cart['cultural_registration'])) {
+        if (isset($cart["cultural_registration"])) {
             $member = new Member();
-            $member->setFirstName($cart['cultural_registration']['first_name']);
-            $member->setLastName($cart['cultural_registration']['last_name']);
-            $member->setBirthDate($cart['cultural_registration']['birth_date']);
-            $member->setSex($cart['cultural_registration']['sex']);
-            $member->setEmail($cart['cultural_registration']['email']);
+            $member->setFirstName($cart["cultural_registration"]["first_name"]);
+            $member->setLastName($cart["cultural_registration"]["last_name"]);
+            $member->setBirthDate($cart["cultural_registration"]["birth_date"]);
+            $member->setSex($cart["cultural_registration"]["sex"]);
+            $member->setEmail($cart["cultural_registration"]["email"]);
             $member->setCommande($order); // Lien avec la commande
             $entityManager->persist($member);
 
 //            // Définir un numéro de licence unique
-//            $lastMember = $entityManager->getRepository(Member::class)->findOneBy([], ['id' => 'DESC']);
+//            $lastMember = $entityManager->getRepository(Member::class)->findOneBy([], ["id" => "DESC"]);
 //            $newLicenceNumber = $this->generateUniqueLicenceNumber($lastMember);
 //            $member->setLicenceNumber($newLicenceNumber);
 //
@@ -314,17 +399,17 @@ class PaymentController extends AbstractController
     {
         $lastClubNumber = $lastClub ? (int)substr($lastClub->getClubNumber(), 4) : 0;
         $newClubNumber = $lastClubNumber + 1;
-        return sprintf('SHIN%04d', $newClubNumber);
+        return sprintf("SHIN%04d", $newClubNumber);
     }
 
     private function generateUniqueLicenceNumber(EntityManagerInterface $entityManager, int $memberCounter): string
     {
         // Récupérer le dernier numéro de licence existant
         $lastMember = $entityManager->getRepository(Member::class)
-            ->findOneBy([], ['id' => 'DESC']);
+            ->findOneBy([], ["id" => "DESC"]);
 
         // Vérifier s'il existe déjà un membre
-        if ($lastMember && preg_match('/SKK(\d+)/', $lastMember->getLicenceNumber(), $matches)) {
+        if ($lastMember && preg_match("/SKK(\d+)/", $lastMember->getLicenceNumber(), $matches)) {
             $lastNumber = (int)$matches[1];
             $newNumber = $lastNumber + $memberCounter; // Incrémenter en fonction du compteur
         } else {
@@ -332,13 +417,13 @@ class PaymentController extends AbstractController
         }
 
         // Formater le numéro avec des zéros devant (ex : SKK0001, SKK0002, etc.)
-        return sprintf('SKK%04d', $newNumber);
+        return sprintf("SKK%04d", $newNumber);
     }
 
     private function getMembersFromCSV(string $filePath): array
     {
         $handle = fopen($filePath, "r");
-        fgetcsv($handle); // Ignorer l'en-tête
+        fgetcsv($handle); // Ignorer l"en-tête
 
         $members = [];
         while (($data = fgetcsv($handle, 1000)) !== FALSE) {
@@ -373,8 +458,8 @@ class PaymentController extends AbstractController
         // Vérification si l'ID de commande est défini
         if (!$orderId) {
             // Logique en cas d'absence de l'ID de commande dans la session
-            $this->addFlash('error', 'Aucune commande trouvée pour annulation.');
-            return $this->redirectToRoute('app_home');
+            $this->addFlash("error", "Aucune commande trouvée pour annulation.");
+            return $this->redirectToRoute("app_home");
         }
 
         // Récupération de la commande depuis la base de données
@@ -383,8 +468,8 @@ class PaymentController extends AbstractController
         // Vérification si la commande existe
         if (!$order) {
             // Logique en cas d'absence de la commande dans la base de données
-            $this->addFlash('error', 'Commande non trouvée dans la base de données.');
-            return $this->redirectToRoute('app_home');
+            $this->addFlash("error", "Commande non trouvée dans la base de données.");
+            return $this->redirectToRoute("app_home");
         }
 
         // Mettre à jour le statut de la commande
@@ -392,33 +477,40 @@ class PaymentController extends AbstractController
         $entityManager->flush();
 
         // Nettoyage de la session
-        $session->remove('cart');
-        $session->remove('orderId');
-        $session->remove('csvFile');
+        $session->remove("cart");
+        $session->remove("orderId");
+        $session->remove("csvFile");
 
-        // Afficher la page d'annulation
-        return $this->render('payment/cancel.html.twig');
+        // Afficher la page d"annulation
+        return $this->render("payment/cancel.html.twig");
     }
 
     private function generateLicensePdf($data, $type): string
     {
         $options = new Options();
-        $options->set('isHtml5ParserEnabled', true);
-        $options->set('isRemoteEnabled', true); // Pour les images externes ou locales
+        $options->set("isHtml5ParserEnabled", true);
+        $options->set("isRemoteEnabled", true); // Pour les images externes ou locales
 
         $dompdf = new Dompdf($options);
 
         // Rendre le template en HTML selon le type de licence (club, adhérent individuel, ou culturel)
         $html = $this->renderView("licenses/" . $type . ".html.twig", [
-            'data' => $data
+            "data" => $data
         ]);
 
         $dompdf->loadHtml($html);
-        $dompdf->setPaper('A6', 'landscape'); // Modifie la taille du papier pour correspondre à ton format d'impression
+        $dompdf->setPaper("A6", "landscape");
+        // Modifie la taille du papier pour correspondre à ton format d'impression
         $dompdf->render();
 
         // Sauvegarder le PDF dans un chemin spécifique
-        $filePath = sprintf('%s/public/uploads/licence-' . $type . '%s.pdf', $this->getParameter('kernel.project_dir'), uniqid());
+        $filePath = sprintf(
+            "%s/public/uploads/licence-" .
+            $type . "%s.pdf",
+            $this->getParameter("kernel.project_dir"
+            ),
+            uniqid()
+        );
         file_put_contents($filePath, $dompdf->output());
 
         return $filePath;
@@ -428,18 +520,18 @@ class PaymentController extends AbstractController
     public function viewPdfAsHtml(): Response
     {
         $data = [
-            'logo' => 'uploads/66dc6a958e62e.jpg',
-            'club_name' => 'Club Example',
-            'numero' => '12345',
-            'address' => '123 rue de la Paix',
-            'address2' => null,
-            'zip' => '75001',
-            'city' => 'Paris',
+            "logo" => "uploads/66dc6a958e62e.jpg",
+            "club_name" => "Club Example",
+            "numero" => "12345",
+            "address" => "123 rue de la Paix",
+            "address2" => null,
+            "zip" => "75001",
+            "city" => "Paris",
         ];
 
         // On rend le template HTML directement
-        return $this->render('licenses/club.html.twig', [
-            'data' => $data
+        return $this->render("licenses/club.html.twig", [
+            "data" => $data
         ]);
     }
 
@@ -450,12 +542,12 @@ class PaymentController extends AbstractController
     {
         $context = [];
         $email = (new TemplatedEmail())
-            ->from('no-reply@shinkyokai.com')
+            ->from("no-reply@shinkyokai.com")
             ->to($recipientEmail)
-            ->subject('Votre licence Shinkyokai')
-            ->htmlTemplate('emails/' . $type . '.html.twig')
+            ->subject("Votre licence Shinkyokai")
+            ->htmlTemplate("emails/" . $type . ".html.twig")
             ->context($context)
-            ->attachFromPath($pdfPath, 'licence.pdf');
+            ->attachFromPath($pdfPath, "licence.pdf");
 
         $mailer->send($email);
     }
@@ -467,10 +559,10 @@ class PaymentController extends AbstractController
     {
         $context = [];
         $email = (new TemplatedEmail())
-            ->from('no-reply@shinkyokai.com')
+            ->from("no-reply@shinkyokai.com")
             ->to($recipientEmail)
-            ->subject('Vous vous êtes inscrit à un atelier sur le site de Shinkyokai')
-            ->htmlTemplate('emails/' . "atelier-culturel" . '.html.twig')
+            ->subject("Vous vous êtes inscrit à un atelier sur le site de Shinkyokai")
+            ->htmlTemplate("emails/" . "atelier-culturel" . ".html.twig")
             ->context($context);
 
         $mailer->send($email);

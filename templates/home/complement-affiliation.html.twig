@@ -1,0 +1,293 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ parent() }} Complément d'affiliation{% endblock %}
+
+{% block nav_class %}transparent navbar-dark navbar-bg-dark{% endblock %}
+
+{% block body %}
+	<section class="wrapper bg-light">
+		<div class="container pt-12 pt-md-14 pb-14 pb-md-16">
+			<div class="row gx-md-8 gx-xl-12 gy-12">
+				<div class="col-lg-8">
+					<h3 class="mb-4">Complément d'affiliation</h3>
+					
+					{# BANDEAU D’ALERTE – EMAIL OBLIGATOIRE #}
+					<div class="alert alert-warning border-2 d-flex align-items-start" role="alert">
+						<div class="me-3">
+							<i class="uil uil-exclamation-triangle" style="font-size:1.6rem;"></i>
+						</div>
+						<div>
+							<strong>IMPORTANT :</strong> LE CLUB DOIT RENSEIGNER L’<u>ADRESSE&nbsp;EMAIL</u> DE CHAQUE ADHÉRENT DANS LE FICHIER
+							afin qu’ils reçoivent leur <strong>licence numérique</strong>. Toute ligne sans email sera refusée.
+						</div>
+					</div>
+					
+					<form class="needs-validation" novalidate>
+						<div class="row g-3">
+							
+							{# 1) Numéro du club #}
+							<div class="col-12">
+								<div class="form-floating">
+									<input type="text" class="form-control" id="club_number" placeholder="Numéro d'affiliation du club" required>
+									<label for="club_number" class="form-label">Numéro d'affiliation du club</label>
+									<div class="invalid-feedback"> Le numéro d'affiliation est requis. </div>
+								</div>
+								<button id="btn-check-number" type="button" class="btn btn-outline-primary mt-3">
+									Vérifier le numéro
+								</button>
+								<div id="club_info" class="mt-3 d-none">
+									<div class="card">
+										<div class="card-body">
+											<h5 class="card-title mb-2">Club vérifié</h5>
+											<p class="mb-1"><strong>Nom :</strong> <span data-field="name"></span></p>
+											<p class="mb-1"><strong>Numéro :</strong> <span data-field="number"></span></p>
+											<p class="mb-1"><strong>Ville :</strong> <span data-field="city"></span> (<span data-field="postalCode"></span>)</p>
+											<p class="mb-0"><strong>Pays :</strong> <span data-field="country"></span></p>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							{# 2) Bloc CSV visible uniquement après vérif #}
+							<div id="csv_block" class="col-12 d-none">
+								<h3 class="mb-3 mt-4">Ajout d’adhérents (5€ par élève)</h3>
+								
+								<div class="mb-2">
+									<a href="{{ path('download_csv_template') }}" class="btn btn-outline-secondary">
+										Télécharger le modèle CSV
+									</a>
+								</div>
+								
+								<div class="form-floating">
+									<input type="file" class="form-control" id="csv" placeholder="Fichier CSV"
+									       accept=".csv, application/vnd.ms-excel, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
+									<label for="csv" class="form-label">Fichier CSV</label>
+									<div class="invalid-feedback"> Un fichier CSV est requis. </div>
+								</div>
+							</div>
+						
+						</div>
+					</form>
+				</div>
+				
+				<div class="col-lg-4">
+					<h3 class="mb-4">Résumé</h3>
+					<div class="shopping-cart mb-7">
+						<div class="shopping-cart-item d-flex justify-content-between mb-4">
+							<div class="d-flex flex-row d-flex align-items-center">
+								<figure class="rounded w-17">
+									<a href="#"><img src="/img/LOGO-SHIN-KYO-NOIR-TR.png" alt="logo shin kyo noir" /></a>
+								</figure>
+								<div class="w-100 ms-4">
+									<h3 class="post-title h6 lh-xs mb-1"><a href="#" class="link-dark">Complément d'affiliation</a></h3>
+									<div class="small">Ajout de membres</div>
+								</div>
+							</div>
+							<div class="ms-2 d-flex align-items-center">
+								<p class="price fs-sm"><span class="amount">5€ / élève</span></p>
+							</div>
+						</div>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-order">
+							<tbody>
+							<tr>
+								<td class="ps-0"><strong class="text-dark">Total estimé</strong></td>
+								<td class="pe-0 text-end">
+									<p class="price text-dark fw-bold total-cart" id="total_estime">0€</p>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+					<a href="" id="checkout-button" class="btn btn-primary rounded w-100 mt-4 disabled" aria-disabled="true">Payer</a>
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	{# Modales #}
+	<div class="modal fade" id="validationModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered modal-md">
+			<div class="modal-content text-center">
+				<div class="modal-body">
+					<button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					<h3>Veuillez vérifier le club et choisir un fichier CSV avant de payer.</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="CSVModal" tabindex="-1" aria-labelledby="CSVModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="CSVModalLabel">Erreur de validation</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<h3 id="csv_error_text">Le fichier CSV contient des lignes incomplètes dans les colonnes obligatoires.</h3>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<script src="https://js.stripe.com/v3/"></script>
+	<script>
+        const stripe = Stripe('{{ stripe_public_key }}');
+
+        const checkBtn = document.getElementById('btn-check-number');
+        const csvBlock = document.getElementById('csv_block');
+        const clubInfo = document.getElementById('club_info');
+        const checkoutButton = document.getElementById('checkout-button');
+        const csvInput = document.getElementById('csv');
+
+        let verifiedClub = null;
+        let lastMemberCount = 0;
+        let hasVerified = false;
+        let hasCSV = false;
+
+        function updatePayState() {
+            if (hasVerified && hasCSV) {
+                enablePay(true);
+            } else {
+                enablePay(false);
+            }
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('csv_error_text').textContent = message;
+            const CSVModal = new bootstrap.Modal(document.getElementById('CSVModal'));
+            CSVModal.show();
+        }
+
+        function updateTotal(amount) {
+            document.getElementById('total_estime').textContent = (amount || 0) + '€';
+        }
+
+        function enablePay(enable = true) {
+            if (enable) {
+                checkoutButton.classList.remove('disabled');
+                checkoutButton.removeAttribute('aria-disabled');
+            } else {
+                checkoutButton.classList.add('disabled');
+                checkoutButton.setAttribute('aria-disabled','true');
+            }
+        }
+
+        // 1) Vérification du club
+        checkBtn.addEventListener('click', async () => {
+            const clubNumber = document.getElementById('club_number').value.trim();
+            if (!clubNumber) {
+                showErrorModal('Veuillez saisir le numéro du club.');
+                return;
+            }
+            try {
+                const res = await fetch('{{ path("api_check_club_number") }}', {
+                    method: 'POST',
+                    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+                    body: new URLSearchParams({club_number: clubNumber})
+                });
+                const data = await res.json();
+
+                if (!data.ok) {
+                    verifiedClub = null;
+                    hasVerified = false;
+                    csvBlock.classList.add('d-none');
+                    clubInfo.classList.add('d-none');
+                    showErrorModal(data.error || 'Numéro non reconnu.');
+                    updatePayState();
+                    return;
+                }
+
+                verifiedClub = data.club;
+                hasVerified = true;
+
+                clubInfo.querySelector('[data-field="name"]').textContent = verifiedClub.name || '';
+                clubInfo.querySelector('[data-field="number"]').textContent = verifiedClub.number || '';
+                clubInfo.querySelector('[data-field="city"]').textContent = verifiedClub.city || '';
+                clubInfo.querySelector('[data-field="postalCode"]').textContent = verifiedClub.postalCode || '';
+                clubInfo.querySelector('[data-field="country"]').textContent = verifiedClub.country || '';
+                clubInfo.classList.remove('d-none');
+                csvBlock.classList.remove('d-none');
+
+                updatePayState(); // <-- active si CSV déjà choisi
+            } catch (e) {
+                console.error(e);
+                showErrorModal('Erreur lors de la vérification du club.');
+            }
+        });
+
+        // 2) Sélection du CSV
+        csvInput.addEventListener('change', () => {
+            hasCSV = csvInput.files && csvInput.files.length > 0;
+            updateTotal(0);
+            updatePayState(); // <-- active si club déjà vérifié
+        });
+
+        // 3) Clic sur Payer
+        checkoutButton.addEventListener('click', async (event) => {
+            // Si jamais le bouton n’était pas activé (sécurité UX)
+            if (checkoutButton.classList.contains('disabled')) {
+                event.preventDefault();
+                const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+                validationModal.show();
+                return;
+            }
+
+            event.preventDefault();
+
+            if (!verifiedClub || !csvInput.files.length) {
+                const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
+                validationModal.show();
+                return;
+            }
+
+            // 1) Valider & compter
+            const fdCheck = new FormData();
+            fdCheck.append('csv', csvInput.files[0]);
+
+            try {
+                const r = await fetch('{{ path("count_members") }}', { method: 'POST', body: fdCheck });
+                const data = await r.json();
+                if (data.error) {
+                    showErrorModal(data.error);
+                    return;
+                }
+                lastMemberCount = data.memberCount || 0;
+                updateTotal(lastMemberCount * 5);
+
+                // 2) Sauver panier/commande (flow = complement)
+                const fdSave = new FormData();
+                fdSave.append('flow', 'complement');
+                fdSave.append('club_number', verifiedClub.number);
+                fdSave.append('member_count', lastMemberCount);
+                fdSave.append('csv', csvInput.files[0]);
+
+                const saveRes = await fetch('{{ path("save_order_and_session") }}', { method: 'POST', body: fdSave });
+                const saveData = await saveRes.json();
+                if (!saveData.success) {
+                    showErrorModal('Erreur lors de la sauvegarde de la commande.');
+                    return;
+                }
+
+                // 3) Stripe Checkout
+                const sessionRes = await fetch('{{ path("create_checkout_session") }}', { method: 'POST', body: fdSave });
+                const session = await sessionRes.json();
+                if (!session.id) {
+                    showErrorModal('Erreur lors de la création de la session Stripe.');
+                    return;
+                }
+                await stripe.redirectToCheckout({ sessionId: session.id });
+
+            } catch (e) {
+                console.error(e);
+                showErrorModal('Une erreur est survenue.');
+            }
+        });
+	</script>
+
+{% endblock %}
