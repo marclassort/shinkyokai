@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrderRepository::class)]
-#[ORM\Table(name: '`order`')]
+#[ORM\Table(name: "`order`")]
 class Order
 {
     #[ORM\Id]
@@ -26,7 +26,7 @@ class Order
     #[ORM\Column]
     private ?DateTimeImmutable $createdAt = null;
 
-    #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[ORM\ManyToOne(inversedBy: "orders")]
     private ?Club $club = null;
 
     #[ORM\Column(length: 255)]
@@ -35,13 +35,13 @@ class Order
     /**
      * @var Collection<int, Member>
      */
-    #[ORM\OneToMany(targetEntity: Member::class, mappedBy: 'commande')]
+    #[ORM\OneToMany(targetEntity: Member::class, mappedBy: "commande")]
     private Collection $members;
 
     /**
      * @var Collection<int, Product>
      */
-    #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: 'orders')]
+    #[ORM\ManyToMany(targetEntity: Product::class, inversedBy: "orders")]
     private Collection $product;
 
     public function __construct()

@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Event;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
@@ -23,30 +25,36 @@ class EventCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Événement')
-            ->setEntityLabelInPlural('Événements')
-            ->setPageTitle(Crud::PAGE_INDEX, 'Gestion des événements')
-            ->setDefaultSort(['eventDate' => 'DESC']);
+            ->setEntityLabelInSingular("Événement")
+            ->setEntityLabelInPlural("Événements")
+            ->setPageTitle(Crud::PAGE_INDEX, "Gestion des événements")
+            ->setDefaultSort(["eventDate" => "DESC"]);
     }
 
     public function configureFields(string $pageName): iterable
     {
         return [
             TextField::new("title", "Titre"),
-            SlugField::new('slug', 'Slug')
-                ->setTargetFieldName('title')
+            SlugField::new("slug", "Slug")
+                ->setTargetFieldName("title")
                 ->hideOnIndex(),
             TextField::new("category", "Catégorie"),
             BooleanField::new("forPublic", "Pour le public"),
-            ImageField::new('image', 'Image')
-                ->setBasePath('/uploads/')
-                ->setUploadDir('public/uploads/')
-                ->setUploadedFileNamePattern('[slug]-[timestamp].[extension]')
+            ImageField::new("image", "Image")
+                ->setBasePath("/uploads/")
+                ->setUploadDir("public/uploads/")
+                ->setUploadedFileNamePattern("[slug]-[timestamp].[extension]")
                 ->setFormType(FileUploadType::class)
-                ->setFormTypeOption('required', false)
-                ->setFormTypeOption('allow_delete', false),
+                ->setFormTypeOption("required", false)
+                ->setFormTypeOption("allow_delete", false),
             TextEditorField::new("content", "Contenu"),
             DateTimeField::new("eventDate", "Date de l'événement")
         ];
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 }

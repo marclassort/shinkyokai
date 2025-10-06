@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\MemberRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MemberRepository::class)]
 #[ORM\Table(name: '`member`')]
@@ -52,6 +53,10 @@ class Member
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $phoneNumber = null;
+
+    #[ORM\Column(length: 9, nullable: true)]
+    #[Assert\Regex(pattern: "/^\d{4}-\d{4}$/", message: "Format attendu : AAAA-AAAA (ex : 2024-2025).")]
+    private ?string $sportSeason = null;
 
     public function getId(): ?int
     {
@@ -210,6 +215,18 @@ class Member
     public function setPhoneNumber(?string $phoneNumber): static
     {
         $this->phoneNumber = $phoneNumber;
+
+        return $this;
+    }
+
+    public function getSportSeason(): ?string
+    {
+        return $this->sportSeason;
+    }
+
+    public function setSportSeason(string $sportSeason): static
+    {
+        $this->sportSeason = $sportSeason;
 
         return $this;
     }

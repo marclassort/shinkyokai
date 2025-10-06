@@ -6,6 +6,8 @@ use App\Repository\ClubRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 class Club
@@ -39,7 +41,7 @@ class Club
     /**
      * @var Collection<int, Order>
      */
-    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'club')]
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: "club")]
     private Collection $orders;
 
     #[ORM\Column(length: 255)]
@@ -51,11 +53,15 @@ class Club
     /**
      * @var Collection<int, Member>
      */
-    #[ORM\OneToMany(targetEntity: Member::class, mappedBy: 'club')]
+    #[ORM\OneToMany(targetEntity: Member::class, mappedBy: "club")]
     private Collection $members;
 
     #[ORM\Column(length: 255)]
     private ?string $clubNumber = null;
+
+    #[ORM\Column(length: 9, nullable: true)]
+    #[Assert\Regex(pattern: "/^\d{4}-\d{4}$/", message: "Format attendu : AAAA-AAAA (ex : 2024-2025).")]
+    private ?string $sportSeason = null;
 
     public function __construct()
     {
@@ -244,6 +250,53 @@ class Club
     public function setClubNumber(string $clubNumber): static
     {
         $this->clubNumber = $clubNumber;
+
+        return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function initSportSeasonByDefault(): void
+    {
+        if (null === $this->sportSeason) {
+            $this->sportSeason = self::seasonFromDate(new \DateTimeImmutable());
+        }
+    }
+
+    #[Assert\Callback]
+    public function validateSportSeasonContiguity(ExecutionContextInterface $context): void
+    {
+        if (!$this->sportSeason) {
+            return;
+        }
+        if (preg_match("/^(\d{4})-(\d{4})$/", $this->sportSeason, $m)) {
+            if ((int)$m[2] !== (int)$m[1] + 1) {
+                $context->buildViolation("La seconde année doit être exactement la première + 1.")
+                    ->atPath("sportSeason")->addViolation();
+            }
+        }
+    }
+
+    public static function seasonFromDate(\DateTimeInterface $date): string
+    {
+        $y = (int)$date->format("Y");
+        $m = (int)$date->format("n");
+        return $m >= 7 ? sprintf("%d-%d", $y, $y + 1) : sprintf("%d-%d", $y - 1, $y);
+    }
+
+    public function getSportSeason(): ?string
+    {
+        return $this->sportSeason;
+    }
+
+    public function setSportSeason(string $sportSeason): static
+    {
+        $this->sportSeason = $sportSeason;
+
+        $members = $this->getMembers();
+
+        foreach ($members as $member) {
+            $member->setSportSeason($sportSeason);
+        }
 
         return $this;
     }

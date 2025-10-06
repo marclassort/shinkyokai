@@ -5,12 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cf3fce7-0788-458d-a6a6-98b12c800d20" name="Changes" comment="Commit all files SKK.">
-      <change afterPath="$PROJECT_DIR$/templates/home/complement-affiliation.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shinkyokai.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shinkyokai.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config/bundles.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/bundles.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/ClubCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/ClubCrudController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/CulturalArtsCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/CulturalArtsCrudController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/EventCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/EventCrudController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/MemberCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/MemberCrudController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/OrderCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/OrderCrudController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/ZasshiCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/ZasshiCrudController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/PaymentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/PaymentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/RouteController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/RouteController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/inscription-arts-culturels.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-arts-culturels.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Club.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Club.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Member.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Member.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Entity/Order.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Order.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/EventListener/ExceptionListener.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/EventListener/ExceptionListener.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/home/complement-affiliation.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/complement-affiliation.html.twig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/home/inscription-individuelle.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-individuelle.html.twig" afterDir="false" />
     </list>
@@ -58,7 +70,6 @@
       <path value="$PROJECT_DIR$/vendor/symfony/console" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-mbstring" />
       <path value="$PROJECT_DIR$/vendor/doctrine/migrations" />
-      <path value="$PROJECT_DIR$/vendor/doctrine/cache" />
       <path value="$PROJECT_DIR$/vendor/doctrine/doctrine-migrations-bundle" />
       <path value="$PROJECT_DIR$/vendor/doctrine/inflector" />
       <path value="$PROJECT_DIR$/vendor/doctrine/persistence" />
@@ -200,6 +211,9 @@
       <path value="$PROJECT_DIR$/vendor/dompdf/dompdf" />
       <path value="$PROJECT_DIR$/vendor/dompdf/php-svg-lib" />
       <path value="$PROJECT_DIR$/vendor/symfony/google-mailer" />
+      <path value="$PROJECT_DIR$/vendor/twig/html-extra" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php84" />
+      <path value="$PROJECT_DIR$/vendor/symfony/ux-twig-component" />
     </include_path>
   </component>
   <component name="ProblemsViewState">
@@ -214,25 +228,25 @@
     <option name="showExcludedFiles" value="false" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/acfi/PHP/shinkyokai/templates/home",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "proofread",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/acfi/PHP/shinkyokai/templates/home&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;proofread&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/templates/home" />
@@ -338,23 +352,8 @@
       <workItem from="1758265651529" duration="594000" />
       <workItem from="1758289902940" duration="598000" />
       <workItem from="1758525466676" duration="1000" />
-      <workItem from="1759224749206" duration="4679000" />
-    </task>
-    <task id="LOCAL-00015" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1727099861640</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1727099861640</updated>
-    </task>
-    <task id="LOCAL-00016" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1727099885250</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1727099885250</updated>
+      <workItem from="1759224749206" duration="6882000" />
+      <workItem from="1759743197452" duration="13431000" />
     </task>
     <task id="LOCAL-00017" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -732,7 +731,23 @@
       <option name="project" value="LOCAL" />
       <updated>1756372944116</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1759233975810</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1759233975810</updated>
+    </task>
+    <task id="LOCAL-00065" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1759234685347</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1759234685347</updated>
+    </task>
+    <option name="localTasksCounter" value="66" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

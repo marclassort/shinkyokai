@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Club;
 use App\Entity\Member;
 use App\Entity\Order;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -189,6 +190,7 @@ class PaymentController extends AbstractController
             $club->setPostalCode($clubData["zip"]);
             $club->setCity($clubData["city"]);
             $club->setCountry($clubData["country"]);
+            $club->setSportSeason($this->getSportSeason());
 
             $lastClub = $entityManager->getRepository(Club::class)->findOneBy([], ["id" => "DESC"]);
             $newClubNumber = $this->generateUniqueClubNumber($lastClub);
@@ -219,6 +221,7 @@ class PaymentController extends AbstractController
                 $member->setCountry("France");
                 $member->setCommande($order);
                 $member->setClub($club);
+                $member->setSportSeason($this->getSportSeason());
 
                 // Définir un numéro de licence unique
                 $memberCounter++;
@@ -266,13 +269,13 @@ class PaymentController extends AbstractController
             $clubNumber = $cart["club_complement"]["club_number"] ?? null;
             $csvFilePath = $cart["club_complement"]["csvFilePath"] ?? null;
             if (!$clubNumber || !$csvFilePath) {
-                throw new \Exception("Club number or CSV path missing for complement.");
+                throw new Exception("Club number or CSV path missing for complement.");
             }
 
             // 1) Retrouver le club existant
             $club = $entityManager->getRepository(Club::class)->findOneBy(["clubNumber" => $clubNumber]);
             if (!$club) {
-                throw new \Exception("Club introuvable pour complément: " . $clubNumber);
+                throw new Exception("Club introuvable pour complément: " . $clubNumber);
             }
 
             // 2) Lire les membres depuis le fichier
@@ -300,6 +303,7 @@ class PaymentController extends AbstractController
                 $member->setCountry("France");
                 $member->setCommande($order);
                 $member->setClub($club);
+                $member->setSportSeason($this->getSportSeason());
 
                 // Numéro de licence unique
                 $memberCounter++;
@@ -326,7 +330,7 @@ class PaymentController extends AbstractController
                 }
             }
 
-            // 4) Mettre le club sur la commande & total
+            // 4) Mettre le club sur la commande et total
             $order->setClub($club);
 
             $memberCount = (float)($cart["club_complement"]["members"] ?? 0);
@@ -342,6 +346,7 @@ class PaymentController extends AbstractController
             $member->setSex($cart["club_individuel"]["sex"]);
             $member->setEmail($cart["club_individuel"]["email"]);
             $member->setCommande($order);
+            $member->setSportSeason($this->getSportSeason());
 
             // Incrémenter le compteur de membres
             $memberCounter++;
@@ -542,7 +547,7 @@ class PaymentController extends AbstractController
     {
         $context = [];
         $email = (new TemplatedEmail())
-            ->from("no-reply@shinkyokai.com")
+            ->from("shinkyokai.academie@gmail.com")
             ->to($recipientEmail)
             ->subject("Votre licence Shinkyokai")
             ->htmlTemplate("emails/" . $type . ".html.twig")
@@ -559,7 +564,7 @@ class PaymentController extends AbstractController
     {
         $context = [];
         $email = (new TemplatedEmail())
-            ->from("no-reply@shinkyokai.com")
+            ->from("shinkyokai.academie@gmail.com")
             ->to($recipientEmail)
             ->subject("Vous vous êtes inscrit à un atelier sur le site de Shinkyokai")
             ->htmlTemplate("emails/" . "atelier-culturel" . ".html.twig")
@@ -567,4 +572,26 @@ class PaymentController extends AbstractController
 
         $mailer->send($email);
     }
+
+    private function getSportSeason(): string
+    {
+        $today = new DateTimeImmutable();
+
+        // On récupère l'année et le mois courant
+        $year = (int)$today->format("Y");
+        $month = (int)$today->format("m");
+
+        if ($month >= 7) {
+            // Si on est entre juillet et décembre, la saison est : AAAA-AAAA+1
+            $startYear = $year;
+            $endYear = $year + 1;
+        } else {
+            // Si on est entre janvier et juin, la saison est : AAAA-1 - AAAA
+            $startYear = $year - 1;
+            $endYear = $year;
+        }
+
+        return sprintf("%d-%d", $startYear, $endYear);
+    }
+
 }

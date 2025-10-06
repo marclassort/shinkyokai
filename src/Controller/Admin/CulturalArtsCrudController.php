@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\CulturalArts;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -24,42 +26,50 @@ class CulturalArtsCrudController extends AbstractCrudController
     public function configureCrud(Crud $crud): Crud
     {
         return $crud
-            ->setEntityLabelInSingular('Atelier arts culturels')
-            ->setEntityLabelInPlural('Ateliers arts culturels')
-            ->setPageTitle(Crud::PAGE_INDEX, 'Gestion des ateliers')
-            ->setDefaultSort(['date' => 'DESC']);
+            ->setEntityLabelInSingular("Atelier arts culturels")
+            ->setEntityLabelInPlural("Ateliers arts culturels")
+            ->setPageTitle(Crud::PAGE_INDEX, "Gestion des ateliers")
+            ->setDefaultSort(["date" => "DESC"]);
     }
 
     public function configureFields(string $pageName): iterable
     {
         return [
-            TextField::new("name", "Nom de l'atelier (privilégier la date car le type d'atelier existe déjà)"),
-            SlugField::new('slug', 'Slug')
-                ->setTargetFieldName(['workshopType', 'name'])
+            TextField::new("name",
+                "Nom de l'atelier (privilégier la date car le type d'atelier existe déjà)"
+            ),
+            SlugField::new("slug", "Slug")
+                ->setTargetFieldName(["workshopType", "name"])
                 ->hideOnIndex(),
-            ChoiceField::new('workshopType', 'Type d\'atelier')
+            ChoiceField::new("workshopType", "Type d\"atelier")
                 ->setChoices([
-                    'Sumi-e' => 'Sumi-e',
-                    'Kintsugi' => 'Kintsugi',
-                    'Gyotaku' => 'Gyotaku',
-                    'Origami' => 'Origami',
-                    'Calligraphie' => 'Calligraphie',
+                    "Sumi-e" => "Sumi-e",
+                    "Kintsugi" => "Kintsugi",
+                    "Gyotaku" => "Gyotaku",
+                    "Origami" => "Origami",
+                    "Calligraphie" => "Calligraphie",
                 ]),
-            TextareaField::new('description', 'Description')->hideOnIndex(),
-            DateTimeField::new('date', 'Date et Heure'),
-            NumberField::new('price', 'Prix')
+            TextareaField::new("description", "Description")->hideOnIndex(),
+            DateTimeField::new("date", "Date et Heure"),
+            NumberField::new("price", "Prix")
                 ->setNumDecimals(2)
-                ->setStoredAsString(true),
-            NumberField::new('nonMemberPrice', 'Prix non membre')
+                ->setStoredAsString(),
+            NumberField::new("nonMemberPrice", "Prix non membre")
                 ->setNumDecimals(2)
-                ->setStoredAsString(true),
-            ImageField::new('image', 'Image')
-                ->setBasePath('/uploads/')
-                ->setUploadDir('public/uploads/')
-                ->setUploadedFileNamePattern('[slug]-[timestamp].[extension]')
+                ->setStoredAsString(),
+            ImageField::new("image", "Image")
+                ->setBasePath("/uploads/")
+                ->setUploadDir("public/uploads/")
+                ->setUploadedFileNamePattern("[slug]-[timestamp].[extension]")
                 ->setFormType(FileUploadType::class)
-                ->setFormTypeOption('required', false)
-                ->setFormTypeOption('allow_delete', false),
+                ->setFormTypeOption("required", false)
+                ->setFormTypeOption("allow_delete", false),
         ];
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 }

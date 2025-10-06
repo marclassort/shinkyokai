@@ -35,6 +35,27 @@
 						</div>
 					</div>
 					
+					{% set today = "now"|date("Y-m-d") %}
+					{% set currentYear = "now"|date("Y")|number_format(0, '', '') %}
+					{% set currentMonth = "now"|date("n")|number_format(0, '', '') %}
+					{% if currentMonth >= 7 %}
+						{% set seasonStart = currentYear %}
+						{% set seasonEnd = currentYear + 1 %}
+					{% else %}
+						{% set seasonStart = currentYear - 1 %}
+						{% set seasonEnd = currentYear %}
+					{% endif %}
+					
+					<div class="alert alert-info border-2 d-flex align-items-center" role="alert">
+						<div class="me-3">
+							<i class="uil uil-info-circle" style="font-size:1.6rem;"></i>
+						</div>
+						<div>
+							<strong>SAISON EN COURS :</strong>
+							VOUS INSCRIVEZ LE CLUB POUR LA SAISON {{ seasonStart }}–{{ seasonEnd }}.
+						</div>
+					</div>
+					
 					<form class="needs-validation" novalidate>
 						<div class="row g-3">
 							<div class="col-12">

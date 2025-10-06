@@ -24,6 +24,28 @@
 			<div class="row gx-md-8 gx-xl-12 gy-12">
 				<div class="col-lg-8">
 					<h3 class="mb-4">Inscription individuelle</h3>
+					
+					{% set today = "now"|date("Y-m-d") %}
+					{% set currentYear = "now"|date("Y")|number_format(0, '', '') %}
+					{% set currentMonth = "now"|date("n")|number_format(0, '', '') %}
+					{% if currentMonth >= 7 %}
+						{% set seasonStart = currentYear %}
+						{% set seasonEnd = currentYear + 1 %}
+					{% else %}
+						{% set seasonStart = currentYear - 1 %}
+						{% set seasonEnd = currentYear %}
+					{% endif %}
+					
+					<div class="alert alert-info border-2 d-flex align-items-center" role="alert">
+						<div class="me-3">
+							<i class="uil uil-info-circle" style="font-size:1.6rem;"></i>
+						</div>
+						<div>
+							<strong>SAISON EN COURS :</strong>
+							VOUS VOUS INSCRIVEZ POUR LA SAISON {{ seasonStart }}–{{ seasonEnd }}.
+						</div>
+					</div>
+					
 					<form class="needs-validation" novalidate>
 						<div class="row g-3">
 							<div class="col-sm-6">
