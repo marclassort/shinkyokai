@@ -127,7 +127,7 @@ class RouteController extends AbstractController
             "total" => $total,
             "activity" => $activity,
             "artCulturel" => $artsCulturels,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test")
+            "stripe_public_key" => $this->getParameter("stripe_public_key")
         ]);
     }
 
@@ -161,7 +161,7 @@ class RouteController extends AbstractController
         return $this->render("arts-culturels/sumi-e.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key"),
             "ateliersSumie" => $ateliersSumie,
             "ateliersKintsugi" => $ateliersKintsugi,
             "ateliersGyotaku" => $ateliersGyotaku
@@ -184,7 +184,7 @@ class RouteController extends AbstractController
         return $this->render("arts-culturels/origami.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key"),
             "ateliersOrigami" => $ateliersOrigami
         ]);
     }
@@ -205,7 +205,7 @@ class RouteController extends AbstractController
         return $this->render("arts-culturels/calligraphie.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key"),
             "ateliersCalligraphie" => $ateliersCalligraphie
         ]);
     }
@@ -270,7 +270,7 @@ class RouteController extends AbstractController
                 "products" => $products,
                 "items" => $items,
                 "total" => $total,
-                "stripe_public_key" => $this->getParameter("stripe_public_key_test")
+                "stripe_public_key" => $this->getParameter("stripe_public_key")
             ]
         );
     }
@@ -292,7 +292,7 @@ class RouteController extends AbstractController
                 "products" => $products,
                 "items" => $items,
                 "total" => $total,
-                "stripe_public_key" => $this->getParameter("stripe_public_key_test")
+                "stripe_public_key" => $this->getParameter("stripe_public_key")
             ]
         );
     }
@@ -312,7 +312,7 @@ class RouteController extends AbstractController
         return $this->render("home/panier.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test")
+            "stripe_public_key" => $this->getParameter("stripe_public_key")
         ]);
     }
 
@@ -916,8 +916,8 @@ class RouteController extends AbstractController
         return $this->render("home/inscription-club.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
-            "stripe_secret_key" => $this->getParameter("stripe_secret_key_test"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key"),
+            "stripe_secret_key" => $this->getParameter("stripe_secret_key"),
         ]);
     }
 
@@ -932,8 +932,8 @@ class RouteController extends AbstractController
         return $this->render("home/complement-affiliation.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
-            "stripe_secret_key" => $this->getParameter("stripe_secret_key_test"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key"),
+            "stripe_secret_key" => $this->getParameter("stripe_secret_key"),
         ]);
     }
 
@@ -946,7 +946,7 @@ class RouteController extends AbstractController
         return $this->render("home/inscription-individuelle.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test")
+            "stripe_public_key" => $this->getParameter("stripe_public_key")
         ]);
     }
 

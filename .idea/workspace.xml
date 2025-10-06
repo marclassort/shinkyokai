@@ -5,26 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8cf3fce7-0788-458d-a6a6-98b12c800d20" name="Changes" comment="Commit all files SKK.">
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shinkyokai.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shinkyokai.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/bundles.php" beforeDir="false" afterPath="$PROJECT_DIR$/config/bundles.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/ClubCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/ClubCrudController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/CulturalArtsCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/CulturalArtsCrudController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/EventCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/EventCrudController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/MemberCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/MemberCrudController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/OrderCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/OrderCrudController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Controller/Admin/ZasshiCrudController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/Admin/ZasshiCrudController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Controller/PaymentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Controller/PaymentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Club.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Club.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Member.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Member.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Entity/Order.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/Entity/Order.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/EventListener/ExceptionListener.php" beforeDir="false" afterPath="$PROJECT_DIR$/src/EventListener/ExceptionListener.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/complement-affiliation.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/complement-affiliation.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-club.html.twig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/home/inscription-individuelle.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/home/inscription-individuelle.html.twig" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -353,15 +334,7 @@
       <workItem from="1758289902940" duration="598000" />
       <workItem from="1758525466676" duration="1000" />
       <workItem from="1759224749206" duration="6882000" />
-      <workItem from="1759743197452" duration="13431000" />
-    </task>
-    <task id="LOCAL-00017" summary="Commit all files SKK.">
-      <option name="closed" value="true" />
-      <created>1727338497189</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1727338497189</updated>
+      <workItem from="1759743197452" duration="13732000" />
     </task>
     <task id="LOCAL-00018" summary="Commit all files SKK.">
       <option name="closed" value="true" />
@@ -747,7 +720,15 @@
       <option name="project" value="LOCAL" />
       <updated>1759234685347</updated>
     </task>
-    <option name="localTasksCounter" value="66" />
+    <task id="LOCAL-00066" summary="Commit all files SKK.">
+      <option name="closed" value="true" />
+      <created>1759763809999</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1759763809999</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
