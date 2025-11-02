@@ -916,8 +916,8 @@ class RouteController extends AbstractController
         return $this->render("home/inscription-club.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
-            "stripe_secret_key" => $this->getParameter("stripe_secret_key_test"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key"),
+            "stripe_secret_key" => $this->getParameter("stripe_secret_key"),
         ]);
     }
 
@@ -932,8 +932,8 @@ class RouteController extends AbstractController
         return $this->render("home/complement-affiliation.html.twig", [
             "items" => $items,
             "total" => $total,
-            "stripe_public_key" => $this->getParameter("stripe_public_key_test"),
-            "stripe_secret_key" => $this->getParameter("stripe_secret_key_test"),
+            "stripe_public_key" => $this->getParameter("stripe_public_key"),
+            "stripe_secret_key" => $this->getParameter("stripe_secret_key"),
         ]);
     }
 
