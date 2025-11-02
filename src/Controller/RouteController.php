@@ -275,7 +275,7 @@ class RouteController extends AbstractController
         );
     }
 
-    #[Route("/harumatsuri", name: "app_tee_shirts")]
+    #[Route("/tee-shirts", name: "app_tee_shirts")]
     public function getTeeShirts(ProductRepository $productRepository, SessionInterface $session): Response
     {
         $items = $this->cartService->getCartItems($session);
