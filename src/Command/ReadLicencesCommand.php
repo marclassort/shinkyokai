@@ -11,6 +11,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 #[AsCommand(
     name: "app:read-licences",
@@ -20,6 +23,7 @@ class ReadLicencesCommand extends Command
 {
     public function __construct(
         private readonly ParameterBagInterface $params,
+        private readonly MailerInterface $mailer,
     ) {
         parent::__construct();
     }
@@ -57,8 +61,25 @@ class ReadLicencesCommand extends Command
 
             $io->success("Lecture terminée.");
 
+            // ✅ Envoi de l’email avec le fichier attaché
+            $email = (new Email())
+                ->from("shinkyokai.academie@gmail.com")
+                ->to("marc.lassort@gmail.com")
+                ->subject("Fichier importé : " . $filename)
+                ->text("Veuillez trouver en pièce jointe le fichier que vous avez importé.")
+                ->attachFromPath($filePath);
+
+            $this->mailer->send($email);
+
+            $io->success("Email envoyé à marc.lassort@gmail.com avec le fichier attaché.");
+
         } catch (Exception $e) {
             $io->error("Erreur lors de la lecture du fichier : " . $e->getMessage());
+
+            return Command::FAILURE;
+        } catch (TransportExceptionInterface $e) {
+            $io->error("Erreur lors de l'envoi du courriel : " . $e->getMessage());
+
             return Command::FAILURE;
         }
 
