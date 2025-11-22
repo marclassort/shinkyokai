@@ -54,12 +54,7 @@ class ImportClubAndMemberLicencesCommand extends Command
             ->addArgument("csvPath", InputArgument::REQUIRED, "Chemin du fichier CSV (ou XLSX)")
             ->addArgument("logoPath", InputArgument::REQUIRED, "Chemin du logo du club (image)")
             ->addArgument("clubNumber", InputArgument::OPTIONAL, "Numéro du club (optionnel" .
-                "si club nouveau)")
-            ->addArgument(
-                "clubEmail",
-                InputArgument::REQUIRED,
-                "Adresse email destinataire de la licence club"
-            );
+                "si club nouveau)");
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -69,9 +64,8 @@ class ImportClubAndMemberLicencesCommand extends Command
 
         $io = new SymfonyStyle($input, $output);
 
-        $csvPath   = (string) $input->getArgument("csvPath");
-        $logoPath  = (string) $input->getArgument("logoPath");
-        $clubEmail = (string) $input->getArgument("clubEmail");
+        $csvPath  = (string) $input->getArgument("csvPath");
+        $logoPath = (string) $input->getArgument("logoPath");
 
         $projectDir = $this->params->get("kernel.project_dir");
 
@@ -98,8 +92,7 @@ class ImportClubAndMemberLicencesCommand extends Command
         $io->title("Import club + membres (ÉCRITURE EN BASE)");
         $io->writeln("CSV: <info>$csvPath</info>");
         $io->writeln("Logo: <info>$logoPath</info>");
-        $io->writeln("Email licence club: <info>$clubEmail</info>");
-        $io->writeln("Club n°: <info>$clubNum</info>");
+        $io->writeln("Club n°: <info>" . ($clubNum ?? "(sera généré)") . "</info>");
         $io->newLine();
 
         // --- 1/2) Récupérer ou créer le club
@@ -112,9 +105,13 @@ class ImportClubAndMemberLicencesCommand extends Command
 
         if ($club) {
             $club->setSportSeason($currentSeason);
-            // éventuellement mettre à jour le logo et l'email
             $club->setLogo($logoPath);
+
+            // Si le club n'a pas encore d'email, on demande à l'utilisateur
             if (!$club->getEmail()) {
+                $helper = $this->getHelper("question");
+                $emailQuestion = new Question("Email du club (aucun email trouvé en base) : ");
+                $clubEmail = (string) $helper->ask($input, $output, $emailQuestion);
                 $club->setEmail($clubEmail);
             }
 
@@ -131,7 +128,7 @@ class ImportClubAndMemberLicencesCommand extends Command
                 "city"           => new Question("Ville: "),
                 "president_name" => new Question("Nom du président: "),
                 "treasurer_name" => new Question("Nom du trésorier: "),
-                "email"          => new Question("Email du club: ", $clubEmail),
+                "email"          => new Question("Email du club: "),
                 "country"        => new Question("Pays: ", "France"),
             ];
 
@@ -161,6 +158,7 @@ class ImportClubAndMemberLicencesCommand extends Command
             $club->setSportSeason($currentSeason);
 
             $this->em->persist($club);
+            $io->writeln("→ Nouveau club persisté (prêt pour flush en base).");
 
             $io->success("NOUVEAU CLUB créé (sera flush en base).");
             $io->listing([
@@ -177,8 +175,11 @@ class ImportClubAndMemberLicencesCommand extends Command
 
         // On fait un flush déjà sur le club pour garantir l'ID avant de créer les membres
         $this->em->flush();
+        $io->writeln("→ Flush effectué sur le club en base.");
 
-        // --- 3) Générer la licence club (PDF) + envoyer email au clubEmail (argument)
+        // --- 3) Générer la licence club (PDF) + envoyer email à l'email du club
+        $clubEmail = $club->getEmail();
+
         try {
             $clubData = [
                 "logo"      => $logoPath,
@@ -192,8 +193,15 @@ class ImportClubAndMemberLicencesCommand extends Command
             ];
 
             $clubPdf = $this->generateLicensePdf($clubData, "club");
-            $this->sendLicenseEmail($clubPdf, "club", $clubEmail);
-            $io->success("Licence CLUB générée + email envoyé à $clubEmail");
+            $io->writeln("→ PDF licence club généré: <info>$clubPdf</info>");
+
+            if ($clubEmail) {
+                $io->writeln("→ Envoi email licence club à <info>$clubEmail</info>...");
+                $this->sendLicenseEmail($clubPdf, "club", $clubEmail);
+                $io->success("Licence CLUB générée + email envoyé à $clubEmail");
+            } else {
+                $io->warning("Aucune adresse email définie pour le club : licence club non envoyée par email.");
+            }
         } catch (TransportExceptionInterface $e) {
             $io->error("Erreur d’envoi email (club): " . $e->getMessage());
         }
@@ -244,6 +252,7 @@ class ImportClubAndMemberLicencesCommand extends Command
             $member->setLicenceNumber($licenceNumber);
 
             $this->em->persist($member);
+            $io->writeln("→ Membre persisté (sera flush en base).");
 
             $io->note(sprintf(
                 "Membre #%d — %s %s | Sexe: %s | Naissance: %s | Email: %s | Tel: %s | Club: %s | Saison: %s" .
@@ -276,6 +285,8 @@ class ImportClubAndMemberLicencesCommand extends Command
                     "season"        => $currentSeason,
                 ];
                 $pdf = $this->generateLicensePdf($memberData, "club-membre");
+                $io->writeln("   → PDF licence membre généré: <info>$pdf</info>");
+                $io->writeln("   → Envoi email licence membre à <info>$memberEmail</info>...");
                 $this->sendLicenseEmail($pdf, "club-membre", $memberEmail);
                 $io->writeln("→ Email licence membre envoyé à $memberEmail");
             } catch (TransportExceptionInterface $e) {
@@ -285,6 +296,7 @@ class ImportClubAndMemberLicencesCommand extends Command
 
         // Flush final pour les membres (le club a déjà été flush plus haut)
         $this->em->flush();
+        $io->writeln("→ Flush final effectué sur les membres en base (total: $memberCounter).");
 
         $io->success("Import terminé : club + membres créés / mis à jour en base, licences générées et emails envoyés.");
         return Command::SUCCESS;
