@@ -198,6 +198,7 @@ class PaymentController extends AbstractController
 
             $entityManager->persist($club);
             $clubData["numero"] = $club->getClubNumber();
+            $clubData["season"] = $club->getSportSeason();
 
             $pdfFilePath = $this->generateLicensePdf($clubData, "club");
             $this->sendLicenseEmail($club->getEmail(), $pdfFilePath, "club", $mailer);
@@ -241,6 +242,7 @@ class PaymentController extends AbstractController
                     "logo" => $logoFile,
                     "club_name" => $club->getName(),
                     "numero" => $club->getClubNumber(),
+                    "season" => $club->getSportSeason(),
                 ];
                 $pdfFilePath = $this->generateLicensePdf($memberData, "club-membre");
 
@@ -322,6 +324,7 @@ class PaymentController extends AbstractController
                     "logo" => $logoFile,
                     "club_name" => $club->getName(),
                     "numero" => $club->getClubNumber(),
+                    "season" => $club->getSportSeason(),
                 ];
                 $pdfFilePath = $this->generateLicensePdf($memberData, "club-membre");
 
@@ -358,6 +361,7 @@ class PaymentController extends AbstractController
             $entityManager->persist($member);
 
             $cart["club_individuel"]["licence"] = $member->getLicenceNumber();
+            $cart["club_individuel"]["season"] = $member->getSportSeason();
 
             $pdfFilePath = $this->generateLicensePdf($cart["club_individuel"], "membre-individuel");
             $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, "membre-individuel", $mailer);
