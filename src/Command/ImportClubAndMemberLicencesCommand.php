@@ -105,7 +105,7 @@ class ImportClubAndMemberLicencesCommand extends Command
 
         if ($club) {
             $club->setSportSeason($currentSeason);
-            $club->setLogo($logoPath);
+            $club->setLogo(basename($logoPath));
 
             // Si le club n'a pas encore d'email, on demande à l'utilisateur
             if (!$club->getEmail()) {
@@ -146,7 +146,7 @@ class ImportClubAndMemberLicencesCommand extends Command
                 $club->setTreasurerName($answers["treasurer_name"]);
                 $club->setEmail($answers["email"]);
                 $club->setCountry($answers["country"]);
-                $club->setLogo($logoPath);
+                $club->setLogo(basename($logoPath));
 
                 $lastClub = $this->em->getRepository(Club::class)->findOneBy([], ["id" => "DESC"]);
                 $clubNumber = $this->generateUniqueClubNumber($lastClub);
