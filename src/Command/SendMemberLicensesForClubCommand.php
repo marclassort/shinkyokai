@@ -264,7 +264,7 @@ class SendMemberLicensesForClubCommand extends Command
             ->from("shinkyokai.academie@gmail.com")
             ->to("marc.lassort@gmail.com")
             ->subject("Votre licence Membre Shinkyokai")
-            ->htmlTemplate("licenses/" . "club-membre" . ".html.twig")
+            ->htmlTemplate("emails/" . "club-membre" . ".html.twig")
             ->attachFromPath($pdfPath, "licence.pdf");
 
         $this->mailer->send($email);
