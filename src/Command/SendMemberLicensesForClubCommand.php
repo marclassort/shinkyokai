@@ -141,7 +141,8 @@ class SendMemberLicensesForClubCommand extends Command
                     $lastName,
                     $targetEmail
                 ),
-                false // défaut : ne PAS envoyer si l'utilisateur ne tape rien
+                false,
+                '/^(o|oui|y|yes)/i'
             );
 
             if (!$helper->ask($input, $output, $question)) {
