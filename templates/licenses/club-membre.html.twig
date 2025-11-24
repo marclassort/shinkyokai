@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-	<meta charset="UTF-8">
-	<title>Licence Membre</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap" rel="stylesheet">
-	<style>
+    <meta charset="UTF-8">
+    <title>Licence Membre</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900&display=swap" rel="stylesheet">
+    <style>
         @font-face {
             font-family: "THICCCBOI";
             src: url("/fonts/thicccboi/THICCCBOI-Black.woff2") format("woff2"),
@@ -126,7 +126,7 @@
         }
 
         .content p {
-            margin-bottom: 5px; /* Espace entre les paragraphes */
+            margin-bottom: 2px; /* Espace resserré pour laisser la place à la taille de police plus grande */
         }
 
         .roboto-regular {
@@ -142,7 +142,7 @@
         }
 
         h2, h3, p {
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         h2 {
@@ -154,36 +154,36 @@
         }
 
         p {
-            font-size: 10px;
+            font-size: 12px;
+            line-height: 1.15;
         }
-	
-	</style>
+
+    </style>
 </head>
 <body>
 <div class="page">
-	<!-- Overlay gris semi-transparent -->
-	<div class="gray-overlay"></div>
-	
-	<div class="page-content">
-		<div class="header">
-			<img class="logo" src="{{ absolute_url(asset('img/SHIN-KYO-WHITE-TR.png')) }}" alt="Logo Shinkyokai">
-			<img src="{{ absolute_url(asset('uploads/' ~ data.logo)) }}" alt="Logo Club {{ data.club_name }}" class="right-logo" />
-		</div>
-		
-		<div class="content">
-			<h1 class="text-gray">SHINKYOKAI</h1>
-			<h2 class="text-red">ACADÉMIE D'ARTS MARTIAUX ET CULTURELS</h2>
-			<h3 class="roboto-bold">CARTE DE MEMBRE</h3>
-			<p>Saison {{ data.season }}</p>
-			<p class="roboto-regular">Prénom : {{ data.membre_prenom }}</p>
-			<p class="roboto-regular">Nom : {{ data.membre_nom }}</p>
-			<p>N° CLUB : {{ data.numero }}</p>
-			<p>N° LICENCE : {{ data.licence }}</p>
-			<!-- <img src="" alt="QR Code Club" /> -->
-			<p>SHINKYOKAI</p>
-		</div>
-	</div>
+    <!-- Overlay gris semi-transparent -->
+    <div class="gray-overlay"></div>
+
+    <div class="page-content">
+        <div class="header">
+            <img class="logo" src="{{ absolute_url(asset('img/SHIN-KYO-WHITE-TR.png')) }}" alt="Logo Shinkyokai">
+            <img src="{{ absolute_url(asset('uploads/' ~ data.logo)) }}" alt="Logo Club {{ data.club_name }}" class="right-logo" />
+        </div>
+
+        <div class="content">
+            <h1 class="text-gray">SHINKYOKAI</h1>
+            <h2 class="text-red">ACADÉMIE D'ARTS MARTIAUX ET CULTURELS</h2>
+            <h3 class="roboto-bold">CARTE DE MEMBRE</h3>
+            <p>Saison {{ data.season }}</p>
+            <p class="roboto-regular">Prénom : {{ data.membre_prenom }}</p>
+            <p class="roboto-regular">Nom : {{ data.membre_nom }}</p>
+            <p>N° CLUB : {{ data.numero }}</p>
+            <p>N° LICENCE : {{ data.licence }}</p>
+            <!-- <img src="" alt="QR Code Club" /> -->
+            <p>SHINKYOKAI</p>
+        </div>
+    </div>
 </div>
 </body>
 </html>
-
