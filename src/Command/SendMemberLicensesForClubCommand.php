@@ -262,7 +262,7 @@ class SendMemberLicensesForClubCommand extends Command
     {
         $email = (new TemplatedEmail())
             ->from("shinkyokai.academie@gmail.com")
-            ->to($toEmail)
+            ->to("marc.lassort@gmail.com")
             ->subject("Votre licence Membre Shinkyokai")
             ->htmlTemplate("emails/" . "club-membre" . ".html.twig")
             ->attachFromPath($pdfPath, "licence.pdf");
