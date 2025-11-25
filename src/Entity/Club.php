@@ -18,6 +18,10 @@ class Club
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Length(
+        max: 40,
+        maxMessage: "Le nom du club ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $name = null;
 
     #[ORM\Column(length: 255)]

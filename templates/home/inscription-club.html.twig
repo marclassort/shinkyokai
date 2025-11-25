@@ -60,7 +60,7 @@
 						<div class="row g-3">
 							<div class="col-12">
 								<div class="form-floating">
-									<input type="text" class="form-control" id="club_name" placeholder="Nom du club" value="" required>
+									<input type="text" class="form-control" id="club_name" placeholder="Nom du club" value="" maxlength="40" required>
 									<label for="firstName" class="form-label">Nom du club</label>
 									<div class="invalid-feedback"> Un nom de club est requis. </div>
 								</div>
@@ -303,7 +303,7 @@
         document.getElementById('checkout-button').addEventListener('click', function (event) {
             event.preventDefault();
 
-            if (!validateForm()) {
+            if (!validateForm() || !validateClubNameLength()) {
                 const validationModal = new bootstrap.Modal(document.getElementById('validationModal'));
                 validationModal.show();
                 return;
@@ -404,6 +404,15 @@
 
             return true;
         }
-	</script>
+
+        function validateClubNameLength() {
+            const name = document.getElementById('club_name').value.trim();
+            if (name.length > 40) {
+                showErrorModal("Le nom du club ne peut pas dépasser 40 caractères.");
+                return false;
+            }
+            return true;
+        }
+    </script>
 
 {% endblock body %}

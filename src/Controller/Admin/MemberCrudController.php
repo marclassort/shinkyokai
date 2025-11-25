@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Club;
 use App\Entity\Member;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
@@ -61,7 +62,21 @@ class MemberCrudController extends AbstractCrudController
         return $filters
             ->add(
                 EntityFilter::new("club", "Club")
-                    ->setFormTypeOption("value_type_options.choice_label", "name")
+                    ->setFormTypeOption(
+                        "value_type_options.choice_label",
+                        function (?Club $club) {
+                            if (!$club) {
+                                return "";
+                            }
+
+                            $season = $club->getSportSeason();
+                            if ($season) {
+                                return sprintf("%s (%s)", $club->getName(), $season);
+                            }
+
+                            return $club->getName();
+                        }
+                    )
             )
             ->add(
                 ChoiceFilter::new("sportSeason", "Saison sportive")
