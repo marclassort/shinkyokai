@@ -81,6 +81,12 @@ UPDATE `club`   SET card_sent_at = NOW() WHERE card_sent_at IS NULL;
 4. Vérifier que rien n'est en attente : `php bin/console app:licences:envoyer --status` doit afficher **0 / 0 / 0**.
    (Si ce n'est pas 0, ne continuez pas : `app:licences:envoyer` refuse de toute façon de démarrer au-delà de 150
    cartes en attente, pour éviter un envoi massif accidentel.)
+5. **Passer provisoirement en mode `cron` AVANT la régularisation** : dans `.env.local`, ajouter
+   `LICENCE_CARDS_MODE=cron`, puis `php bin/console cache:clear`. Dans le mode par défaut (`inline`), toute
+   inscription envoie, après sa réponse, TOUTES les cartes en attente : la régularisation avec `--no-mail` en laisse 53,
+   qui partiraient seules à la prochaine inscription, sans passer par l'essai de l'étape 4. En mode `cron`, une
+   inscription enregistre tout mais n'envoie rien ; vous lancez les envois à la main (étape 4) puis le cron prend le
+   relais. Une inscription faite pendant cette fenêtre reste simplement « en attente » (elle apparaît dans `--status`).
 
 ### 3. Régularisation de la commande #52
 
@@ -164,15 +170,13 @@ détails sans importance. **N'utilisez pas `--force`.**
    cd /srv/data/web/vhosts/shinkyokai.com/htdocs && php bin/console app:licences:envoyer >> var/log/cron-cartes.log 2>&1
    ```
    Vérifier la version de PHP du cron avec `php -v` en SSH : elle doit être la même que celle du site.
-2. **Laisser tourner quelques minutes avec `LICENCE_CARDS_MODE=inline`** : le cron n'a rien à envoyer, vous
-   vérifiez simplement dans `var/log/cron-cartes.log` qu'il s'exécute chaque minute sans erreur
-   (« Aucune carte à envoyer maintenant »).
-3. Seulement ensuite, passer `LICENCE_CARDS_MODE=cron` dans `.env.local` et vider le cache.
-4. Faire une inscription de test (individuelle) : la page de succès s'affiche immédiatement, et la carte arrive
+2. Le mode `cron` est déjà actif depuis l'étape 2.5. Vérifier dans `var/log/cron-cartes.log` que la tâche s'exécute
+   chaque minute sans erreur (« Aucune carte à envoyer maintenant »).
+3. Faire une inscription de test (individuelle) : la page de succès s'affiche immédiatement, et la carte arrive
    dans la minute.
 
 **Retour en arrière** : remettre `LICENCE_CARDS_MODE=inline` (ou supprimer la ligne) et vider le cache ; le cron peut
-rester installé sans danger.
+rester installé sans danger. Attention : en mode `inline`, toute inscription envoie toutes les cartes en attente.
 
 ### Surveillance
 
