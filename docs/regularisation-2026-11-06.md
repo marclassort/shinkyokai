@@ -161,17 +161,33 @@ php bin/console app:licences:envoyer --limit=60
 ```
 → envoie le reste (≈ 3 min, sans limite en ligne de commande). Puis `--status` : « En attente : 0 ».
 
-### 5. Contrainte d'unicité (uniquement après la régularisation)
+### 5. Contrainte d'unicité : NE PAS la créer tant qu'il existe des doublons historiques
+
+Le contrôle suivant, lancé en production après la régularisation, a renvoyé **138 numéros de licence en double** :
 
 ```sql
--- doit renvoyer 0 ligne :
-SELECT licence_number, COUNT(*) FROM `member` WHERE licence_number IS NOT NULL GROUP BY licence_number HAVING COUNT(*) > 1;
-
-CREATE UNIQUE INDEX uniq_member_licence_number ON `member` (licence_number);
+SELECT COUNT(*) FROM (SELECT licence_number FROM `member` WHERE licence_number IS NOT NULL GROUP BY licence_number HAVING COUNT(*) > 1) d;
 ```
 
-Contrôle final : `php bin/console doctrine:schema:update --dump-sql` ne doit proposer (au plus) que des
-détails sans importance. **N'utilisez pas `--force`.**
+Ces doublons existaient AVANT la régularisation : les anciennes commandes d'import
+(`ImportClubAndMemberLicencesCommand`, `ImportClubAndMembersDataOnlyCommand`) numérotaient les adhérents avec un
+compteur qui repartait à `SKK0001` pour chaque club importé. Ils se situent donc dans les petits numéros. Pour le
+vérifier :
+
+```sql
+-- plage des numéros en double (le plus petit, le plus grand, combien)
+SELECT MIN(licence_number), MAX(licence_number), COUNT(*) FROM (SELECT licence_number FROM `member` WHERE licence_number IS NOT NULL GROUP BY licence_number HAVING COUNT(*) > 1) d;
+-- touchent-ils le lot régularisé (SKK0195 à SKK0303) ? DOIT renvoyer 0
+SELECT COUNT(*) FROM (SELECT licence_number FROM `member` WHERE licence_number BETWEEN 'SKK0195' AND 'SKK0303' GROUP BY licence_number HAVING COUNT(*) > 1) d;
+```
+
+Conséquence : `CREATE UNIQUE INDEX uniq_member_licence_number ...` échouerait, et on ne doit pas l'exécuter. La protection
+contre de nouveaux doublons repose sur `LicenceNumberGenerator` (plus grand numéro existant + 1, plancher
+`LICENCE_FIRST_AVAILABLE`), qui ne réattribue jamais un numéro. Les doublons historiques sont un chantier à part
+(des cartes ont été émises avec ces numéros) : à décider avec le club avant toute renumérotation.
+
+`php bin/console doctrine:schema:update --dump-sql` continuera à proposer la création de cet index : l'ignorer.
+**N'utilisez jamais `--force`.**
 
 ### 6. Activer le cron
 
