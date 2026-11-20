@@ -227,8 +227,19 @@ class PaymentController extends AbstractController
                         $licenseService->deliver($culturalCards);
                     }
                     if ($sendNow) {
-                        $result = $cardSender->deliver($cardSender->pending(PHP_INT_MAX));
-                        $logger->info("Cartes de la commande #$orderId traitées.", $result);
+                        // Même verrou que la commande planifiée (app:licences:envoyer) : une carte ne part jamais deux fois.
+                        // Si elle tourne déjà, c'est elle qui enverra ces cartes (elles sont en attente en base).
+                        $lock = $cardSender->acquireLock();
+                        if ($lock === null) {
+                            $logger->info("Commande #$orderId : un envoi de cartes est déjà en cours, il traitera aussi ces cartes.");
+                        } else {
+                            try {
+                                $result = $cardSender->deliver($cardSender->pending(PHP_INT_MAX));
+                                $logger->info("Cartes de la commande #$orderId traitées.", $result);
+                            } finally {
+                                $cardSender->releaseLock($lock);
+                            }
+                        }
                     }
                 } catch (\Throwable $e) {
                     $logger->error("Erreur lors de l'envoi des cartes de la commande #$orderId.", [

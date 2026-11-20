@@ -189,20 +189,31 @@ contre de nouveaux doublons repose sur `LicenceNumberGenerator` (plus grand num�
 `php bin/console doctrine:schema:update --dump-sql` continuera à proposer la création de cet index : l'ignorer.
 **N'utilisez jamais `--force`.**
 
-### 6. Activer le cron
+### 6. Tâche planifiée horaire (filet de sécurité) : hébergement Gandi
 
-1. Dans votre panneau d'hébergement (« Tâches CRON »), créer une tâche **toutes les minutes** :
-   ```
-   cd /srv/data/web/vhosts/shinkyokai.com/htdocs && php bin/console app:licences:envoyer >> var/log/cron-cartes.log 2>&1
-   ```
-   Vérifier la version de PHP du cron avec `php -v` en SSH : elle doit être la même que celle du site.
-2. Le mode `cron` est déjà actif depuis l'étape 2.5. Vérifier dans `var/log/cron-cartes.log` que la tâche s'exécute
-   chaque minute sans erreur (« Aucune carte à envoyer maintenant »).
-3. Faire une inscription de test (individuelle) : la page de succès s'affiche immédiatement, et la carte arrive
-   dans la minute.
+Sur Gandi Simple Hosting, il n'y a pas de cron classique mais **anacron**, dont l'intervalle minimal est **1 heure**
+(`1@hourly`). Un passage par minute est donc impossible : le mode `cron` (qui n'envoie les cartes que par la tâche
+planifiée) ferait attendre jusqu'à une heure la carte d'un nouvel inscrit. La bonne configuration est la combinaison :
 
-**Retour en arrière** : remettre `LICENCE_CARDS_MODE=inline` (ou supprimer la ligne) et vider le cache ; le cron peut
-rester installé sans danger. Attention : en mode `inline`, toute inscription envoie toutes les cartes en attente.
+- **mode `inline`** (`LICENCE_CARDS_MODE=inline`, ou variable absente) : la carte part juste après l'inscription ;
+- **tâche horaire** : elle envoie les cartes restées en attente (envoi interrompu par la limite de l'hébergeur,
+  e-mail en échec à retenter, jusqu'à 5 essais espacés de 10 minutes).
+
+L'envoi après inscription et la tâche partagent le même **verrou** : s'ils se croisent, l'un attend l'autre, et une
+carte ne part jamais deux fois.
+
+Dans l'interface Gandi (page « anacrontab » de l'instance), ajouter à la fin du fichier (une seule ligne) :
+
+```
+1@hourly 0 cartes-licences /opt/php-8.3/bin/php /srv/data/web/vhosts/shinkyokai.com/htdocs/bin/console app:licences:envoyer --limit=100 --time-limit=600 >> /srv/data/web/vhosts/shinkyokai.com/htdocs/var/log/cron-cartes.log 2>&1
+```
+
+(Le chemin du PHP se relève avec `which php` ; le deuxième champ, `0`, est ignoré mais obligatoire ; le nom
+`cartes-licences` doit être unique.) Contrôle : après environ une heure, `tail -3 var/log/cron-cartes.log` doit montrer
+une ligne « Aucune carte à envoyer maintenant… ». En attendant, la même commande tapée à la main fait la même chose.
+
+**Retour en arrière** : supprimer la ligne dans la page anacrontab. Le mode `inline` fonctionne sans la tâche, la seule
+perte étant l'envoi automatique des cartes restées en attente (à lancer alors à la main).
 
 ### Surveillance
 
@@ -213,7 +224,7 @@ rester installé sans danger. Attention : en mode `inline`, toute inscription en
   ```sql
   UPDATE `member` SET card_sent_at = NULL, card_attempts = 0, card_last_attempt_at = NULL, card_last_error = NULL WHERE id = 123;
   ```
-- Le journal `var/log/cron-cartes.log` reçoit une ligne par minute ; le vider de temps en temps.
+- Le journal `var/log/cron-cartes.log` reçoit une ligne par heure (24 par jour).
 - Gmail limite le volume d'envoi (≈ 500 e-mails par jour pour un compte gratuit) : pour un très gros lot, utiliser
   `--limit=20` dans la ligne du cron.
 

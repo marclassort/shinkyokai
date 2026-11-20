@@ -240,4 +240,25 @@ class PaymentSuccessTest extends PaymentFlowTestCase
             self::assertMatchesRegularExpression("/Sarah/u", PdfInspector::inspect($this->mailer->sent[0]->getAttachments()[0]->getBody())["text"]);
         }
     }
+
+    public function testInlineSendingNeverRunsAtTheSameTimeAsAnotherSender(): void
+    {
+        // La tâche planifiée (ou une autre inscription) est en train d'envoyer : l'inscription enregistre tout mais n'envoie rien,
+        // pour qu'une carte ne parte jamais deux fois ; les cartes restent en attente et seront envoyées par l'autre exécution.
+        $this->startCheckout("inscription-club", $this->clubCart(4), 70.0);
+        $sender = static::getContainer()->get(\App\Service\CardSender::class);
+        $lock = $sender->acquireLock();
+        self::assertNotNull($lock);
+
+        $this->client->request("GET", "/paiement-succes");
+
+        self::assertResponseIsSuccessful();
+        self::assertSame(4, $this->rowCount(Member::class), "Tout est enregistré");
+        self::assertCount(0, $this->mailer->sent, "Rien n'est envoyé pendant qu'un autre envoi est en cours");
+        self::assertSame(5, $sender->status()["pending"], "Les cartes (club + 4 adhérents) restent en attente");
+
+        $sender->releaseLock($lock);
+        $sender->deliver($sender->pending(100));
+        self::assertCount(5, $this->mailer->sent, "Elles partent ensuite, une seule fois chacune");
+    }
 }
