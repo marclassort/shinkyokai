@@ -473,4 +473,58 @@ class RegulariseComplementCommandTest extends DatabaseTestCase
 
         self::assertSame("SKK0247", $this->licenceOf("NOM053", "Karim"), "Enregistré en base avec la majuscule");
     }
+
+    /**
+     * Les deux adhérents renumérotés n'ont jamais reçu leur ancienne carte : ils sont renumérotés SANS aucune carte envoyée.
+     */
+    /** Comme en production après le rattrapage SQL : les adhérents déjà en base sont marqués « carte envoyée ». */
+    private function markExistingMembersAsSent(): void
+    {
+        foreach ($this->entityManager->getRepository(Member::class)->findAll() as $member) {
+            $member->markCardSent(new \DateTimeImmutable("2026-09-09 15:20"));
+        }
+        $this->entityManager->flush();
+    }
+
+    public function testNoReplacementCardsRenumbersWithoutSendingAnyCardToThem(): void
+    {
+        $this->markExistingMembersAsSent();
+
+        $tester = $this->regularise(execute: true, extra: ["--no-replacement-cards" => true, "--already-sent-at" => "2026-11-06 22:03"]);
+
+        self::assertSame(Command::SUCCESS, $tester->getStatusCode(), $tester->getDisplay());
+        self::assertStringContainsString("SANS qu'aucune carte", $tester->getDisplay());
+
+        // Seul le numéro change
+        self::assertSame("SKK0302", $this->licenceOf("SIMULE-A", "Alice"));
+        self::assertSame("SKK0303", $this->licenceOf("SIMULE-B", "Bruno"));
+        $this->entityManager->clear();
+        $member = $this->entityManager->getRepository(Member::class)->findOneBy(["lastName" => "SIMULE-A"]);
+        self::assertNull($member->getCardReplaces(), "Aucune carte de remplacement n'est prévue");
+        self::assertSame("2026-09-09", $member->getCardSentAt()?->format("Y-m-d"), "Son état d'envoi n'est pas touché");
+
+        // Seules les 51 nouvelles cartes partent
+        self::assertCount(51, $this->mailer->sent);
+        self::assertNotContains("famille-simulee@example.test", $this->mailer->recipients(), "Rien n'est envoyé à l'adresse des deux adhérents renumérotés");
+        self::assertCount(0, array_filter($this->mailer->sent, static fn($m) => str_contains($m->getSubject(), "remplace")));
+    }
+
+    public function testNoReplacementCardsLeavesNothingInTheQueueForThem(): void
+    {
+        $this->markExistingMembersAsSent();
+
+        $this->regularise(execute: true, extra: ["--no-replacement-cards" => true, "--no-mail" => true]);
+
+        $sender = new CardSender($this->entityManager, $this->licenseServiceForTest(), new MemberRegistrar($this->entityManager), 5, 10, $this->outputDir);
+        self::assertSame(["pending" => 51, "retrying" => 0, "abandoned" => 0], $sender->status(), "51 nouvelles cartes, aucune pour les renumérotés");
+        self::assertCount(0, array_filter($sender->pending(100), static fn($i) => $i["card"]["replaces"] !== null));
+    }
+
+    public function testPlanSaysThatNoCardIsSentToRenumberedMembersWithTheOption(): void
+    {
+        $display = $this->regularise(execute: false, extra: ["--no-replacement-cards" => true])->getDisplay();
+
+        self::assertStringContainsString("NON (option --no-replacement-cards", $display);
+        self::assertStringNotContainsString("Chacun recevra une carte de remplacement", $display);
+    }
 }

@@ -62,6 +62,7 @@ class RegulariseComplementCommand extends Command
             ->addOption("mail-rows", null, InputOption::VALUE_REQUIRED, "Lignes à qui envoyer une carte (ex. 57-107). Par défaut : toutes celles qui n'en ont pas reçu")
             ->addOption("swap-names", null, InputOption::VALUE_REQUIRED, "Lignes dont le prénom et le nom sont inversés dans le fichier (ex. 31 ou 31,48) : remis dans le bon ordre, le nom de famille en capitales")
             ->addOption("resend-rows", null, InputOption::VALUE_REQUIRED, "Lignes déjà servies dont la carte envoyée était erronée (ex. 31) : une carte corrigée est renvoyée, avec e-mail explicatif")
+            ->addOption("no-replacement-cards", null, InputOption::VALUE_NONE, "Les adhérents renumérotés ne reçoivent AUCUNE carte (ni remplacement, ni nouvelle) : à utiliser s'ils n'ont jamais reçu l'ancienne carte et que l'envoi se fait autrement")
             ->addOption("no-mail", null, InputOption::VALUE_NONE, "Enregistre tout mais n'envoie rien : les cartes restent « en attente » pour app:licences:envoyer (permet de l'essayer d'abord)")
             ->addOption("execute", null, InputOption::VALUE_NONE, "Applique réellement les changements et envoie les e-mails");
     }
@@ -132,6 +133,7 @@ class RegulariseComplementCommand extends Command
 
         // Garde-fou : une commande déjà régularisée ne renvoie rien sans demande explicite.
         $noMail = (bool)$input->getOption("no-mail");
+        $noReplacementCards = (bool)$input->getOption("no-replacement-cards");
         $explicitRange = $input->getOption("mail-rows");
         if ($order->getStatus() === "payee" && !$explicitRange) {
             $io->warning("Cette commande est déjà « payee » : rien n'est modifié ni envoyé. "
@@ -229,12 +231,16 @@ class RegulariseComplementCommand extends Command
                     LicenceNumberGenerator::format($oldNumber),
                     $renumbering[$memberId],
                     $member->getEmail() ?? "—",
-                    $member->getEmail() && $member->getCommande()?->getStatus() === "payee" ? "oui" : "NON (pas d'e-mail ou commande non payée)",
+                    $noReplacementCards
+                        ? "NON (option --no-replacement-cards : aucune carte envoyée)"
+                        : ($member->getEmail() && $member->getCommande()?->getStatus() === "payee" ? "oui" : "NON (pas d'e-mail ou commande non payée)"),
                 ];
             }
             $io->section("Adhérents renumérotés (leur ancien numéro est déjà imprimé sur une carte du lot)");
             $io->table(["id", "Nom", "Club", "Ancien n°", "Nouveau n°", "E-mail", "Dans la file d'envoi"], $rowsTable);
-            $io->writeln("→ Chacun recevra une carte de remplacement avec un e-mail explicatif.");
+            $io->writeln($noReplacementCards
+                ? "→ Ils sont renumérotés SANS qu'aucune carte ne leur soit envoyée (--no-replacement-cards)."
+                : "→ Chacun recevra une carte de remplacement avec un e-mail explicatif.");
         } else {
             $io->writeln("Aucun adhérent existant à renuméroter.");
         }
@@ -265,7 +271,7 @@ class RegulariseComplementCommand extends Command
         // le cron ne doit pas leur envoyer la carte en même temps que cette commande.
         $lock = $this->cardSender->acquireLock(wait: true);
         try {
-            return $this->apply($io, $plan, $order, $club, $season, $victims, $renumbering, $mailFrom, $mailTo, $alreadySent, $alreadySentAt, $noMail);
+            return $this->apply($io, $plan, $order, $club, $season, $victims, $renumbering, $mailFrom, $mailTo, $alreadySent, $alreadySentAt, $noMail, $noReplacementCards);
         } finally {
             $lock && $this->cardSender->releaseLock($lock);
         }
@@ -276,18 +282,22 @@ class RegulariseComplementCommand extends Command
      * @param array<int, int> $victims
      * @param array<int, string> $renumbering
      */
-    private function apply(SymfonyStyle $io, array $plan, Order $order, Club $club, string $season, array $victims, array $renumbering, int $mailFrom, int $mailTo, int $alreadySent, \DateTimeImmutable $alreadySentAt, bool $noMail): int
+    private function apply(SymfonyStyle $io, array $plan, Order $order, Club $club, string $season, array $victims, array $renumbering, int $mailFrom, int $mailTo, int $alreadySent, \DateTimeImmutable $alreadySentAt, bool $noMail, bool $noReplacementCards): int
     {
         /** @var list<array{entity: Member, card: array}> $items */
         $items = [];
         $rowOf = [];
         $created = [];
 
-        $this->entityManager->wrapInTransaction(function () use ($plan, $order, $club, $season, $victims, $renumbering, $mailFrom, $mailTo, $alreadySent, $alreadySentAt, &$items, &$rowOf, &$created): void {
+        $this->entityManager->wrapInTransaction(function () use ($plan, $order, $club, $season, $victims, $renumbering, $mailFrom, $mailTo, $alreadySent, $alreadySentAt, $noReplacementCards, &$items, &$rowOf, &$created): void {
             // 1. Libérer les numéros occupés (flush séparé : la contrainte d'unicité s'applique à chaque requête).
             foreach ($victims as $memberId => $oldNumber) {
                 $member = $this->entityManager->find(Member::class, $memberId);
                 $member->setLicenceNumber($renumbering[$memberId]);
+                if ($noReplacementCards) {
+                    // Seul le numéro change : l'état d'envoi de la carte n'est pas touché, rien n'est mis en file.
+                    continue;
+                }
                 // Carte de remplacement « en attente » : envoyée tout de suite ou par app:licences:envoyer, avec l'e-mail explicatif.
                 $member->resetCardDelivery()->setCardReplaces(LicenceNumberGenerator::format($oldNumber));
                 $items[] = ["entity" => $member, "card" => $this->registrar->cardFor($member, $member->getClub() ?? $club, $member->getSportSeason() ?? $season, LicenceNumberGenerator::format($oldNumber))];

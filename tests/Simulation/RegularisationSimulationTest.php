@@ -47,7 +47,7 @@ class RegularisationSimulationTest extends SimulationTestCase
             [$this->rows[$rowNumber - 1]["first_name"], $this->rows[$rowNumber - 1]["last_name"]] = [NameFormatter::firstName($original["last_name"]), mb_strtoupper($original["first_name"])];
         }
 
-        $args = ["order" => $order52Id, "file" => $this->sourceFile, "--club-number" => "SHIN0011", "--first-licence" => self::FIRST_LICENCE, "--already-sent" => self::ALREADY_SENT] + ($swapRows ? ["--swap-names" => implode(",", $swapRows)] : []);
+        $args = ["order" => $order52Id, "file" => $this->sourceFile, "--club-number" => "SHIN0011", "--first-licence" => self::FIRST_LICENCE, "--already-sent" => self::ALREADY_SENT, "--no-replacement-cards" => true] + ($swapRows ? ["--swap-names" => implode(",", $swapRows)] : []);
 
         // ---- Étape 1 : simulation -------------------------------------------------------------------------------
         $r->section("Étape 1 — Simulation de la régularisation (ne modifie rien, n'envoie rien)");
@@ -56,7 +56,7 @@ class RegularisationSimulationTest extends SimulationTestCase
         $last = self::FIRST_LICENCE + $total - 1;
         $r->check(str_contains($display, sprintf("SKK%04d → SKK%04d", self::FIRST_LICENCE, $last)), sprintf("Le plan annonce les numéros SKK%04d → SKK%04d", self::FIRST_LICENCE, $last));
         $r->check(str_contains($display, sprintf("SKK%04d", $last + 1)) && str_contains($display, sprintf("SKK%04d", $last + 2)), sprintf("Le plan renumérote les deux SIMULE-A en SKK%04d et SKK%04d", $last + 1, $last + 2));
-        $r->check(substr_count($display, "oui") >= 2 && !str_contains($display, "NON (pas d'e-mail"), "Les deux cartes de remplacement sont bien dans la file d'envoi");
+        $r->check(substr_count($display, "NON (option --no-replacement-cards") === 2 && str_contains($display, "SANS qu'aucune carte"), "Le plan confirme qu'AUCUNE carte n'est envoyée aux deux adhérents renumérotés");
         $this->entityManager->clear();
         $r->check($this->rowCount(Member::class) === $membersBefore && $this->entityManager->find(Order::class, $order52Id)->getStatus() === "en-cours", "Rien n'a été modifié en base");
         $r->check(count($this->mailer->sent) === 0, "Aucun e-mail envoyé");
@@ -95,7 +95,7 @@ class RegularisationSimulationTest extends SimulationTestCase
         $remplace1 = $repo->findOneBy(["lastName" => "SIMULE-A"]);
         $remplace2 = $repo->findOneBy(["lastName" => "SIMULE-B"]);
         $r->check($remplace1->getLicenceNumber() === LicenceNumberGenerator::format($last + 1) && $remplace2->getLicenceNumber() === LicenceNumberGenerator::format($last + 2), "Les deux adhérents arrivés depuis ont les numéros les plus élevés", sprintf("%s et %s", $remplace1->getLicenceNumber(), $remplace2->getLicenceNumber()));
-        $r->check($remplace1->getCardReplaces() === "SKK0195" && $remplace2->getCardReplaces() === "SKK0196", "Leur ancien numéro est mémorisé pour l'e-mail de remplacement");
+        $r->check($remplace1->getCardReplaces() === null && $remplace2->getCardReplaces() === null && $remplace1->getCardSentAt() !== null && $remplace2->getCardSentAt() !== null, "Leur état d'envoi n'est pas touché : aucune carte (ni remplacement, ni nouvelle) ne leur est destinée");
         $existant = $repo->findOneBy(["lastName" => "SIMULE-C"]);
         $r->check($existant->getLicenceNumber() === "SKK0141", "Chloe SIMULE-C (déjà affilié) n'est pas modifié");
 
@@ -106,9 +106,9 @@ class RegularisationSimulationTest extends SimulationTestCase
         // ---- Étape 3 : essais ---------------------------------------------------------------------------------
         $r->section("Étape 3 — Essai de l'envoi AVANT d'activer le cron");
         $sender = static::getContainer()->get(CardSender::class);
-        $expectedPending = $total - $alreadySent + 2;
+        $expectedPending = $total - $alreadySent;
         $status = $this->runCommand("app:licences:envoyer", ["--status" => true]);
-        $r->check($sender->status() === ["pending" => $expectedPending, "retrying" => 0, "abandoned" => 0], sprintf("%d cartes en attente (%d nouvelles + 2 remplacements)", $expectedPending, $total - $alreadySent));
+        $r->check($sender->status() === ["pending" => $expectedPending, "retrying" => 0, "abandoned" => 0], sprintf("%d cartes en attente (les nouvelles ; aucune pour les deux adhérents renumérotés)", $expectedPending));
         $dry = $this->runCommand("app:licences:envoyer", ["--dry-run" => true, "--limit" => 100]);
         $r->check(str_contains($dry->getDisplay(), "SIMULATION") && count($this->mailer->sent) === 0, "--dry-run : la liste est affichée, rien n'est envoyé");
 
@@ -116,13 +116,9 @@ class RegularisationSimulationTest extends SimulationTestCase
         $testMails = $this->mailer->sent;
         $r->check(count($testMails) === 5 && array_unique($this->mailer->recipients()) === ["vous@exemple.test"], "--test-recipient : 5 cartes envoyées à VOTRE adresse uniquement", implode(", ", array_unique($this->mailer->recipients())));
         $r->check($sender->status()["pending"] === $expectedPending, "Mode test : rien n'est marqué comme envoyé");
-        // La file suit l'ordre d'enregistrement : les deux SIMULE-A (plus anciens en base) passent d'abord, puis le lot.
         $this->entityManager->clear();
-        $firstFive = array_merge(
-            [$this->entityManager->getRepository(Member::class)->findOneBy(["lastName" => "SIMULE-A"]), $this->entityManager->getRepository(Member::class)->findOneBy(["lastName" => "SIMULE-B"])],
-            array_slice($this->membersOfOrder($order52Id), $alreadySent, 3)
-        );
-        $testDetails = $this->verifyMails($testMails, $this->byLicence($firstFive), "mode test (les 5 premières cartes de la file : 2 remplacements puis le lot, destinataire de test)", "vous@exemple.test");
+        $firstFive = array_slice($this->membersOfOrder($order52Id), $alreadySent, 5);
+        $testDetails = $this->verifyMails($testMails, $this->byLicence($firstFive), "mode test (les 5 premières cartes de la file, destinataire de test)", "vous@exemple.test");
 
         // ---- Étape 4 : envoi réel ---------------------------------------------------------------------------------
         $r->section("Étape 4 — Envoi réel par lots de 40 (ce que ferait le cron)");
@@ -138,23 +134,18 @@ class RegularisationSimulationTest extends SimulationTestCase
         }
         $r->info("Cartes envoyées à chaque passage : " . implode(" + ", $runs));
         $real = array_slice($this->mailer->sent, $testCount);
-        $r->check(count($real) === $expectedPending, sprintf("%d e-mails réels (%d adhérents + 2 remplacements) — pas un de plus", $expectedPending, $total - $alreadySent), (string)count($real));
+        $r->check(count($real) === $expectedPending, sprintf("%d e-mails réels (un par adhérent des lignes %d à %d) — pas un de plus", $expectedPending, $alreadySent + 1, $total), (string)count($real));
 
         $this->entityManager->clear();
-        $expected = $this->byLicence(array_merge(
-            array_slice($this->membersOfOrder($order52Id), $alreadySent),
-            [$repo = $this->entityManager->getRepository(Member::class)->findOneBy(["lastName" => "SIMULE-A"]), $this->entityManager->getRepository(Member::class)->findOneBy(["lastName" => "SIMULE-B"])]
-        ));
-        $details = $this->verifyMails($real, $expected, "envoi réel : lignes " . ($alreadySent + 1) . " à $total + 2 cartes de remplacement");
+        $expected = $this->byLicence(array_slice($this->membersOfOrder($order52Id), $alreadySent));
+        $details = $this->verifyMails($real, $expected, "envoi réel : lignes " . ($alreadySent + 1) . " à $total");
 
         $s2 = $this->snapshot();
         $this->reportDatabaseChanges("Modifications de la base de données par l'envoi des cartes (cartes marquées « envoyées »)", $s1, $s2, $details);
         $this->reportPerRowJournal("Scénario 3 — régularisation de la commande #52", $this->membersOfOrder($order52Id), $s0, $s2, $details, $testDetails);
 
-        $replacements = array_filter($real, static fn($m) => ($m->getContext()["replaces"] ?? null) !== null);
-        $olds = array_map(static fn($m) => $m->getContext()["replaces"], array_values($replacements));
-        sort($olds);
-        $r->check($olds === ["SKK0195", "SKK0196"], "Exactement 2 cartes de remplacement, pour les anciens numéros SKK0195 et SKK0196", implode(", ", $olds));
+        $r->check(count(array_filter($real, static fn($m) => ($m->getContext()["replaces"] ?? null) !== null)) === 0, "Aucun e-mail de remplacement : les deux adhérents renumérotés ne reçoivent aucune carte");
+        $r->check(!in_array("famille-simulee@example.test", $this->mailer->recipients(), true), "Rien n'est envoyé à l'adresse des deux adhérents renumérotés");
         $r->check($sender->status() === ["pending" => 0, "retrying" => 0, "abandoned" => 0], "Plus rien en attente");
 
         // ---- Étape 5 : on relance tout ------------------------------------------------------------------------------

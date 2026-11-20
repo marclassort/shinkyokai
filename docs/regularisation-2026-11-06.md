@@ -15,7 +15,7 @@ Un lot de 107 adhérents (complément du club Shinkyobudo) a été traité dans 
 |---|---|---|
 | Lignes 1 à 56 | SKK0195 → SKK0250 | enregistrés avec le numéro déjà imprimé, aucun e-mail |
 | Lignes 57 à 107 | SKK0251 → SKK0301 | enregistrés, carte envoyée |
-| Les 2 adhérents arrivés ensuite (commande #53) | SKK0302 / SKK0303 | renumérotés, carte de remplacement envoyée |
+| Les 2 adhérents arrivés ensuite (commande #53) | SKK0302 / SKK0303 | renumérotés ; **aucune carte envoyée** (ils n'avaient jamais reçu l'ancienne), voir plus bas |
 
 ## Comment fonctionne le nouvel envoi des cartes
 
@@ -83,7 +83,7 @@ UPDATE `club`   SET card_sent_at = NOW() WHERE card_sent_at IS NULL;
    cartes en attente, pour éviter un envoi massif accidentel.)
 5. **Passer provisoirement en mode `cron` AVANT la régularisation** : dans `.env.local`, ajouter
    `LICENCE_CARDS_MODE=cron`, puis `php bin/console cache:clear`. Dans le mode par défaut (`inline`), toute
-   inscription envoie, après sa réponse, TOUTES les cartes en attente : la régularisation avec `--no-mail` en laisse 53,
+   inscription envoie, après sa réponse, TOUTES les cartes en attente : la régularisation avec `--no-mail` en laisse 51,
    qui partiraient seules à la prochaine inscription, sans passer par l'essai de l'étape 4. En mode `cron`, une
    inscription enregistre tout mais n'envoie rien ; vous lancez les envois à la main (étape 4) puis le cron prend le
    relais. Une inscription faite pendant cette fenêtre reste simplement « en attente » (elle apparaît dans `--status`).
@@ -98,7 +98,7 @@ Récupérer le fichier exact traité le 6 novembre : l'ancienne version l'a enre
 
 ```
 php bin/console app:licences:regulariser 52 var/lot1-skk.xlsx \
-    --club-number=SHIN0011 --first-licence=195 --already-sent=56 --swap-names=31
+    --club-number=SHIN0011 --first-licence=195 --already-sent=56 --swap-names=31 --no-replacement-cards
 ```
 
 `--swap-names=31` remet dans le bon ordre le prénom et le nom de la ligne 31 (saisis à l'envers dans le fichier du
@@ -106,14 +106,24 @@ club) : la base de données contiendra le prénom et le nom dans le bon ordre, l
 été envoyée le 6 novembre avec les deux inversés ; **décision : elle n'est pas renvoyée** (l'option `--resend-rows=31` existe mais
 ne doit pas être utilisée ici).
 
-À contrôler dans le tableau : **ligne 1 = SKK0195** et **ligne 56 = SKK0250** (numéros vus sur les
-cartes) ; 2 adhérents renumérotés (SKK0302 et SKK0303), tous deux « oui » dans la colonne « Dans la file d'envoi ».
+`--no-replacement-cards` : les deux adhérents arrivés après l'incident (commande #53) sont renumérotés (SKK0302 et
+SKK0303) **sans qu'aucune carte ne leur soit envoyée** : ils n'avaient jamais reçu l'ancienne. Le plan affiche
+« NON (option --no-replacement-cards… ) » dans la colonne « Dans la file d'envoi ». Ils n'ont donc actuellement
+aucune carte : pour leur envoyer plus tard une carte normale avec leur nouveau numéro (sans mention de remplacement),
+remettre leur carte « en attente » puis lancer `app:licences:envoyer` :
+```sql
+UPDATE `member` SET card_sent_at = NULL, card_attempts = 0, card_last_attempt_at = NULL, card_last_error = NULL
+ WHERE licence_number IN ('SKK0302', 'SKK0303');
+```
 
-**Application, sans envoi** (tout est enregistré, les 53 cartes restent en attente) :
+À contrôler dans le tableau : **ligne 1 = SKK0195** et **ligne 56 = SKK0250** (numéros vus sur les
+cartes) ; 2 adhérents renumérotés (SKK0302 et SKK0303), tous deux « NON (option --no-replacement-cards… ) » dans la colonne « Dans la file d'envoi ».
+
+**Application, sans envoi** (tout est enregistré, les 51 cartes restent en attente) :
 
 ```
 php bin/console app:licences:regulariser 52 var/lot1-skk.xlsx \
-    --club-number=SHIN0011 --first-licence=195 --already-sent=56 --swap-names=31 \
+    --club-number=SHIN0011 --first-licence=195 --already-sent=56 --swap-names=31 --no-replacement-cards \
     --already-sent-at="2026-11-06 22:03" --no-mail --execute
 ```
 
@@ -121,12 +131,12 @@ php bin/console app:licences:regulariser 52 var/lot1-skk.xlsx \
 
 ### 4. Essai de l'envoi AVANT d'activer le cron
 
-Les 53 cartes (51 nouvelles + 2 de remplacement) attendent maintenant dans la file. Dans l'ordre :
+Les 51 nouvelles cartes attendent maintenant dans la file. Dans l'ordre :
 
 ```
 php bin/console app:licences:envoyer --status
 ```
-→ « En attente : 53 ».
+→ « En attente : 51 ».
 
 ```
 php bin/console app:licences:envoyer --dry-run
@@ -137,7 +147,7 @@ php bin/console app:licences:envoyer --dry-run
 php bin/console app:licences:envoyer --test-recipient=votre.adresse@exemple.fr
 ```
 → envoie **5 cartes au maximum, à votre adresse seulement**, et **ne marque rien comme envoyé**. Ouvrez les e-mails :
-le PDF s'affiche-t-il correctement (logo, polices) ? L'e-mail de remplacement est-il clair ? Les adhérents ne
+le PDF s'affiche-t-il correctement (logo, polices) ? Les adhérents ne
 reçoivent rien.
 
 ```
