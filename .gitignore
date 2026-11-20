@@ -19,3 +19,8 @@
 ###< symfony/asset-mapper ###
 
 /.idea/workspace.xml
+
+# Fichiers d'adhérents (données personnelles) : ne jamais les versionner ni les laisser dans public/
+/public/*.xlsx
+/public/*.xls
+/public/*.csv
