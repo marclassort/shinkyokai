@@ -12,6 +12,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Entity(repositoryClass: ClubRepository::class)]
 class Club
 {
+    use CardDeliveryTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

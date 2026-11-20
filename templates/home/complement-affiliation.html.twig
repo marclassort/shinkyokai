@@ -291,7 +291,7 @@
                 const saveRes = await fetch('{{ path("save_order_and_session") }}', { method: 'POST', body: fdSave });
                 const saveData = await saveRes.json();
                 if (!saveData.success) {
-                    showErrorModal('Erreur lors de la sauvegarde de la commande.');
+                    showErrorModal(Object.values(saveData.errors || {}).filter(Boolean).join(' ') || 'Erreur lors de la sauvegarde de la commande.');
                     return;
                 }
 

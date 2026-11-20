@@ -11,6 +11,21 @@ parameters:
     test_key: ''
     upload_directory: '%kernel.project_dir%/public/uploads'
     timezone: '%env(APP_TIMEZONE)%'
+    # Plancher de numérotation des licences (voir App\Service\LicenceNumberGenerator) : aucun numéro inférieur n'est attribué
+    env(LICENCE_FIRST_AVAILABLE): '1'
+    app.licence_first_available: '%env(int:LICENCE_FIRST_AVAILABLE)%'
+    # Envoi des cartes : « inline » = juste après l'inscription (par défaut), « cron » = uniquement par `app:licences:envoyer`
+    env(LICENCE_CARDS_MODE): 'inline'
+    app.licence_cards_mode: '%env(LICENCE_CARDS_MODE)%'
+    # Nombre maximal d'essais d'envoi d'une carte, et délai entre deux essais (minutes)
+    app.card_max_attempts: 5
+    app.card_retry_minutes: 10
+    # Dossier des cartes PDF générées (hors de public/ : données personnelles)
+    app.licence_output_dir: '%kernel.project_dir%/var/licences'
+    # Génération des PDF : autorise les ressources distantes (police Roboto de Google Fonts)
+    app.pdf_remote_enabled: true
+    # Secondes d'attente avant le nouvel essai d'un envoi d'e-mail en échec
+    app.mail_retry_delay: 2
 
 services:
     # default configuration for services in *this* file
@@ -37,3 +52,19 @@ services:
     App\EventListener\ExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception }
+
+when@test:
+    parameters:
+        app.pdf_remote_enabled: false
+        app.mail_retry_delay: 0
+        app.licence_output_dir: '%kernel.cache_dir%/licences'
+    services:
+        # Public pour que les tests puissent le remplacer (pas d'appel réel à Stripe)
+        App\Service\PaymentVerifierInterface:
+            alias: App\Service\StripePaymentVerifier
+            public: true
+        App\Service\CheckoutGatewayInterface:
+            alias: App\Service\StripeCheckoutGateway
+            public: true
+        App\Service\LicenseService:
+            public: true

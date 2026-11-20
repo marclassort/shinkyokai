@@ -7,7 +7,14 @@
 <body>
 <h2>Licence de membre</h2>
 <p>Bonjour,</p>
+{% if replaces|default(null) %}
+<p><strong>Cette carte remplace celle que vous avez reçue précédemment (numéro {{ replaces }}).</strong>
+	Elle a été rééditée suite à une régularisation de votre inscription (numéro de licence ou informations corrigés) :
+	merci de ne conserver que la carte jointe à ce courriel et de ne plus utiliser l'ancienne.
+	Nous vous prions de nous excuser pour la gêne occasionnée.</p>
+{% else %}
 <p>Nous vous remercions de vous être inscrit à Shinkyokaï.</p>
+{% endif %}
 <p>Vous trouverez ci-joint à ce courriel votre licence de membre en PDF.</p>
 <p>N'hésitez pas à nous contacter pour toute interrogation supplémentaire.</p>
 <p>L'équipe de Shinkyokaï</p>

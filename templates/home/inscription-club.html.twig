@@ -365,11 +365,16 @@
                             body: formData,
                         });
                     } else {
-                        alert('Erreur lors de la sauvegarde de la commande.');
+                        const details = Object.values(data.errors || {}).filter(Boolean).join(' ');
+                        showErrorModal(details || 'Erreur lors de la sauvegarde de la commande.');
+                        return null;
                     }
                 })
-                .then(response => response.json())
+                .then(response => response ? response.json() : null)
                 .then(session => {
+                    if (!session) {
+                        return;
+                    }
                     // Redirection vers Stripe pour le paiement
                     return stripe.redirectToCheckout({ sessionId: session.id });
                 })

@@ -3,13 +3,17 @@
 namespace App\Entity;
 
 use App\Repository\MemberRepository;
+use App\Service\NameFormatter;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MemberRepository::class)]
 #[ORM\Table(name: '`member`')]
+#[ORM\UniqueConstraint(name: 'uniq_member_licence_number', columns: ['licence_number'])]
 class Member
 {
+    use CardDeliveryTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -48,7 +52,8 @@ class Member
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $email = null;
 
-    #[ORM\Column(length: 255)]
+    // Nullable : les participants aux ateliers d'arts culturels n'ont pas de licence.
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $licenceNumber = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -70,7 +75,8 @@ class Member
 
     public function setFirstName(string $firstName): static
     {
-        $this->firstName = $firstName;
+        // Toujours une majuscule au début du prénom (voir NameFormatter)
+        $this->firstName = NameFormatter::firstName($firstName);
 
         return $this;
     }
@@ -200,7 +206,7 @@ class Member
         return $this->licenceNumber;
     }
 
-    public function setLicenceNumber(string $licenceNumber): static
+    public function setLicenceNumber(?string $licenceNumber): static
     {
         $this->licenceNumber = $licenceNumber;
 

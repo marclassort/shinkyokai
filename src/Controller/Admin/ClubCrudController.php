@@ -10,6 +10,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ImageField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -50,6 +52,13 @@ class ClubCrudController extends AbstractCrudController
                 ->allowMultipleChoices(false)
                 ->setFormTypeOption("placeholder", "— Saison —")
                 ->renderAsNativeWidget(),
+            DateTimeField::new("cardSentAt", "Carte envoyée le")
+                ->setFormat("dd/MM/yyyy HH:mm")
+                ->hideOnForm(),
+            IntegerField::new("cardAttempts", "Essais d'envoi")
+                ->onlyOnDetail(),
+            TextField::new("cardLastError", "Dernière erreur d'envoi")
+                ->onlyOnDetail(),
         ];
     }
 

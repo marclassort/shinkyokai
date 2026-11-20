@@ -5,24 +5,29 @@ namespace App\Controller;
 use App\Entity\Club;
 use App\Entity\Member;
 use App\Entity\Order;
+use App\Service\CardSender;
+use App\Service\CheckoutGatewayInterface;
+use App\Service\CheckoutLineItems;
+use App\Service\LicenceNumberGenerator;
+use App\Service\LicenseService;
+use App\Service\MemberFileReader;
+use App\Service\MemberRegistrar;
+use App\Service\PaymentVerifierInterface;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use Exception;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Stripe\Exception\ApiErrorException;
-use Stripe\Stripe;
-use Stripe\Checkout\Session as StripeSession;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
-use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\HttpKernel\Event\TerminateEvent;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class PaymentController extends AbstractController
 {
@@ -30,159 +35,94 @@ class PaymentController extends AbstractController
      * @throws ApiErrorException
      */
     #[Route("/create-checkout-session", name: "create_checkout_session")]
-    public function createCheckoutSession(SessionInterface $session): Response
-    {
-        Stripe::setApiKey($this->getParameter("stripe_secret_key"));
+    public function createCheckoutSession(
+        SessionInterface $session,
+        CheckoutLineItems $lineItems,
+        CheckoutGatewayInterface $checkoutGateway,
+    ): Response {
+        $orderId = $session->get("orderId");
 
-        $cart = $session->get("cart", []);
-
-        $lineItems = [];
-
-        if (isset($cart["club"])) {
-            $lineItems[] = [
-                "price_data" => [
-                    "currency" => "eur",
-                    "product_data" => [
-                        "name" => "Inscription d'un club",
-                    ],
-                    "unit_amount" => 5000,
-                ],
-                "quantity" => 1,
-            ];
-
-            $memberCount = $cart["club"]["members"] ?? 0;
-
-            if ($memberCount > 0) {
-                $lineItems[] = [
-                    "price_data" => [
-                        "currency" => "eur",
-                        "product_data" => [
-                            "name" => "Inscription d'un membre",
-                        ],
-                        "unit_amount" => 500, // Prix par membre
-                    ],
-                    "quantity" => $memberCount,
-                ];
-            }
-        }
-
-        if (isset($cart["club_complement"])) {
-            $lineItems[] = [
-                "price_data" => [
-                    "currency" => "eur",
-                    "product_data" => [
-                        "name" => "Complément d'affiliation – membre",
-                    ],
-                    "unit_amount" => 500, // 5€ par membre
-                ],
-                "quantity" => $cart["club_complement"]["members"] ?? 0,
-            ];
-        }
-
-        foreach ($cart as $key => $item) {
-            // Gérer les produits classiques
-            if ($key !== "club" && isset($item["product"])) {
-                $lineItems[] = [
-                    "price_data" => [
-                        "currency" => "eur",
-                        "product_data" => [
-                            "name" => $item["product"]->getName(),
-                        ],
-                        "unit_amount" => $item["product"]->getPrice() * 100, // Le prix en centimes
-                    ],
-                    "quantity" => $item["quantity"],
-                ];
-            }
-
-            // Gérer les inscriptions individuelles
-            if (isset($cart["club_individuel"])) {
-                $lineItems[] = [
-                    "price_data" => [
-                        "currency" => "eur",
-                        "product_data" => [
-                            "name" => "Inscription individuelle",
-                        ],
-                        "unit_amount" => $item["price"] * 100, // Prix de l'inscription individuelle en centimes
-                    ],
-                    "quantity" => 1,
-                ];
-            }
-
-            // Gérer les inscriptions arts culturels
-            if (isset($cart["cultural_registration"])) {
-                $lineItems[] = [
-                    "price_data" => [
-                        "currency" => "eur",
-                        "product_data" => [
-                            "name" => $cart["cultural_registration"]["activity"],
-                        ],
-                        "unit_amount" => $cart["cultural_registration"]["price"] * 100,
-                    ],
-                    "quantity" => 1,
-                ];
-            }
-        }
-
-        $checkoutSession = StripeSession::create([
+        $checkoutParams = [
             "payment_method_types" => ["card"],
-            "line_items" => $lineItems,
+            "line_items" => $lineItems->fromCart($session->get("cart", [])),
             "mode" => "payment",
             "success_url" => $this->generateUrl("payment_success", [], UrlGeneratorInterface::ABSOLUTE_URL),
             "cancel_url" => $this->generateUrl("payment_cancel", [], UrlGeneratorInterface::ABSOLUTE_URL),
-        ]);
+        ];
+        if ($orderId) {
+            // Permet de vérifier au retour que le paiement correspond bien à la commande
+            $checkoutParams["client_reference_id"] = (string)$orderId;
+            $checkoutParams["metadata"] = ["order_id" => (string)$orderId];
+        }
 
-        $session->set("stripeSessionId", $checkoutSession->id);
+        $checkoutSessionId = $checkoutGateway->createSession($checkoutParams);
 
-        return new JsonResponse(["id" => $checkoutSession->id]);
+        $session->set("stripeSessionId", $checkoutSessionId);
+
+        return new JsonResponse(["id" => $checkoutSessionId]);
     }
 
     /**
+     * Retour de Stripe après paiement.
+     *
+     * 1. vérifie auprès de Stripe que le paiement a bien eu lieu ;
+     * 2. enregistre club, adhérents et commande en UNE transaction (rapide, quel que soit le nombre d'adhérents) ;
+     * 3. répond à l'utilisateur, puis génère et envoie les cartes après l'envoi de la réponse
+     *    (kernel.terminate), sans limite de temps et sans qu'un échec d'envoi n'annule l'inscription.
+     *
      * @throws Exception
-     * @throws TransportExceptionInterface
      */
     #[Route("/paiement-succes", name: "payment_success")]
     public function paymentSuccess(
         SessionInterface $session,
         EntityManagerInterface $entityManager,
-        MailerInterface $mailer,
-    ): Response
-    {
-        // Récupération de l'ID de la command
+        EventDispatcherInterface $dispatcher,
+        MemberFileReader $fileReader,
+        LicenseService $licenseService,
+        LoggerInterface $logger,
+        PaymentVerifierInterface $paymentVerifier,
+        MemberRegistrar $registrar,
+        LicenceNumberGenerator $licenceNumbers,
+        CardSender $cardSender,
+    ): Response {
         $orderId = $session->get("orderId");
         if (!$orderId) {
-            throw new Exception("No orderId found in session.");
+            // La session est vidée après un succès : un rechargement de la page ne doit pas provoquer d'erreur.
+            if ($session->has("lastPaidOrderId")) {
+                return $this->render("payment/success.html.twig");
+            }
+
+            return $this->redirectToRoute("app_home");
         }
 
-        // Récupération de la commande depuis la base de données
         $order = $entityManager->getRepository(Order::class)->find($orderId);
         if (!$order) {
             throw new Exception("No order found for id " . $orderId);
         }
 
-        $memberCounter = 0;
+        // Rechargement de la page de succès : la commande est déjà traitée, on ne recrée rien
+        if ($order->getStatus() === "payee") {
+            $session->remove("cart");
+            $session->remove("orderId");
+            $session->remove("stripeSessionId");
 
-        // Récupération des données du panier
-        $cart = $session->get("cart");
+            return $this->render("payment/success.html.twig");
+        }
 
-        $csvFilePath = $cart["club"]["csvFilePath"] ?? null;
-        if ($csvFilePath) {
-            // Récupération des membres à partir du fichier CSV/Excel
-            $extension = pathinfo($csvFilePath, PATHINFO_EXTENSION);
-            if ($extension === "csv") {
-                $members = $this->getMembersFromCSV($csvFilePath);
-            } else {
-                $members = $this->getMembersFromXLSX($csvFilePath);
-            }
+        $paymentVerifier->assertPaid($session->get("stripeSessionId"), $order);
 
-            // Création d'un nouvel objet Club
+        $cart = $session->get("cart", []);
+        $season = $this->getSportSeason();
+        $culturalCards = [];
+        $nextLicence = $licenceNumbers->nextNumber();
+
+        if (isset($cart["club"]["csvFilePath"])) {
             $clubData = $cart["club"];
+            $rows = $this->readMembers($fileReader, $clubData["csvFilePath"]);
+
             $club = new Club();
-
-            $logoFile = $clubData["logo"];
-            $club->setLogo($logoFile);
-
-            $club->setName($clubData["club_name"]);
             $club->setLogo($clubData["logo"]);
+            $club->setName($clubData["club_name"]);
             $club->setEmail($clubData["email"]);
             $club->setPresidentName($clubData["president_name"]);
             $club->setTreasurerName($clubData["treasurer_name"]);
@@ -190,81 +130,19 @@ class PaymentController extends AbstractController
             $club->setPostalCode($clubData["zip"]);
             $club->setCity($clubData["city"]);
             $club->setCountry($clubData["country"]);
-            $club->setSportSeason($this->getSportSeason());
+            $club->setSportSeason($season);
 
             $lastClub = $entityManager->getRepository(Club::class)->findOneBy([], ["id" => "DESC"]);
-            $newClubNumber = $this->generateUniqueClubNumber($lastClub);
-            $club->setClubNumber($newClubNumber);
+            $club->setClubNumber($this->generateUniqueClubNumber($lastClub));
 
             $entityManager->persist($club);
-            $clubData["numero"] = $club->getClubNumber();
-            $clubData["season"] = $club->getSportSeason();
 
-            $pdfFilePath = $this->generateLicensePdf($clubData, "club");
-            $this->sendLicenseEmail($club->getEmail(), $pdfFilePath, "club", $mailer);
-
-            $members = array_filter($members, function($row) {
-                return array_filter($row);
-            });
-
-            // Création des membres à partir du fichier
-            foreach ($members as $data) {
-                $member = new Member();
-                $member->setFirstName($data[0]);
-                $member->setLastName($data[1]);
-                $member->setSex($data[2]);
-                $member->setBirthDate($data[3]);
-                $member->setAddress($data[4] ?? null);
-                $member->setPostalCode($data[5] ?? null);
-                $member->setCity($data[6] ?? null);
-                $member->setEmail($data[7] ?? null);
-                $member->setPhoneNumber($data[8] ?? null);
-                $member->setCountry("France");
-                $member->setCommande($order);
-                $member->setClub($club);
-                $member->setSportSeason($this->getSportSeason());
-
-                // Définir un numéro de licence unique
-                $memberCounter++;
-
-                $newLicenceNumber = $this->generateUniqueLicenceNumber($entityManager, $memberCounter);
-                $member->setLicenceNumber($newLicenceNumber);
-
-                $entityManager->persist($member);
-
-                // Générer le PDF de la licence
-                $memberData = [
-                    "membre_prenom" => $member->getFirstName(),
-                    "membre_nom" => $member->getLastName(),
-                    "membre_date" => $member->getBirthDate(),
-                    "membre_sexe" => $member->getSex(),
-                    "licence" => $member->getLicenceNumber(),
-                    "logo" => $logoFile,
-                    "club_name" => $club->getName(),
-                    "numero" => $club->getClubNumber(),
-                    "season" => $club->getSportSeason(),
-                ];
-                $pdfFilePath = $this->generateLicensePdf($memberData, "club-membre");
-
-                // Envoi de l'email avec la licence
-                if ($member->getEmail()) {
-                    $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, "club-membre", $mailer);
-                }
-
-                $clubData["membre_prenom"] = $member->getFirstName();
-                $clubData["membre_nom"] = $member->getLastName();
-                $clubData["membre_date"] = $member->getBirthDate();
-                $clubData["membre_sexe"] = $member->getSex();
-                $clubData["licence"] = $member->getLicenceNumber();
+            foreach ($rows as $row) {
+                $registrar->createClubMember($order, $club, $row, LicenceNumberGenerator::format($nextLicence++), $season);
             }
 
-            // Liaison du club à la commande
             $order->setClub($club);
-
-            // Mise à jour du montant total
-            $memberCount = (float)$clubData["members"];
-            $total = 50.0 + ($memberCount * 5);
-            $order->setTotalAmount($total);
+            $order->setTotalAmount(50.0 + count($rows) * 5);
         }
 
         if (isset($cart["club_complement"])) {
@@ -274,134 +152,107 @@ class PaymentController extends AbstractController
                 throw new Exception("Club number or CSV path missing for complement.");
             }
 
-            // 1) Retrouver le club existant
             $club = $entityManager->getRepository(Club::class)->findOneBy(["clubNumber" => $clubNumber]);
             if (!$club) {
                 throw new Exception("Club introuvable pour complément: " . $clubNumber);
             }
 
-            // 2) Lire les membres depuis le fichier
-            $extension = pathinfo($csvFilePath, PATHINFO_EXTENSION);
-            $members = ($extension === "csv") ? $this->getMembersFromCSV($csvFilePath) : $this->getMembersFromXLSX($csvFilePath);
+            $rows = $this->readMembers($fileReader, $csvFilePath);
 
-            // Filtrer lignes vides
-            $members = array_filter($members, fn($row) => array_filter($row));
-
-            // 3) Créer les membres et envoyer les licences
-            $memberCounter = 0;
-            $logoFile = $club->getLogo();
-
-            foreach ($members as $data) {
-                $member = new Member();
-                $member->setFirstName($data[0] ?? null);
-                $member->setLastName($data[1] ?? null);
-                $member->setSex($data[2] ?? null);
-                $member->setBirthDate($data[3] ?? null);
-                $member->setAddress($data[4] ?? null);
-                $member->setPostalCode($data[5] ?? null);
-                $member->setCity($data[6] ?? null);
-                $member->setEmail($data[7] ?? null);
-                $member->setPhoneNumber($data[8] ?? null);
-                $member->setCountry("France");
-                $member->setCommande($order);
-                $member->setClub($club);
-                $member->setSportSeason($this->getSportSeason());
-
-                // Numéro de licence unique
-                $memberCounter++;
-                $newLicenceNumber = $this->generateUniqueLicenceNumber($entityManager, $memberCounter);
-                $member->setLicenceNumber($newLicenceNumber);
-
-                $entityManager->persist($member);
-
-                // PDF + email (si email fourni)
-                $memberData = [
-                    "membre_prenom" => $member->getFirstName(),
-                    "membre_nom" => $member->getLastName(),
-                    "membre_date" => $member->getBirthDate(),
-                    "membre_sexe" => $member->getSex(),
-                    "licence" => $member->getLicenceNumber(),
-                    "logo" => $logoFile,
-                    "club_name" => $club->getName(),
-                    "numero" => $club->getClubNumber(),
-                    "season" => $club->getSportSeason(),
-                ];
-                $pdfFilePath = $this->generateLicensePdf($memberData, "club-membre");
-
-                if ($member->getEmail()) {
-                    $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, "club-membre", $mailer);
-                }
+            foreach ($rows as $row) {
+                $registrar->createClubMember($order, $club, $row, LicenceNumberGenerator::format($nextLicence++), $season);
             }
 
-            // 4) Mettre le club sur la commande et total
             $order->setClub($club);
-
-            $memberCount = (float)($cart["club_complement"]["members"] ?? 0);
-            $total = $memberCount * 5;
-            $order->setTotalAmount($total);
+            $order->setTotalAmount(count($rows) * 5);
         }
 
         if (isset($cart["club_individuel"])) {
+            $individual = $cart["club_individuel"];
+
             $member = new Member();
-            $member->setFirstName($cart["club_individuel"]["first_name"]);
-            $member->setLastName($cart["club_individuel"]["last_name"]);
-            $member->setBirthDate($cart["club_individuel"]["birth_date"]);
-            $member->setSex($cart["club_individuel"]["sex"]);
-            $member->setEmail($cart["club_individuel"]["email"]);
+            $member->setFirstName($individual["first_name"]);
+            $member->setLastName($individual["last_name"]);
+            $member->setBirthDate($individual["birth_date"]);
+            $member->setSex($individual["sex"]);
+            $member->setEmail($individual["email"]);
             $member->setCommande($order);
-            $member->setSportSeason($this->getSportSeason());
-
-            // Incrémenter le compteur de membres
-            $memberCounter++;
-
-            // Définir un numéro de licence unique en utilisant le compteur
-            $newLicenceNumber = $this->generateUniqueLicenceNumber($entityManager, $memberCounter);
-            $member->setLicenceNumber($newLicenceNumber);
+            $member->setSportSeason($season);
+            $member->setLicenceNumber(LicenceNumberGenerator::format($nextLicence++));
 
             $entityManager->persist($member);
-
-            $cart["club_individuel"]["licence"] = $member->getLicenceNumber();
-            $cart["club_individuel"]["season"] = $member->getSportSeason();
-
-            $pdfFilePath = $this->generateLicensePdf($cart["club_individuel"], "membre-individuel");
-            $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, "membre-individuel", $mailer);
         }
 
         if (isset($cart["cultural_registration"])) {
+            $cultural = $cart["cultural_registration"];
+
             $member = new Member();
-            $member->setFirstName($cart["cultural_registration"]["first_name"]);
-            $member->setLastName($cart["cultural_registration"]["last_name"]);
-            $member->setBirthDate($cart["cultural_registration"]["birth_date"]);
-            $member->setSex($cart["cultural_registration"]["sex"]);
-            $member->setEmail($cart["cultural_registration"]["email"]);
-            $member->setCommande($order); // Lien avec la commande
+            $member->setFirstName($cultural["first_name"]);
+            $member->setLastName($cultural["last_name"]);
+            $member->setBirthDate($cultural["birth_date"]);
+            $member->setSex($cultural["sex"]);
+            $member->setEmail($cultural["email"]);
+            $member->setCommande($order);
             $entityManager->persist($member);
 
-//            // Définir un numéro de licence unique
-//            $lastMember = $entityManager->getRepository(Member::class)->findOneBy([], ["id" => "DESC"]);
-//            $newLicenceNumber = $this->generateUniqueLicenceNumber($lastMember);
-//            $member->setLicenceNumber($newLicenceNumber);
-//
-//            $entityManager->persist($member);
-//
-//            $cart["cultural_registration"]["licence"] = $member->getLicenceNumber();
-//
-//            $pdfFilePath = $this->generateLicensePdf($cart["cultural_registration"], "membre-culturel");
-//            $this->sendLicenseEmail($member->getEmail(), $pdfFilePath, [], "membre-culturel", $mailer);
-
-              $this->sendCulturalArtsEmail($member->getEmail(), $mailer);
+            // Pas de licence ni de PDF : un simple e-mail de confirmation, envoyé tout de suite.
+            $culturalCards[] = ["type" => "atelier-culturel", "email" => $member->getEmail(), "data" => $cultural];
         }
 
         $order->setStatus("payee");
 
+        // Un seul flush : tout est enregistré ou rien (et le paiement reste identifiable via la commande)
         $entityManager->flush();
 
-        // Nettoyage de la session
         $session->remove("cart");
         $session->remove("orderId");
+        $session->remove("stripeSessionId");
         $session->remove("csvFile");
+        $session->set("lastPaidOrderId", $orderId);
+
+        // Envoi après la réponse au navigateur. Deux modes (variable LICENCE_CARDS_MODE) :
+        //  - inline (défaut) : les cartes en attente partent maintenant ;
+        //  - cron : seules les confirmations simples partent ; les cartes sont envoyées par `app:licences:envoyer`.
+        // Dans les deux cas l'état de chaque carte est enregistré en base : une interruption ne perd rien.
+        $sendNow = $this->getParameter("app.licence_cards_mode") !== "cron";
+        if ($sendNow || $culturalCards) {
+            // Écouteur à usage unique : il se retire dès qu'il s'exécute (pas de double envoi si le processus est réutilisé).
+            $listener = static function (TerminateEvent $event) use (&$listener, $dispatcher, $sendNow, $culturalCards, $cardSender, $licenseService, $logger, $orderId): void {
+                $dispatcher->removeListener(KernelEvents::TERMINATE, $listener);
+                ignore_user_abort(true);
+                set_time_limit(0);
+
+                try {
+                    if ($culturalCards) {
+                        $licenseService->deliver($culturalCards);
+                    }
+                    if ($sendNow) {
+                        $result = $cardSender->deliver($cardSender->pending(PHP_INT_MAX));
+                        $logger->info("Cartes de la commande #$orderId traitées.", $result);
+                    }
+                } catch (\Throwable $e) {
+                    $logger->error("Erreur lors de l'envoi des cartes de la commande #$orderId.", [
+                        "error" => $e->getMessage(),
+                    ]);
+                }
+            };
+            $dispatcher->addListener(KernelEvents::TERMINATE, $listener);
+        }
 
         return $this->render("payment/success.html.twig");
+    }
+
+    /**
+     * @return list<array<string, string>>
+     */
+    private function readMembers(MemberFileReader $fileReader, string $path): array
+    {
+        try {
+            return $fileReader->read($path, pathinfo($path, PATHINFO_EXTENSION));
+        } catch (InvalidArgumentException $e) {
+            // Ne devrait pas arriver : le fichier a été validé avant le paiement
+            throw new Exception("Fichier d'adhérents illisible après paiement : " . $e->getMessage(), 0, $e);
+        }
     }
 
     private function generateUniqueClubNumber(?Club $lastClub): string
@@ -409,50 +260,6 @@ class PaymentController extends AbstractController
         $lastClubNumber = $lastClub ? (int)substr($lastClub->getClubNumber(), 4) : 0;
         $newClubNumber = $lastClubNumber + 1;
         return sprintf("SHIN%04d", $newClubNumber);
-    }
-
-    private function generateUniqueLicenceNumber(EntityManagerInterface $entityManager, int $memberCounter): string
-    {
-        // Récupérer le dernier numéro de licence existant
-        $lastMember = $entityManager->getRepository(Member::class)
-            ->findOneBy([], ["id" => "DESC"]);
-
-        // Vérifier s'il existe déjà un membre
-        if ($lastMember && preg_match("/SKK(\d+)/", $lastMember->getLicenceNumber(), $matches)) {
-            $lastNumber = (int)$matches[1];
-            $newNumber = $lastNumber + $memberCounter; // Incrémenter en fonction du compteur
-        } else {
-            $newNumber = $memberCounter; // Utiliser le compteur si aucun membre n'existe encore
-        }
-
-        // Formater le numéro avec des zéros devant (ex : SKK0001, SKK0002, etc.)
-        return sprintf("SKK%04d", $newNumber);
-    }
-
-    private function getMembersFromCSV(string $filePath): array
-    {
-        $handle = fopen($filePath, "r");
-        fgetcsv($handle); // Ignorer l"en-tête
-
-        $members = [];
-        while (($data = fgetcsv($handle, 1000)) !== FALSE) {
-            $members[] = $data;
-        }
-
-        fclose($handle);
-        return $members;
-    }
-
-    private function getMembersFromXLSX(string $filePath): array
-    {
-        $spreadsheet = IOFactory::load($filePath);
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
-
-        // Ignorer la première ligne (en-tête)
-        array_shift($rows);
-
-        return $rows;
     }
 
     #[Route("/paiement-annulation", name: "payment_cancel")]
@@ -481,48 +288,20 @@ class PaymentController extends AbstractController
             return $this->redirectToRoute("app_home");
         }
 
-        // Mettre à jour le statut de la commande
-        $order->setStatus("annulee");
-        $entityManager->flush();
+        // Une commande déjà payée ne peut pas être annulée
+        if ($order->getStatus() !== "payee") {
+            $order->setStatus("annulee");
+            $entityManager->flush();
+        }
 
         // Nettoyage de la session
         $session->remove("cart");
         $session->remove("orderId");
+        $session->remove("stripeSessionId");
         $session->remove("csvFile");
 
         // Afficher la page d"annulation
         return $this->render("payment/cancel.html.twig");
-    }
-
-    private function generateLicensePdf($data, $type): string
-    {
-        $options = new Options();
-        $options->set("isHtml5ParserEnabled", true);
-        $options->set("isRemoteEnabled", true); // Pour les images externes ou locales
-
-        $dompdf = new Dompdf($options);
-
-        // Rendre le template en HTML selon le type de licence (club, adhérent individuel, ou culturel)
-        $html = $this->renderView("licenses/" . $type . ".html.twig", [
-            "data" => $data
-        ]);
-
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper("A6", "landscape");
-        // Modifie la taille du papier pour correspondre à ton format d'impression
-        $dompdf->render();
-
-        // Sauvegarder le PDF dans un chemin spécifique
-        $filePath = sprintf(
-            "%s/public/uploads/licence-" .
-            $type . "%s.pdf",
-            $this->getParameter("kernel.project_dir"
-            ),
-            uniqid()
-        );
-        file_put_contents($filePath, $dompdf->output());
-
-        return $filePath;
     }
 
     #[Route("/view-pdf", name: "view_pdf")]
@@ -536,45 +315,13 @@ class PaymentController extends AbstractController
             "address2" => null,
             "zip" => "75001",
             "city" => "Paris",
+            "season" => $this->getSportSeason(),
         ];
 
         // On rend le template HTML directement
         return $this->render("licenses/club.html.twig", [
             "data" => $data
         ]);
-    }
-
-    /**
-     * @throws TransportExceptionInterface
-     */
-    private function sendLicenseEmail($recipientEmail, $pdfPath, $type, MailerInterface $mailer): void
-    {
-        $context = [];
-        $email = (new TemplatedEmail())
-            ->from("shinkyokai.academie@gmail.com")
-            ->to($recipientEmail)
-            ->subject("Votre licence Shinkyokai")
-            ->htmlTemplate("emails/" . $type . ".html.twig")
-            ->context($context)
-            ->attachFromPath($pdfPath, "licence.pdf");
-
-        $mailer->send($email);
-    }
-
-    /**
-     * @throws TransportExceptionInterface
-     */
-    private function sendCulturalArtsEmail($recipientEmail, MailerInterface $mailer): void
-    {
-        $context = [];
-        $email = (new TemplatedEmail())
-            ->from("shinkyokai.academie@gmail.com")
-            ->to($recipientEmail)
-            ->subject("Vous vous êtes inscrit à un atelier sur le site de Shinkyokai")
-            ->htmlTemplate("emails/" . "atelier-culturel" . ".html.twig")
-            ->context($context);
-
-        $mailer->send($email);
     }
 
     private function getSportSeason(): string
@@ -597,5 +344,4 @@ class PaymentController extends AbstractController
 
         return sprintf("%d-%d", $startYear, $endYear);
     }
-
 }

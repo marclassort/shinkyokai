@@ -10,6 +10,8 @@ use App\Repository\EventRepository;
 use App\Repository\ProductRepository;
 use App\Repository\ZasshiRepository;
 use App\Service\EmailService;
+use App\Service\MemberFileReader;
+use InvalidArgumentException;
 use App\Service\PanierService;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -253,28 +255,6 @@ class RouteController extends AbstractController
         return $this->render("home/galerie.html.twig");
     }
 
-    #[Route("/boutique", name: "app_boutique")]
-    public function getBoutique(ProductRepository $productRepository, SessionInterface $session): Response
-    {
-        $items = $this->cartService->getCartItems($session);
-        $total = $this->cartService->getTotal($session);
-
-        $products = $productRepository->findBy(
-            [],
-            [
-                "id" => "DESC"
-            ]);
-
-        return $this->render("home/boutique.html.twig",
-            [
-                "products" => $products,
-                "items" => $items,
-                "total" => $total,
-                "stripe_public_key" => $this->getParameter("stripe_public_key")
-            ]
-        );
-    }
-
     #[Route("/tee-shirts", name: "app_tee_shirts")]
     public function getTeeShirts(ProductRepository $productRepository, SessionInterface $session): Response
     {
@@ -364,7 +344,8 @@ class RouteController extends AbstractController
     public function saveOrderAndSession(
         Request $request,
         SessionInterface $session,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        MemberFileReader $fileReader
     ): JsonResponse
     {
         $flow = $request->get("flow", "inscription");
@@ -374,6 +355,9 @@ class RouteController extends AbstractController
             $csvFile = $request->files->get("csv");
             if (!$csvFile) {
                 return new JsonResponse(["success" => false, "errors" => ["csv" => "Aucun fichier fourni."]], 400);
+            }
+            if (!$csvFile->isValid()) {
+                return new JsonResponse(["success" => false, "errors" => ["csv" => $this->uploadErrorMessage($csvFile)]], 400);
             }
 
             // Valider uniquement CSV/XLSX
@@ -396,12 +380,23 @@ class RouteController extends AbstractController
                 return new JsonResponse(["success" => false, "errors" => ["club_number" => "Numéro manquant."]], 400);
             }
 
-            // Stockage du fichier
-            $csvFilename = uniqid().".".$csvFile->guessExtension();
-            $csvFile->move($this->getParameter("upload_directory"), $csvFilename);
-            $csvFilePath = $this->getParameter("upload_directory")."/".$csvFilename;
+            if (!$entityManager->getRepository(Club::class)->findOneBy(["clubNumber" => $clubNumber])) {
+                return new JsonResponse(["success" => false, "errors" => ["club_number" => "Aucun club ne correspond à ce numéro."]], 400);
+            }
 
-            $memberCount = (int) $request->get("member_count", 0);
+            // Lecture et validation du fichier côté serveur AVANT de le stocker et de faire payer
+            $extension = strtolower($csvFile->getClientOriginalExtension() ?: $csvFile->guessExtension());
+            try {
+                $memberCount = count($fileReader->read($csvFile->getPathname(), $extension));
+            } catch (InvalidArgumentException $e) {
+                return new JsonResponse(["success" => false, "errors" => ["csv" => $e->getMessage()]], 400);
+            }
+
+            // Stockage du fichier (conserve l'extension d'origine : csv / xlsx)
+            $csvFilename = uniqid().".".$extension;
+            $membersDirectory = $this->getParameter("kernel.project_dir")."/var/members";
+            $csvFile->move($membersDirectory, $csvFilename);
+            $csvFilePath = $membersDirectory."/".$csvFilename;
 
             // Session CART spécifique au complément
             $cart = $session->get("cart", []);
@@ -448,6 +443,10 @@ class RouteController extends AbstractController
             "mimeTypesMessage" => "Veuillez télécharger un fichier CSV ou Excel valide.",
         ]);
 
+        if ($csvFile && !$csvFile->isValid()) {
+            return new JsonResponse(["success" => false, "errors" => ["csv" => $this->uploadErrorMessage($csvFile)]], 400);
+        }
+
         $logoErrors = $validator->validate($logoFile, $logoConstraints);
         $csvErrors = $validator->validate($csvFile, $csvConstraints);
 
@@ -482,16 +481,26 @@ class RouteController extends AbstractController
         }
 
         // Enregistrement du fichier CSV/Excel
-        if ($csvFile) {
-            $csvFilename = uniqid() . "." . $csvFile->guessExtension();
-            $csvFile->move($this->getParameter("upload_directory"), $csvFilename);
-            $csvFilePath = $this->getParameter("upload_directory") . "/" . $csvFilename;
-        } else {
-            return new JsonResponse(["error" => "No CSV or Excel file uploaded"], 400);
+        if (!$csvFile) {
+            return new JsonResponse(["success" => false, "errors" => ["csv" => "Aucun fichier CSV ou Excel envoyé."]], 400);
         }
 
-        $memberCount = (int) $request->get("member_count");
+        // Lecture et validation côté serveur : le nombre d'adhérents facturé est celui du fichier,
+        // jamais celui envoyé par le navigateur.
+        $extension = strtolower($csvFile->getClientOriginalExtension() ?: $csvFile->guessExtension());
+        try {
+            $memberCount = count($fileReader->read($csvFile->getPathname(), $extension));
+        } catch (InvalidArgumentException $e) {
+            return new JsonResponse(["success" => false, "errors" => ["csv" => $e->getMessage()]], 400);
+        }
 
+        // Hors de public/ : le fichier contient des données personnelles
+        $csvFilename = uniqid() . "." . $extension;
+        $membersDirectory = $this->getParameter("kernel.project_dir") . "/var/members";
+        $csvFile->move($membersDirectory, $csvFilename);
+        $csvFilePath = $membersDirectory . "/" . $csvFilename;
+
+        $cart = $session->get("cart", []);
         $cart["club"] = [
             "club_name" => $clubName,
             "logo" => $logoFilename,
@@ -657,126 +666,38 @@ class RouteController extends AbstractController
     }
 
     #[Route("/count-members", name: "count_members", methods: ["POST"])]
-    public function countMembers(Request $request): JsonResponse
+    public function countMembers(Request $request, MemberFileReader $fileReader): JsonResponse
     {
-        /** @var UploadedFile $file */
+        /** @var UploadedFile|null $file */
         $file = $request->files->get("csv");
         if (!$file) {
-            return new JsonResponse(["error" => "Aucun fichier fourni"], 400);
+            return new JsonResponse(["error" => "Aucun fichier fourni. Si votre fichier est volumineux, il dépasse peut-être la taille maximale acceptée par le serveur."], 400);
+        }
+        if (!$file->isValid()) {
+            return new JsonResponse(["error" => $this->uploadErrorMessage($file)], 400);
         }
 
-        $extension = $file->getClientOriginalExtension();
-        $validExtensions = ["csv", "xls", "xlsx"];
-
-        if (!in_array($extension, $validExtensions)) {
+        $extension = strtolower($file->getClientOriginalExtension());
+        if (!in_array($extension, ["csv", "xls", "xlsx"], true)) {
             return new JsonResponse(["error" => "Type de fichier non pris en charge"], 400);
         }
 
-        $requiredColumns = ["Prénom", "Nom de famille", "Sexe", "Date de naissance", "Adresse électronique"];
-
-        if ($extension === "csv") {
-            $result = $this->countMembersInCSV($file, $requiredColumns);
-        } else {
-            $result = $this->countMembersInXLSX($file, $requiredColumns);
+        try {
+            $members = $fileReader->read($file->getPathname(), $extension);
+        } catch (InvalidArgumentException $e) {
+            return new JsonResponse(["error" => $e->getMessage()], 400);
         }
 
-        if (isset($result["error"])) {
-            return new JsonResponse(["error" => $result["error"]], 400);
-        }
-
-        return new JsonResponse(["memberCount" => $result["memberCount"]]);
+        return new JsonResponse(["memberCount" => count($members)]);
     }
 
-    private function countMembersInCSV(UploadedFile $file, array $requiredColumns): array
+    private function uploadErrorMessage(UploadedFile $file): string
     {
-        $handle = fopen($file->getPathname(), "r");
-        $headers = fgetcsv($handle, 1000);
-        $headers = array_map("trim", $headers);
-
-        // Vérification des colonnes obligatoires
-        $requiredColumnIndices = [];
-        foreach ($requiredColumns as $requiredColumn) {
-            $columnIndex = array_search($requiredColumn, $headers);
-            if ($columnIndex === false) {
-                fclose($handle);
-                return ["error" => "Colonne obligatoire '$requiredColumn' manquante."];
-            }
-            $requiredColumnIndices[] = $columnIndex;
-        }
-
-        // Comptage des membres valides
-        $memberCount = 0;
-        $invalidLines = [];
-        while (($data = fgetcsv($handle, 1000)) !== FALSE) {
-            $isValid = true;
-            foreach ($requiredColumnIndices as $index) {
-                if (empty(trim($data[$index] ?? ""))) { // Vérifier les colonnes obligatoires
-                    $isValid = false;
-                    $invalidLines[] = $data;
-                    break;
-                }
-            }
-
-            if ($isValid) {
-                $memberCount++;
-            }
-        }
-
-        fclose($handle);
-
-        if (count($invalidLines) > 0) {
-            return ["error" => "Le fichier CSV contient des lignes incomplètes dans les colonnes obligatoires (prénom, nom de famille, sexe, date de naissance).."];
-        }
-
-        return ["memberCount" => $memberCount];
-    }
-
-    private function countMembersInXLSX(UploadedFile $file, array $requiredColumns): array
-    {
-        $spreadsheet = IOFactory::load($file->getPathname());
-        $sheet = $spreadsheet->getActiveSheet();
-        $headers = $sheet->rangeToArray("A1:I1")[0];
-
-        // Vérification des colonnes obligatoires
-        $requiredColumnIndices = [];
-        foreach ($requiredColumns as $requiredColumn) {
-            $columnIndex = array_search($requiredColumn, $headers);
-            if ($columnIndex === false) {
-                return ["error" => "Colonne obligatoire '$requiredColumn' manquante."];
-            }
-            $requiredColumnIndices[] = $columnIndex;
-        }
-
-        $rows = $sheet->toArray();
-        $memberCount = 0;
-        $invalidLines = [];
-
-        foreach ($rows as $index => $row) {
-            if ($index === 0) continue; // Sauter la ligne des en-têtes
-
-            if (empty(array_filter($row))) {
-                continue;
-            }
-
-            $isValid = true;
-            foreach ($requiredColumnIndices as $colIndex) {
-                if (empty(trim($row[$colIndex] ?? ""))) { // Vérifier les colonnes obligatoires
-                    $isValid = false;
-                    $invalidLines[] = $row;
-                    break;
-                }
-            }
-
-            if ($isValid) {
-                $memberCount++;
-            }
-        }
-
-        if (count($invalidLines) > 0) {
-            return ["error" => "Le fichier XLSX contient des lignes incomplètes dans les colonnes obligatoires (prénom, nom de famille, sexe, date de naissance)."];
-        }
-
-        return ["memberCount" => $memberCount];
+        return match ($file->getError()) {
+            UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => "Le fichier est trop volumineux (maximum : " . UploadedFile::getMaxFilesize() / 1048576 . " Mo).",
+            UPLOAD_ERR_PARTIAL => "Le fichier n'a été envoyé que partiellement, veuillez réessayer.",
+            default => "Le fichier n'a pas pu être envoyé : " . $file->getErrorMessage(),
+        };
     }
 
     #[Route("/download-csv-template", name: "download_csv_template")]
